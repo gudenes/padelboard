@@ -19,8 +19,8 @@ export function Builder({ initial }: { initial: MatchRow }) {
   // Post-magic-link: finalize profile + claim draft.
   useEffect(() => {
     if (params.get('complete') !== '1') return
-    const raw = sessionStorage.getItem('padelboard:pendingProfile')
-    const matchId = sessionStorage.getItem('padelboard:claimMatchId')
+    const raw = localStorage.getItem('padelboard:pendingProfile')
+    const matchId = localStorage.getItem('padelboard:claimMatchId')
     if (!raw || !matchId) return
     const { name, role } = JSON.parse(raw)
     const token = getDraftToken(matchId)
@@ -30,8 +30,8 @@ export function Builder({ initial }: { initial: MatchRow }) {
       body: JSON.stringify({ name, role, matchId, draftToken: token }),
     }).then(async (r) => {
       if (r.ok) {
-        sessionStorage.removeItem('padelboard:pendingProfile')
-        sessionStorage.removeItem('padelboard:claimMatchId')
+        localStorage.removeItem('padelboard:pendingProfile')
+        localStorage.removeItem('padelboard:claimMatchId')
         clearDraftToken(matchId)
         location.href = `/m/${initial.short_code}`
       }
