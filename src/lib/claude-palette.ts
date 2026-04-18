@@ -47,13 +47,23 @@ Rules:
 - slotAssignments must cover every slot and every field listed above.
 - Reasoning: one sentence, max 25 words.`
 
+  // SDK v0.32.x only supports base64 image sources — fetch and convert the logo.
+  const imgRes = await fetch(logoUrl)
+  if (!imgRes.ok) throw new Error(`Failed to fetch logo: ${imgRes.status}`)
+  const imgBuffer = await imgRes.arrayBuffer()
+  const imgBase64 = Buffer.from(imgBuffer).toString('base64')
+  const contentType = imgRes.headers.get('content-type') ?? 'image/png'
+  const mediaType = (['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(contentType)
+    ? contentType
+    : 'image/png') as 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp'
+
   const response = await client.messages.create({
     model: 'claude-sonnet-4-6',
     max_tokens: 800,
     messages: [{
       role: 'user',
       content: [
-        { type: 'image', source: { type: 'url', url: logoUrl } },
+        { type: 'image', source: { type: 'base64', media_type: mediaType, data: imgBase64 } },
         { type: 'text', text: prompt },
       ],
     }],
