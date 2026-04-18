@@ -1,6 +1,6 @@
 // src/app/api/matches/route.ts — Create a new draft match.
 import { NextResponse } from 'next/server'
-import { serviceSupabase } from '@/lib/supabase'
+import { serviceSupabase } from '@/lib/supabase-server'
 import { generateShortCode } from '@/lib/short-code'
 import { generateDraftToken } from '@/lib/draft-token'
 import { createInitialState } from '@/lib/padel-scoring'

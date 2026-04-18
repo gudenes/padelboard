@@ -1,6 +1,6 @@
 // src/app/api/profile/complete/route.ts — finalize profile + atomically claim a draft.
 import { NextResponse } from 'next/server'
-import { serverSupabase, serviceSupabase } from '@/lib/supabase'
+import { serverSupabase, serviceSupabase } from '@/lib/supabase-server'
 
 interface Body {
   name: string

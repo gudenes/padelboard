@@ -2,7 +2,7 @@
 // Exchanges the code for a session, then redirects back to the builder
 // with ?complete=1 so the client-side code can finalize profile + claim match.
 import { NextResponse } from 'next/server'
-import { serverSupabase, serviceSupabase } from '@/lib/supabase'
+import { serverSupabase, serviceSupabase } from '@/lib/supabase-server'
 
 export async function GET(req: Request) {
   const url = new URL(req.url)

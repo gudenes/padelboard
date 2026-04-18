@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { serviceSupabase } from '@/lib/supabase'
+import { serviceSupabase } from '@/lib/supabase-server'
 import type { MatchRow } from '@/types/match'
 import { OverlayClient } from './OverlayClient'
 

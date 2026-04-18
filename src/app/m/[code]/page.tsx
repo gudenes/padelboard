@@ -1,6 +1,6 @@
 // src/app/m/[code]/page.tsx — routes to Builder (draft) or Operator (published).
 import { notFound } from 'next/navigation'
-import { serviceSupabase } from '@/lib/supabase'
+import { serviceSupabase } from '@/lib/supabase-server'
 import type { MatchRow } from '@/types/match'
 import { Builder } from './Builder'
 import { Operator } from './Operator'

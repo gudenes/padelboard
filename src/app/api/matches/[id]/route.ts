@@ -1,6 +1,6 @@
 // src/app/api/matches/[id]/route.ts — PATCH a draft match (draft-token auth).
 import { NextResponse } from 'next/server'
-import { serviceSupabase } from '@/lib/supabase'
+import { serviceSupabase } from '@/lib/supabase-server'
 import { createInitialState, type MatchConfig } from '@/lib/padel-scoring'
 import type { OverlayJson, TeamsJson } from '@/types/match'
 

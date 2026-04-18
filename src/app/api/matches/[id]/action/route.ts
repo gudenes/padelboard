@@ -1,7 +1,7 @@
 // src/app/api/matches/[id]/action/route.ts — apply a scoring action.
 // Auth: either the signed-in owner OR the draft-token holder (for drafts).
 import { NextResponse } from 'next/server'
-import { serverSupabase, serviceSupabase } from '@/lib/supabase'
+import { serverSupabase, serviceSupabase } from '@/lib/supabase-server'
 import { apply, type Action, type MatchState } from '@/lib/padel-scoring'
 
 interface Body {
