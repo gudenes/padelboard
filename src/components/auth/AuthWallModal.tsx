@@ -27,8 +27,10 @@ export function AuthWallModal({
     if (!email || !name) return
     setSending(true)
     // Stash profile fields + match id to apply on callback.
-    sessionStorage.setItem('padelboard:pendingProfile', JSON.stringify({ name, role }))
-    sessionStorage.setItem('padelboard:claimMatchId', matchId)
+    // Use localStorage (not sessionStorage) — magic-link often opens in a new
+    // tab, which has its own empty sessionStorage. localStorage is shared.
+    localStorage.setItem('padelboard:pendingProfile', JSON.stringify({ name, role }))
+    localStorage.setItem('padelboard:claimMatchId', matchId)
     const sb = browserSupabase()
     const redirectTo = `${location.origin}/auth/callback?match=${matchId}`
     await sb.auth.signInWithOtp({
