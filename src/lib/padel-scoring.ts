@@ -37,3 +37,16 @@ export type Action =
   | { kind: 'mark_walkover'; team: TeamId }    // team that walked over
   | { kind: 'correct_score'; patch: Partial<MatchState> }
   | { kind: 'reset' }
+
+export function createInitialState(config: MatchConfig): MatchState {
+  return {
+    config,
+    sets: [{ a: 0, b: 0 }],
+    currentGame: { a: 0, b: 0 },
+    servingTeam: 'a',
+    servingPlayer: 0,
+    phase: 'playing',
+    winner: null,
+    endReason: null,
+  }
+}
