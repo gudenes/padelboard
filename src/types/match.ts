@@ -2,12 +2,14 @@
 
 import type { MatchConfig, MatchState } from '@/lib/padel-scoring'
 
-export type TemplateId = 'minimal' | 'broadcast' | 'split'
+export type TemplateId = 'broadcast' | 'classic' | 'premier' | 'minimal'
+
+export type SlotColors = Record<string, string>            // e.g. { bg: '#0a3d91', text: '#ffffff' }
+export type CustomColors = Record<string, SlotColors>      // keyed by slot id, e.g. { playerRow: { bg, text }, ... }
 
 export interface TeamJson {
   name: string
   players: [string, string]
-  color: string
   logoUrl?: string
   country?: string
 }
@@ -18,15 +20,18 @@ export interface TeamsJson {
 }
 
 export interface OverlayJson {
-  template: TemplateId
+  template: TemplateId                                      // 'broadcast' default for new matches; 'minimal' only for legacy
   showTimer: boolean
   showTournament: boolean
   tournamentName?: string
   round?: string
-  customColors: {
-    accent: string
-  }
-  scale: number // 0.5 – 1.5 (1.0 = 100%)
+  tournamentLogoUrl?: string                                // NEW — uploaded logo URL
+
+  // BREAKING: v1 had { accent: string }. v1.1 uses per-slot map.
+  // Renderers merge this over the active template's `defaults.colors`.
+  customColors: CustomColors
+
+  scale: number
   position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
 }
 
@@ -50,19 +55,20 @@ export interface MatchRow {
 
 export function defaultTeams(): TeamsJson {
   return {
-    a: { name: 'Team A', players: ['', ''], color: '#0a84ff' },
-    b: { name: 'Team B', players: ['', ''], color: '#ff453a' },
+    a: { name: 'Team A', players: ['', ''] },
+    b: { name: 'Team B', players: ['', ''] },
   }
 }
 
 export function defaultOverlay(): OverlayJson {
   return {
-    template: 'minimal',
+    template: 'broadcast',
     showTimer: true,
     showTournament: true,
     tournamentName: '',
     round: '',
-    customColors: { accent: '#c4d82e' },
+    tournamentLogoUrl: undefined,
+    customColors: {},
     scale: 1.0,
     position: 'top-left',
   }
