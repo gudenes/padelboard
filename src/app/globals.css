@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+@theme {
+  /* Palette (locked in spec §Visual design) */
+  --color-bg: #f4f5f0;
+  --color-surface: #ffffff;
+  --color-border: #e5e7df;
+  --color-border-strong: #d6d9ce;
+  --color-text: #1a1d1a;
+  --color-muted: #6b7169;
+  --color-muted-soft: #8b9188;
+  --color-lime: #c4d82e;
+  --color-lime-soft: #e8f1a8;
+  --color-lime-tint: #f2f7d5;
+  --color-team-a: #0a84ff;
+  --color-team-b: #ff453a;
+
+  /* Radius */
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+
+  /* Font */
+  --font-sans: -apple-system, "SF Pro Display", Inter, system-ui, sans-serif;
+}
+
+html, body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Overlay page gets transparent bg (served inside OBS as browser source) */
+html.overlay,
+html.overlay body {
+  background: transparent !important;
+}
