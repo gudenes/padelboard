@@ -62,7 +62,7 @@ function TeamRow({
           boxShadow: serving ? '0 0 0 2px rgba(196,216,46,0.3)' : 'none',
         }}
       />
-      <span className="w-[3px] h-[22px] rounded-sm" style={{ background: team.color }} />
+      <span className="w-[3px] h-[22px] rounded-sm" style={{ background: 'var(--color-lime)' }} />
       <div className="flex-1 leading-tight">
         {team.name || 'Team'}
         {team.country && (

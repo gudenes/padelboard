@@ -1,4 +1,5 @@
 // src/lib/templates/classic.tsx — FIP-inspired. Adds match timer + tournament strip.
+'use client'
 import { useEffect, useState } from 'react'
 import type { Template, TemplateRendererProps } from './types'
 
