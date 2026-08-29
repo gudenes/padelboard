@@ -1,0 +1,13 @@
+# Config-as-code for the `padelboard` Railway service.
+# Isolated Next.js app; do not reuse another service's railway.toml.
+
+[build]
+builder = "RAILPACK"
+buildCommand = "npm ci && npm run build"
+
+[deploy]
+startCommand = "npx next start -p ${PORT:-3000}"
+healthcheckPath = "/api/health"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10

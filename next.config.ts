@@ -8,7 +8,13 @@ const config: NextConfig = {
     ],
   },
   experimental: {
-    serverActions: { allowedOrigins: ['localhost:3003', 'padelboard.padellabs.tech'] },
+    serverActions: {
+      allowedOrigins: [
+        'localhost:3003',
+        'padelboard.padellabs.tech',
+        'contact.padellabs.tech',
+      ],
+    },
   },
 }
 
