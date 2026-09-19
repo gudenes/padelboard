@@ -1631,3 +1631,17 @@
   .pbw-operator .pbw-points { position: sticky; bottom: 12px; z-index: 3; padding: 8px; background: #fafbf5; border-radius: 20px; box-shadow: 0 4px 20px #1112; }
   .pbw-operator .pbw-points button { min-height: 108px; touch-action: manipulation; }
 }
+
+/* Keep both email entry and verification centered within the login page. */
+.pbw-login-page { display: flex; flex-direction: column; padding-bottom: 24px; }
+.pbw-login-page > .pbw-nav { flex: none; width: 100%; }
+.pbw-login-page .pbw-signin { width: 100%; max-width: 480px; margin: auto; padding: 36px 0; text-align: center; }
+.pbw-login-page .pbw-signin > .pbw-hand { display: inline-block; transform-origin: center; }
+.pbw-login-page .pbw-signin h1 { font-size: clamp(42px, 5vw, 64px); letter-spacing: -2.5px; }
+.pbw-login-page .pbw-login { max-width: none; width: 100%; text-align: left; }
+.pbw-login-page > .pbw-brand-footer { flex: none; width: 100%; margin-top: 0; }
+.pbw-login-page .pbw-login-ball { width: clamp(100px, 17vw, 230px); right: 2%; top: auto; bottom: 58px; opacity: .22; }
+@media (max-width: 650px) {
+  .pbw-login-page .pbw-signin { padding-block: 28px; }
+  .pbw-login-page .pbw-login-ball { display: none; }
+}

@@ -255,9 +255,9 @@ export function PlayfulHome({
                 <a href="#how-it-works">How it works</a>
                 <a href="/dashboard">My matches</a>
               </nav>
-              <button className="pb-button pb-nav-cta" onClick={openSetup}>
-                Create your board <ArrowRight weight="bold" />
-              </button>
+              <a className="pb-button pb-nav-cta" href="/login">
+                Sign in <ArrowRight weight="bold" />
+              </a>
             </header>
             <main>
               <section
