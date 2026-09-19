@@ -8,7 +8,7 @@ import { stopMedia, cameraError } from "@/lib/studio-media";
 import { BoardPreview } from "./BoardPreview";
 import { MatchDuration } from "./MatchDuration";
 import { AnimatedMatchTime } from "./AnimatedMatchTime";
-import { resolveCustomDesign } from "@/lib/custom-board";
+import { boardLayoutWidth } from "@/lib/custom-board";
 import { WorkspaceHeader } from "./WorkspaceHeader";
 import "./workspace.css";
 export function BrowserStudio({ initial }: { initial: MatchRow }) {
@@ -193,12 +193,8 @@ export function BrowserStudio({ initial }: { initial: MatchRow }) {
     observer.observe(element);
     return () => observer.disconnect();
   }, []);
-  // Tighten the name area rather than shrinking the entire board vertically.
-  const boardWidth = Math.round(
-    row.overlay.template === "custom"
-      ? resolveCustomDesign(row.overlay.customDesign).width * (30 / 38)
-      : 360,
-  );
+  // Scale the whole saved layout; never squeeze its name column independently.
+  const boardWidth = boardLayoutWidth(row.overlay.template, row.overlay.customDesign);
   const boardScale = (stageWidth * size) / 100 / boardWidth;
   const travelX = Math.max(0, stageWidth - boardWidth * boardScale);
   const travelY = Math.max(0, stageHeight - boardHeight * boardScale);

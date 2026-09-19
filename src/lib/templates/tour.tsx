@@ -1,5 +1,5 @@
 import { AnimatedMatchTime } from "@/components/workspace/AnimatedMatchTime";
-import { resolveCustomDesign } from "@/lib/custom-board";
+import { boardLayoutWidth } from "@/lib/custom-board";
 import { BOARD_STYLES } from "@/lib/board-styles";
 import { TourScoreboard } from "@/components/scoreboard/TourScoreboard";
 import type { Template } from "./types";
@@ -14,10 +14,7 @@ export const tourTemplates: Template[] = BOARD_STYLES.map((style) => ({
     <div
       style={{
         position: "absolute",
-        width:
-          style.id === "custom"
-            ? resolveCustomDesign(row.overlay.customDesign).width
-            : 360,
+        width: boardLayoutWidth(style.id, row.overlay.customDesign),
         top: row.overlay.position.startsWith("top") ? 20 : undefined,
         bottom: row.overlay.position.startsWith("bottom") ? 20 : undefined,
         left: row.overlay.position.endsWith("left") ? 20 : undefined,

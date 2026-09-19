@@ -3,6 +3,7 @@ import { TennisBall } from "@phosphor-icons/react/dist/ssr";
 import { getBoardStyle, type BoardStyleId } from "@/lib/board-styles";
 import {
   BOARD_FONTS,
+  boardLayoutWidth,
   resolveCustomDesign,
   pointPalette,
   colorContrast,
@@ -38,6 +39,7 @@ export function TourScoreboard({
   const status = scoreboardNotice(state);
   const variables = {
     "--board-accent": accent,
+    "--board-width": `${boardLayoutWidth(variant, customDesign)}px`,
     "--board-serving":
       [accent, "#f5ff36", "#007346", "#005fcc", "#b5005c"].find(
         (c) =>
@@ -55,7 +57,6 @@ export function TourScoreboard({
           "--board-row-height": `${custom.rowHeight}px`,
           "--board-name-size": `${custom.fontSize}px`,
           "--board-radius": `${custom.radius}px`,
-          "--board-width": `${custom.width}px`,
           "--board-score-bg": custom.scoreBackground,
           "--board-score-text": custom.scoreTextColor,
           "--board-point-text": points!.text,

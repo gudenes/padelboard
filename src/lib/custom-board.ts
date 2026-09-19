@@ -122,3 +122,8 @@ export function pointPalette(accent: string, design: CustomBoardDesign) {
         : "#111111";
   return { background, text };
 }
+
+/** Intrinsic layout width shared by previews, Studio and browser-source overlays. */
+export function boardLayoutWidth(template: string, design?: Partial<CustomBoardDesign>): number {
+  return template === "custom" ? resolveCustomDesign(design).width : DEFAULT_CUSTOM_DESIGN.width;
+}
