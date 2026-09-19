@@ -14,9 +14,10 @@ export async function GET(req: Request) {
     /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(candidate)
       ? candidate
       : null;
+  const remote = url.searchParams.get("mode") === "remote" && !!matchId;
   const failure = () =>
     NextResponse.redirect(
-      `${url.origin}/login?auth_error=expired${matchId ? `&match=${matchId}` : ""}`,
+      `${url.origin}/login?auth_error=expired${matchId ? `&match=${matchId}${remote ? "&mode=remote" : ""}` : ""}`,
     );
   if (url.searchParams.has("error")) return failure();
   const sb = await serverSupabase();
@@ -26,7 +27,7 @@ export async function GET(req: Request) {
   }
   const { data: userRes } = await sb.auth.getUser();
   if (!userRes.user) return failure();
-  if (!userRes.user.user_metadata?.padelboard_profile?.completed)
+  if (!remote && !userRes.user.user_metadata?.padelboard_profile?.completed)
     return NextResponse.redirect(
       `${url.origin}/welcome${matchId ? `?match=${matchId}` : ""}`,
     );
@@ -39,7 +40,7 @@ export async function GET(req: Request) {
     .single();
   if (!data?.short_code)
     return NextResponse.redirect(`${url.origin}/dashboard`);
-  const response = NextResponse.redirect(`${url.origin}/m/${data.short_code}`);
+  const response = NextResponse.redirect(`${url.origin}/m/${data.short_code}${remote ? "/remote" : ""}`);
   response.cookies.delete("padelboard_pending_match");
   return response;
 }

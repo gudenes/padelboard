@@ -13,3 +13,18 @@ it("does not grant control to a different signed-in account",async()=>{
  state.user={id:"someone-else",user_metadata:{padelboard_profile:{completed:true}}};
  await expect(MatchPage({params:Promise.resolve({code:"PHONE1"})})).rejects.toThrow("notFound");
 });
+
+import RemotePage from "@/app/m/[code]/remote/page";
+it("returns a phone scan to the remote after login", async () => {
+ await expect(RemotePage({params:Promise.resolve({code:"PHONE1"})})).rejects.toThrow(`redirect:/login?match=${state.row.id}&mode=remote`);
+});
+it("protects remote controls from other accounts", async () => {
+ state.user={id:"someone-else",user_metadata:{}};
+ await expect(RemotePage({params:Promise.resolve({code:"PHONE1"})})).rejects.toThrow("notFound");
+});
+it("opens the focused operator for the owner without onboarding", async () => {
+ state.user={id:"owner",user_metadata:{}};
+ const page=await RemotePage({params:Promise.resolve({code:"PHONE1"})});
+ expect(page.props.phone).toBe(true);
+ expect(page.props.initial.draft_token).toBeNull();
+});

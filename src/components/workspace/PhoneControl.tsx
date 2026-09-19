@@ -8,7 +8,7 @@ export function PhoneControl({ code }: { code: string }) {
   const [qr, setQr] = useState("");
   const [message, setMessage] = useState("");
   async function open() {
-    const link = `${location.origin}/m/${encodeURIComponent(code)}`;
+    const link = `${location.origin}/m/${encodeURIComponent(code)}/remote`;
     setUrl(link);
     setMessage("");
     setQr("");
@@ -64,7 +64,7 @@ export function PhoneControl({ code }: { code: string }) {
         <h2 id={titleId}>Tap from the sidelines.</h2>
         <p>
           Scan with your phone’s camera and sign in with the same account.
-          You’ll open this match directly.
+          You’ll open a streamlined remote with just your match controls.
         </p>
         {qr ? (
           <img

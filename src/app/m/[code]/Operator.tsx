@@ -9,7 +9,7 @@ import { matchClock } from "@/lib/match-clock";
 import { BoardPreview } from "@/components/workspace/BoardPreview";
 import { MatchDuration } from "@/components/workspace/MatchDuration";
 import "@/components/workspace/workspace.css";
-export function Operator({ initial }: { initial: MatchRow }) {
+export function Operator({ initial, phone = false }: { initial: MatchRow; phone?: boolean }) {
   const remote = useMatchState(initial.id, initial),
     [local, setLocal] = useState(initial),
     [busy, setBusy] = useState(false),
@@ -45,14 +45,14 @@ export function Operator({ initial }: { initial: MatchRow }) {
     }
   }
   return (
-    <main className="pbw">
-      <WorkspaceHeader
+    <main className={`pbw${phone ? " pbw-remote" : ""}`}>
+      {phone ? <header className="pbw-remote-brand"><strong>padelboard</strong><span>PHONE REMOTE · {row.short_code}</span></header> : <WorkspaceHeader
         matchCode={row.short_code}
         matchName={row.overlay.tournamentName}
-      />
+      />}
       <div className="pbw-title">
         <div>
-          <span className="pbw-eyebrow">OPERATOR MODE · {row.short_code}</span>
+          <span className="pbw-eyebrow">{phone ? "JUST TAP. WE’LL KEEP SCORE." : `OPERATOR MODE · ${row.short_code}`}</span>
           <h1>{row.overlay.tournamentName || "Let’s play some padel."}</h1>
         </div>
         <span className="pbw-badge">
@@ -95,6 +95,8 @@ export function Operator({ initial }: { initial: MatchRow }) {
               </button>
             )}
           </div>
+          <details className="pbw-serving-disclosure" open={phone ? undefined : true}>
+            <summary>Change serving player</summary>
           <fieldset className="pbw-servers" disabled={busy || finished}>
             <legend>Who’s serving?</legend>
             <div className="pbw-server-pairs">
@@ -131,6 +133,7 @@ export function Operator({ initial }: { initial: MatchRow }) {
               automatically after games and during tiebreaks.
             </p>
           </fieldset>
+          </details>
           <div className="pbw-points">
             {(["a", "b"] as const).map((team) => (
               <button
@@ -150,8 +153,7 @@ export function Operator({ initial }: { initial: MatchRow }) {
           </div>
           {!row.started_at && !finished && (
             <p className="pbw-muted">
-              Start the match when the first serve is ready. Your clock and
-              scoring controls start together.
+              {phone ? "Tap Start match when the first serve is ready." : "Start the match when the first serve is ready. Your clock and scoring controls start together."}
             </p>
           )}
           <button
@@ -181,11 +183,11 @@ export function Operator({ initial }: { initial: MatchRow }) {
           )}
         </section>
         <aside>
-          <AddToScreen row={row} />
+          {!phone && <AddToScreen row={row} />}
           <section className="pbw-card">
-            <Link className="pbw-secondary" href={`/m/${row.short_code}/edit`}>
+            {!phone && <Link className="pbw-secondary" href={`/m/${row.short_code}/edit`}>
               Edit scoreboard design ↗
-            </Link>
+            </Link>}
             <label className="pbw-toggle">
               <input
                 type="checkbox"
@@ -215,7 +217,7 @@ export function Operator({ initial }: { initial: MatchRow }) {
               aria-expanded={settings}
               onClick={() => setSettings(!settings)}
             >
-              Match options {settings ? "−" : "+"}
+              {phone ? "Finish match" : "Match options"} {settings ? "−" : "+"}
             </button>
             {confirmation && (
               <div className="pbw-confirm" role="alert" aria-live="assertive">
@@ -252,8 +254,7 @@ export function Operator({ initial }: { initial: MatchRow }) {
             {settings && !confirmation && (
               <>
                 <p>
-                  Finish this match or start fresh with the same players and
-                  board.
+                  {phone ? "Save the result and stop the clock." : "Finish this match or start fresh with the same players and board."}
                 </p>
                 {!finished && (
                   <button
@@ -264,13 +265,13 @@ export function Operator({ initial }: { initial: MatchRow }) {
                     End match
                   </button>
                 )}
-                <button
+                {!phone && <button
                   className="pbw-secondary"
                   disabled={busy}
                   onClick={() => setConfirmation("reset")}
                 >
                   Reset score & clock
-                </button>
+                </button>}
               </>
             )}
           </section>

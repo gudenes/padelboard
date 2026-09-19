@@ -1645,3 +1645,28 @@
   .pbw-login-page .pbw-signin { padding-block: 28px; }
   .pbw-login-page .pbw-login-ball { display: none; }
 }
+
+.pbw-serving-disclosure > summary { display: none; }
+.pbw-remote { max-width: 560px; margin: 0 auto; padding: 16px 16px max(24px, env(safe-area-inset-bottom)); }
+.pbw-remote-brand { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 4px 0 16px; border-bottom: 1px solid #1113; }
+.pbw-remote-brand strong { font-size: 25px; letter-spacing: -1px; }
+.pbw-remote-brand span { font-size: 10px; font-weight: 750; letter-spacing: 1px; }
+.pbw-remote .pbw-title { padding: 14px 0; gap: 10px; flex-direction: row; align-items: center; }
+.pbw-remote .pbw-title h1 { font-size: 24px; letter-spacing: -.8px; margin: 4px 0 0; }
+.pbw-remote .pbw-title .pbw-eyebrow { display: none; }
+.pbw-remote .pbw-badge { padding: 8px 10px; font-size: 10px; }
+.pbw-remote .pbw-operator { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.pbw-remote .pbw-card { padding: 16px; border-radius: 20px; }
+.pbw-remote .pbw-score-preview { padding: 10px 8px; overflow: hidden; }
+.pbw-remote .pbw-clock { margin: 16px 0; }
+.pbw-remote .pbw-clock strong { font-size: 28px; }
+.pbw-remote .pbw-serving-disclosure { margin-bottom: 16px; }
+.pbw-remote .pbw-serving-disclosure > summary { display: list-item; cursor: pointer; font-size: 13px; font-weight: 750; padding: 12px 0; }
+.pbw-remote .pbw-servers { margin-bottom: 0; }
+.pbw-remote .pbw-operator .pbw-points { position: static; padding: 0; box-shadow: none; background: none; gap: 10px; }
+.pbw-remote .pbw-points button { min-height: 132px; padding: 12px; touch-action: manipulation; }
+.pbw-remote .pbw-points strong { font-size: 16px; overflow-wrap: anywhere; }
+.pbw-remote .pbw-points b { font-size: 24px; }
+.pbw-remote .pbw-toggle { min-height: 48px; margin: 0; }
+.pbw-remote .pbw-secondary { min-height: 44px; touch-action: manipulation; }
+.pbw-remote .pbw-match-tools { margin-top: 12px; }

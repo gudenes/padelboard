@@ -7,7 +7,7 @@ import "@/components/workspace/workspace.css";
 export default async function Login({
   searchParams,
 }: {
-  searchParams: Promise<{ match?: string; auth_error?: string }>;
+  searchParams: Promise<{ match?: string; auth_error?: string; mode?: string }>;
 }) {
   const params = await searchParams;
   const matchId =
@@ -15,11 +15,12 @@ export default async function Login({
     /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(params.match)
       ? params.match
       : undefined;
+  const remote = params.mode === "remote" && !!matchId;
   const sb = await serverSupabase();
   const {
     data: { user },
   } = await sb.auth.getUser();
-  if (user) redirect(`/auth/callback${matchId ? `?match=${matchId}` : ""}`);
+  if (user) redirect(`/auth/callback${matchId ? `?match=${matchId}${remote ? "&mode=remote" : ""}` : ""}`);
   return (
     <main className="pbw pbw-onboarding pbw-login-page">
       <header className="pbw-nav">
@@ -40,7 +41,7 @@ export default async function Login({
             on this page.
           </p>
         )}
-        <SignIn matchId={matchId} />
+        <SignIn matchId={matchId} remote={remote} />
       </section>
       <img className="pbw-login-ball" src="/images/padel-ball.png" alt="" />
       <footer className="pbw-brand-footer">SCORE · STREAM · PADEL</footer>

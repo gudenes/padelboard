@@ -4,8 +4,10 @@ import { browserSupabase } from "@/lib/supabase";
 export function SignIn({
   matchId,
   onSuccess,
+  remote = false,
 }: {
   matchId?: string;
+  remote?: boolean;
   onSuccess?: () => void;
 }) {
   const [googleEnabled, setGoogleEnabled] = useState(false);
@@ -41,7 +43,7 @@ export function SignIn({
       const { error } = await browserSupabase().auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${location.origin}/auth/callback${matchId ? `?match=${matchId}` : ""}`,
+          redirectTo: `${location.origin}/auth/callback${matchId ? `?match=${matchId}${remote ? "&mode=remote" : ""}` : ""}`,
         },
       });
       if (error) throw error;
@@ -105,7 +107,7 @@ export function SignIn({
       }
       if (onSuccess) onSuccess();
       else
-        location.assign(`/auth/callback${matchId ? `?match=${matchId}` : ""}`);
+        location.assign(`/auth/callback${matchId ? `?match=${matchId}${remote ? "&mode=remote" : ""}` : ""}`);
     } catch {
       setError(
         "We couldn’t verify your code. Check your connection and try again.",
