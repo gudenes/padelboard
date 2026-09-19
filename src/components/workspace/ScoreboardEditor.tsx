@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { MatchRow } from "@/types/match";
+import { editableTemplate } from "@/lib/template-design";
 import { BOARD_STYLES } from "@/lib/board-styles";
 import { resolveCustomDesign } from "@/lib/custom-board";
 import { useMatchState } from "@/hooks/useMatchState";
@@ -111,6 +112,24 @@ export function ScoreboardEditor({ initial }: { initial: MatchRow }) {
                 }
               />
             </label>
+            {overlay.template !== "custom" && (
+              <button
+                type="button"
+                className="pbw-secondary"
+                onClick={() =>
+                  change({
+                    template: "custom",
+                    customDesign: editableTemplate(
+                      BOARD_STYLES.find((s) => s.id === overlay.template)?.id ||
+                        "padelboard",
+                      accent,
+                    ),
+                  })
+                }
+              >
+                Fine-tune this template →
+              </button>
+            )}
             {overlay.template === "custom" && (
               <CustomBoardEditor
                 design={resolveCustomDesign(overlay.customDesign)}

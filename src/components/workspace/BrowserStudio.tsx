@@ -31,7 +31,7 @@ export function BrowserStudio({ initial }: { initial: MatchRow }) {
   const [mirror, setMirror] = useState(false),
     [position, setPosition] = useState(row.overlay.position),
     [size, setSize] = useState(
-      Math.max(20, Math.min(80, 32 * row.overlay.scale)),
+      Math.max(20, Math.min(80, 30 * row.overlay.scale)),
     );
   const boardElement = useRef<HTMLDivElement>(null);
   const drag = useRef<{
@@ -195,10 +195,9 @@ export function BrowserStudio({ initial }: { initial: MatchRow }) {
   }, []);
   // Tighten the name area rather than shrinking the entire board vertically.
   const boardWidth = Math.round(
-    (row.overlay.template === "custom"
-      ? resolveCustomDesign(row.overlay.customDesign).width
-      : 460) *
-      (32 / 38),
+    row.overlay.template === "custom"
+      ? resolveCustomDesign(row.overlay.customDesign).width * (30 / 38)
+      : 360,
   );
   const boardScale = (stageWidth * size) / 100 / boardWidth;
   const travelX = Math.max(0, stageWidth - boardWidth * boardScale);

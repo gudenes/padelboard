@@ -382,7 +382,7 @@
   padding: 18px 12px;
 }
 .pbw-score-preview .pb-scoreboard {
-  max-width: 460px;
+  max-width: 360px;
 }
 .pbw-clock {
   margin: 16px 0;
@@ -662,7 +662,7 @@
 }
 .pbw-ready-preview > .pb-scoreboard {
   transform: rotate(-4deg);
-  max-width: 100%;
+  max-width: min(100%, var(--board-width, 360px));
   width: 100%;
   box-shadow: 8px 12px 0 #10110c12;
   position: relative;

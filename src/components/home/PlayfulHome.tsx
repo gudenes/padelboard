@@ -1,4 +1,5 @@
 "use client";
+import { editableTemplate } from "@/lib/template-design";
 
 import { useEffect, useRef, useState } from "react";
 import {
@@ -856,6 +857,22 @@ export function PlayfulHome({
                           </fieldset>
                         )}
                       </>
+                    )}
+                    {setupStep === 2 && lookPath === "templates" && (
+                      <button
+                        type="button"
+                        className="pb-fine-tune-template"
+                        onClick={() => {
+                          savedTemplate.current = { id: boardStyle, accent };
+                          setCustomDesign(editableTemplate(boardStyle, accent));
+                          customAccent.current = accent;
+                          setBoardStyle("custom");
+                          setLookPath("custom");
+                          setEditorMode("manual");
+                        }}
+                      >
+                        Fine-tune this template →
+                      </button>
                     )}
                     {setupStep === 2 && editorOpen && (
                       <div className="pb-editor-workspace">

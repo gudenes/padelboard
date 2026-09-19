@@ -10,7 +10,7 @@
   container-type: inline-size;
   font-family: var(--board-font, Arial, sans-serif);
   width: 100%;
-  max-width: var(--board-width, none);
+  max-width: var(--board-width, 360px);
   line-height: 1.2;
 }
 .pb-scoreboard * {
@@ -321,7 +321,7 @@
   padding-inline: 7px;
   gap: 4px;
   border-radius: 1px;
-  font-size: var(--board-name-size, clamp(16px, 4.8cqw, 26px));
+  font-size: var(--board-name-size, clamp(16px, 4.8cqw, 20px));
   height: var(--board-row-height, clamp(30px, 7.5cqw, 38px));
   letter-spacing: 0;
   font-weight: 750;

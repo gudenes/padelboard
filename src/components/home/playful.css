@@ -1623,7 +1623,7 @@
 }
 .pb-setup-preview > .pb-scoreboard {
   zoom: 1.12;
-  max-width: 100%;
+  max-width: min(100%, var(--board-width, 360px));
 }
 .pb-step-transition {
   animation: pb-step-arrive 260ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
@@ -2411,3 +2411,6 @@
     font-size: 24px;
   }
 }
+
+.pb-fine-tune-template { width: 100%; padding: 10px 14px; border: 1px solid #171812; border-radius: 12px; background: #f5ff36; font: inherit; font-weight: 700; cursor: pointer; margin-top: 10px; }
+.pb-fine-tune-template:hover { background: #e8f227; }

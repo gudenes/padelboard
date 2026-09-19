@@ -17,7 +17,7 @@ export const tourTemplates: Template[] = BOARD_STYLES.map((style) => ({
         width:
           style.id === "custom"
             ? resolveCustomDesign(row.overlay.customDesign).width
-            : 460,
+            : 360,
         top: row.overlay.position.startsWith("top") ? 20 : undefined,
         bottom: row.overlay.position.startsWith("bottom") ? 20 : undefined,
         left: row.overlay.position.endsWith("left") ? 20 : undefined,

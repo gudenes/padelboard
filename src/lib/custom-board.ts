@@ -30,7 +30,7 @@ export const DEFAULT_CUSTOM_DESIGN: CustomBoardDesign = {
   rowHeight: 42,
   fontSize: 17,
   radius: 8,
-  width: 460,
+  width: 360,
   showHeader: true,
   logo: "",
   logoText: "PADELBOARD",
