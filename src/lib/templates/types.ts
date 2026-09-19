@@ -12,7 +12,7 @@ export interface ColorSlot {
 }
 
 export interface Template {
-  id: 'broadcast' | 'classic' | 'premier'
+  id: Exclude<import('@/types/match').TemplateId, 'minimal'>
   name: string                         // e.g. 'Broadcast'
   description: string
   defaults: {

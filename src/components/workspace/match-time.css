@@ -1,0 +1,38 @@
+.pb-match-time {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition:
+    grid-template-rows 240ms ease,
+    opacity 200ms ease,
+    transform 240ms ease;
+  pointer-events: none;
+}
+.pb-match-time.is-visible {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  transform: translateY(0);
+}
+.pb-match-time-clip {
+  min-height: 0;
+  overflow: hidden;
+}
+.pb-match-time-label {
+  display: inline-block;
+  background: #171c12;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  margin-top: 5px;
+  font:
+    12px Arial,
+    sans-serif;
+  white-space: nowrap;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pb-match-time {
+    transition: none;
+    transform: none;
+  }
+}

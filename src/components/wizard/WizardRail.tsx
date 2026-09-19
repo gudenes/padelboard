@@ -1,5 +1,6 @@
 // src/components/wizard/WizardRail.tsx — Left rail with 3-step task list.
 'use client'
+import { getTemplate } from '@/lib/templates/registry'
 import type { StepNum } from './useWizardStep'
 
 interface StepMeta {
@@ -11,7 +12,7 @@ interface StepMeta {
 const STEPS: StepMeta[] = [
   { num: 1, title: 'Pick a template', subtitle: (r) => {
     const t = r.overlay.template
-    return t === 'broadcast' ? 'Broadcast' : t === 'classic' ? 'Classic' : t === 'premier' ? 'Premier' : 'How the board looks'
+    return getTemplate(t)?.name ?? 'How the board looks'
   } },
   { num: 2, title: 'Players', subtitle: (r) => {
     const a = r.teams.a.name, b = r.teams.b.name

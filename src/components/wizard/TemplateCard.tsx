@@ -2,6 +2,8 @@
 'use client'
 import type { Template } from '@/lib/templates/types'
 import type { MatchRow } from '@/types/match'
+import { BOARD_STYLES } from '@/lib/board-styles'
+import { resolveCustomDesign } from '@/lib/custom-board'
 import { mergeColors } from '@/lib/templates/merge-colors'
 
 export function TemplateCard({
@@ -14,6 +16,9 @@ export function TemplateCard({
 }) {
   const colors = mergeColors(template.defaults.colors, {})
   const Renderer = template.Renderer
+  const compact = BOARD_STYLES.some(style => style.id === template.id)
+  const width = template.id === 'custom' ? resolveCustomDesign(sampleRow.overlay.customDesign).width : 460
+  const previewRow = { ...sampleRow, overlay: { ...sampleRow.overlay, position: 'top-left' as const, scale: 1 } }
   return (
     <button
       type="button"
@@ -28,8 +33,8 @@ export function TemplateCard({
         className="aspect-[16/10] rounded-lg overflow-hidden relative"
         style={{ background: 'linear-gradient(180deg, #4a5c3a 0%, #1e2619 100%)' }}
       >
-        <div style={{ transform: 'scale(0.32)', transformOrigin: 'top left', position: 'absolute', top: 4, left: 4 }}>
-          <Renderer row={sampleRow} colors={colors} />
+        <div style={{ transform: `scale(${compact ? 82 / (width + 40) : 0.32})`, transformOrigin: 'top left', position: 'absolute', top: 4, left: 4 }}>
+          <Renderer row={previewRow} colors={colors} />
         </div>
       </div>
       <div>

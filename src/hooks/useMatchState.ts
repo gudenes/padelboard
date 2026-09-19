@@ -9,8 +9,16 @@ export function useMatchState(matchId: string, initial: MatchRow): MatchRow {
 
   useEffect(() => {
     const sb = browserSupabase()
+    let disposed = false
+    const refresh = async () => {
+      const { data } = await sb.from('matches').select('*').eq('id', matchId).single()
+      if (!disposed && data) setRow(prev => new Date(data.updated_at).getTime() >= new Date(prev.updated_at).getTime() ? {...prev, ...data} as MatchRow : prev)
+    }
     const chan = sb
       .channel(`match:${matchId}`)
+      .on('system', {}, payload => {
+        if (payload.extension === 'postgres_changes' && payload.status === 'ok') void refresh()
+      })
       .on(
         'postgres_changes',
         {
@@ -25,6 +33,7 @@ export function useMatchState(matchId: string, initial: MatchRow): MatchRow {
       )
       .subscribe()
     return () => {
+      disposed = true
       void sb.removeChannel(chan)
     }
   }, [matchId])

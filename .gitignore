@@ -21,3 +21,13 @@ next-env.d.ts
 # testing
 coverage
 tsconfig.tsbuildinfo
+
+# Supabase CLI local project link
+supabase/.temp/
+
+# Cloudflare generated output and local secrets
+.open-next/
+.wrangler/
+.dev.vars*
+.env
+.env.production*

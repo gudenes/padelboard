@@ -1,59 +1,57 @@
-// src/app/dashboard/page.tsx — "My matches" list for signed-in users.
-import Link from 'next/link'
-import { redirect } from 'next/navigation'
-import { serverSupabase, serviceSupabase } from '@/lib/supabase-server'
-import type { MatchRow } from '@/types/match'
-
-export const dynamic = 'force-dynamic'
-
+import { WorkspaceHeader } from "@/components/workspace/WorkspaceHeader";
+import Link from "next/link";
+import { PlayerAvatar } from "@/components/workspace/PlayerAvatar";
+import { redirect } from "next/navigation";
+import { serverSupabase } from "@/lib/supabase-server";
+import type { MatchRow } from "@/types/match";
+import { MatchHistory } from "@/components/workspace/MatchHistory";
+import "@/components/workspace/workspace.css";
+export const dynamic = "force-dynamic";
 export default async function Dashboard() {
-  const sb = await serverSupabase()
-  const { data: userRes } = await sb.auth.getUser()
-  if (!userRes.user) redirect('/')
-
-  const svc = serviceSupabase()
-  const { data } = await svc
-    .from('matches')
-    .select('*')
-    .eq('owner_id', userRes.user.id)
-    .order('created_at', { ascending: false })
-
-  const rows = (data ?? []) as unknown as MatchRow[]
-
+  const sb = await serverSupabase();
+  const {
+    data: { user },
+  } = await sb.auth.getUser();
+  if (!user) redirect("/login");
+  if (!user.user_metadata?.padelboard_profile?.completed) redirect("/welcome");
+  const { data, error } = await sb
+    .from("matches")
+    .select("*")
+    .eq("owner_id", user.id)
+    .order("created_at", { ascending: false });
+  const rows = (data ?? []).map((r) => ({
+    ...r,
+    draft_token: null,
+  })) as MatchRow[];
   return (
-    <main className="min-h-screen p-8 max-w-3xl mx-auto">
-      <h1 className="text-2xl font-bold mb-5">Your matches</h1>
-      {rows.length === 0 && (
-        <p className="text-[var(--color-muted)] text-sm">
-          No matches yet.{' '}
-          <Link href="/" className="underline">
-            Create one
-          </Link>
-          .
-        </p>
+    <main className="pbw">
+      <WorkspaceHeader />
+      <div className="pbw-profile-intro" style={{ marginTop: 24 }}>
+        <PlayerAvatar
+          color={user.user_metadata.padelboard_profile.color}
+          style={user.user_metadata.padelboard_profile.style}
+        />
+        <span className="pbw-hand">
+          Hey, {user.user_metadata.padelboard_profile.name}. Ready for a rally?
+        </span>
+      </div>
+      <div className="pbw-title">
+        <div>
+          <span className="pbw-eyebrow">YOUR PADEL CLUBHOUSE</span>
+          <h1>Every match has a story.</h1>
+          <p>Your live boards and past matches, all in one place.</p>
+        </div>
+        <Link href="/dashboard/new" className="pbw-primary">
+          New match →
+        </Link>
+      </div>
+      {error ? (
+        <section className="pbw-card" role="alert">
+          We couldn’t load your matches. Refresh to try again.
+        </section>
+      ) : (
+        <MatchHistory rows={rows} />
       )}
-      <ul className="space-y-3">
-        {rows.map((r) => (
-          <li
-            key={r.id}
-            className="p-4 bg-white border border-[var(--color-border)] rounded-xl"
-          >
-            <div className="flex justify-between items-start">
-              <div>
-                <div className="font-semibold">
-                  {r.teams.a.name || 'Team A'} vs {r.teams.b.name || 'Team B'}
-                </div>
-                <div className="text-xs text-[var(--color-muted)] mt-0.5">
-                  {r.status.toUpperCase()} · {new Date(r.created_at).toLocaleString()}
-                </div>
-              </div>
-              <Link href={`/m/${r.short_code}`} className="text-sm underline">
-                Open →
-              </Link>
-            </div>
-          </li>
-        ))}
-      </ul>
     </main>
-  )
+  );
 }
