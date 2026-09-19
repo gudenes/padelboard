@@ -17,6 +17,7 @@ function pickLabel(state: MatchState): string | null {
   const flags = getMatchFlags(state)
   if (flags.inSuperTiebreak) return 'Super Tiebreak'
   if (flags.inTiebreak) return 'Tiebreak'
+  if (flags.starPoint) return 'Star Point'
   if (flags.matchPointFor) return 'Match point'
   if (flags.setPointFor) return 'Set point'
   if (flags.breakPointFor) return 'Break point'

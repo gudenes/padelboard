@@ -1,5 +1,6 @@
 // src/components/wizard/steps/StepTemplate.tsx — Step 1 of the wizard.
 'use client'
+import { CustomBoardEditor } from '@/components/scoreboard/CustomBoardEditor'
 import { useState } from 'react'
 import type { MatchRow, OverlayJson, TemplateId } from '@/types/match'
 import { allTemplates } from '@/lib/templates/registry'
@@ -32,12 +33,13 @@ export function StepTemplate({
             key={t.id}
             template={t}
             selected={row.overlay.template === t.id}
-            onSelect={() => onChange({ overlay: { ...row.overlay, template: t.id as TemplateId } })}
+            onSelect={() => onChange({ overlay: { ...row.overlay, template: t.id as TemplateId, customColors: {} } })}
             sampleRow={row}
           />
         ))}
       </div>
 
+      {row.overlay.template === 'custom' && <CustomBoardEditor design={row.overlay.customDesign} accent={row.overlay.customColors?.accent?.color ?? '#f5ff36'} onChange={customDesign => onChange({overlay:{...row.overlay,customDesign}})} onAccentChange={color => onChange({overlay:{...row.overlay,customColors:{...row.overlay.customColors,accent:{color}}}})} />}
       <div className="mt-5 p-4 bg-[#fafbf6] border border-[var(--color-border)] rounded-xl flex items-center justify-between">
         <div>
           <div className="text-[12.5px] font-medium">Customize colors</div>

@@ -20,18 +20,18 @@ export function StepPlayers({
       </div>
       <h2 className="text-[24px] font-bold tracking-tight mb-1.5">Who&apos;s playing?</h2>
       <p className="text-[13px] text-[var(--color-muted)] mb-5">
-        Enter team names and the two players per team. You can edit these later.
+        Enter two players per pair. Their names are combined automatically for the scoreboard.
       </p>
 
       <TeamBlock
-        label="Team A"
+        label="Pair one"
         dotColor="#0a3d91"
         team={row.teams.a}
         placeholder={{ team: 'Team A', p1: 'Player 1', p2: 'Player 2' }}
         onChange={(patch) => updateTeam('a', patch)}
       />
       <TeamBlock
-        label="Team B"
+        label="Pair two"
         dotColor="#b91c1c"
         team={row.teams.b}
         placeholder={{ team: 'Team B', p1: 'Player 1', p2: 'Player 2' }}
@@ -56,27 +56,23 @@ function TeamBlock({
         <span className="w-1.5 h-1.5 rounded-full" style={{ background: dotColor }} />
         {label}
       </div>
-      <label className="block text-[11.5px] text-[var(--color-muted)] mb-1.5 font-medium">Team name</label>
-      <Input
-        value={team.name}
-        placeholder={placeholder.team}
-        onChange={(e) => onChange({ name: e.target.value })}
-      />
       <div className="grid grid-cols-2 gap-2.5 mt-3">
         <div>
           <label className="block text-[11.5px] text-[var(--color-muted)] mb-1.5 font-medium">Player 1</label>
           <Input
+            aria-label={`${label}, player 1`} maxLength={24}
             value={team.players[0]}
             placeholder={placeholder.p1}
-            onChange={(e) => onChange({ players: [e.target.value, team.players[1]] })}
+            onChange={(e) => onChange({ players: [e.target.value, team.players[1]], name: [e.target.value.trim(), team.players[1].trim()].filter(Boolean).join(" / ") })}
           />
         </div>
         <div>
           <label className="block text-[11.5px] text-[var(--color-muted)] mb-1.5 font-medium">Player 2</label>
           <Input
+            aria-label={`${label}, player 2`} maxLength={24}
             value={team.players[1]}
             placeholder={placeholder.p2}
-            onChange={(e) => onChange({ players: [team.players[0], e.target.value] })}
+            onChange={(e) => onChange({ players: [team.players[0], e.target.value], name: [team.players[0].trim(), e.target.value.trim()].filter(Boolean).join(" / ") })}
           />
         </div>
       </div>

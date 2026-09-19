@@ -1,9 +1,10 @@
 // src/lib/match-flags.ts — Derived flags for UI badges (GOLDEN / SET / MATCH POINT etc)
 
-import { apply, type MatchState, type TeamId } from './padel-scoring'
+import { apply, getDeuceRule, isStarPoint, type MatchState, type TeamId } from './padel-scoring'
 
 export interface MatchFlags {
   goldenPoint: boolean
+  starPoint: boolean
   breakPointFor: TeamId | null
   setPointFor: TeamId | null
   matchPointFor: TeamId | null
@@ -14,6 +15,7 @@ export interface MatchFlags {
 export function getMatchFlags(state: MatchState): MatchFlags {
   const flags: MatchFlags = {
     goldenPoint: false,
+    starPoint: isStarPoint(state),
     breakPointFor: null,
     setPointFor: null,
     matchPointFor: null,
@@ -24,7 +26,7 @@ export function getMatchFlags(state: MatchState): MatchFlags {
   if (state.phase === 'finished') return flags
 
   // GOLDEN POINT: deuce with golden-point rule on
-  if (state.phase === 'playing' && state.config.goldenPoint) {
+  if (state.phase === 'playing' && getDeuceRule(state.config) === 'golden-point') {
     const g = state.currentGame as { a: unknown; b: unknown }
     if (g.a === 40 && g.b === 40) flags.goldenPoint = true
   }

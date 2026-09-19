@@ -1,0 +1,229 @@
+.board-editor {
+  font-family: Arial, sans-serif;
+  border: 1px solid #cbd0c0;
+  border-radius: 13px;
+  padding: 18px;
+  background: #fff;
+  color: #151a11;
+  margin: 18px 0 24px;
+  min-width: 0;
+}
+.board-editor-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.board-editor-heading h3 {
+  font-size: 16px;
+  font-weight: 750;
+  margin: 0 0 4px;
+}
+.board-editor-heading p {
+  font-size: 12px;
+  color: #66705b;
+  margin: 0;
+}
+.board-editor-heading button {
+  font-size: 12px !important;
+  background: none;
+  border: 0;
+  text-decoration: underline;
+  padding: 4px;
+  cursor: pointer;
+}
+.board-editor fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0 0 18px;
+  min-width: 0;
+}
+.board-editor legend,
+.board-editor-select {
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.board-editor-colors {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 13px 8px;
+}
+.board-editor-colors label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  line-height: 1.2;
+}
+.board-editor input[type="color"] {
+  width: 32px;
+  height: 32px;
+  padding: 2px;
+  border: 1px solid #bbc2b0;
+  background: #fff;
+  border-radius: 5px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.board-editor-select {
+  display: block;
+}
+.board-editor select {
+  display: block;
+  width: 100%;
+  border: 1px solid #cbd0c0;
+  border-radius: 7px;
+  background: white;
+  padding: 10px;
+  font-size: 13px;
+  margin: 7px 0 18px;
+}
+.board-editor-range {
+  display: block;
+  margin: 0 0 12px;
+}
+.board-editor-range > span {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+.board-editor-range output {
+  color: #66705b;
+  font-variant-numeric: tabular-nums;
+}
+.board-editor input[type="range"] {
+  width: 100%;
+  accent-color: #172716;
+  cursor: pointer;
+  min-height: 24px;
+}
+.board-editor-checkbox {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  font-size: 12px;
+}
+.board-editor-checkbox input {
+  accent-color: #172716;
+  width: 17px;
+  height: 17px;
+}
+@media (max-width: 600px) {
+  .board-editor {
+    padding: 14px;
+  }
+  .board-editor-colors {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .board-editor input[type="color"] {
+    width: 40px;
+    height: 40px;
+  }
+  .board-editor input[type="range"] {
+    min-height: 36px;
+  }
+}
+.board-editor-colors {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.board-editor-color {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.board-editor-color > label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  min-width: 0;
+  font-size: 10px;
+}
+.board-editor-color input[type="text"] {
+  width: 86px;
+  max-width: 100%;
+  border: 1px solid #d9dece;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 11px;
+  padding: 4px;
+  background: #fafbf7;
+  color: #37402b;
+}
+
+.board-editor-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.board-editor-tabs button {
+  flex: 1;
+  border: 1px solid #cbd0c0;
+  border-radius: 8px;
+  padding: 9px;
+  font-size: 12px;
+  background: #fff;
+  cursor: pointer;
+}
+.board-editor-tabs button[aria-pressed="true"] {
+  background: #f5ff36;
+  border-color: #151a11;
+}
+.board-editor-brand {
+  display: grid;
+  gap: 8px;
+}
+.board-editor-brand .board-editor-select {
+  margin-bottom: 0;
+}
+.board-editor-brand input[type="text"] {
+  display: block;
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #cbd0c0;
+  border-radius: 7px;
+  margin-top: 4px;
+}
+.board-editor-brand input[type="file"] {
+  display: block;
+  max-width: 100%;
+  font-size: 11px;
+  margin-top: 6px;
+}
+.board-editor-logo {
+  width: 100%;
+  max-width: 120px;
+  height: 40px;
+  object-fit: contain;
+  object-position: left center;
+}
+.board-editor-remove {
+  justify-self: start;
+  font-size: 11px;
+  text-decoration: underline;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.board-editor-hint {
+  font-size: 10px;
+  color: #626a55;
+  line-height: 1.4;
+  margin: 8px 0 0;
+}
+.board-editor-brand {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: center;
+}
+.board-editor-brand > .board-editor-checkbox,
+.board-editor-brand > .board-editor-remove,
+.board-editor-brand > [role="alert"] {
+  grid-column: 1 / -1;
+}
+.board-editor-brand input[type="file"] {
+  width: 100%;
+}

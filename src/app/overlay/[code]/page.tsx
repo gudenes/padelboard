@@ -9,6 +9,6 @@ export default async function OverlayPage({ params }: { params: Promise<{ code: 
   const { code } = await params
   const sb = serviceSupabase()
   const { data, error } = await sb.from('matches').select('*').eq('short_code', code).single()
-  if (error || !data) return notFound()
-  return <OverlayClient initial={data as unknown as MatchRow} />
+  if (error || !data || !['published', 'finished'].includes(data.status) || data.draft_token) return notFound()
+  return <OverlayClient initial={{ ...data, draft_token: null } as unknown as MatchRow} />
 }

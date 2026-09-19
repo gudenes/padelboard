@@ -1,0 +1,388 @@
+/* Shared by setup, template thumbnails, and the live browser-source overlay. */
+.pb-scoreboard {
+  box-sizing: border-box;
+  background: var(--board-bg, #11120f);
+  color: var(--board-text, #fafaf5);
+  border: 1px solid var(--board-border, #3b3d32);
+  border-radius: var(--board-radius, 13px);
+  padding: 12px;
+  box-shadow: 0 18px 35px #2929001a;
+  container-type: inline-size;
+  font-family: var(--board-font, Arial, sans-serif);
+  width: 100%;
+  max-width: var(--board-width, none);
+  line-height: 1.2;
+}
+.pb-scoreboard * {
+  box-sizing: border-box;
+}
+.pb-board-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 3px 9px;
+  border-bottom: 1px solid var(--board-border);
+  margin-bottom: 7px;
+  font-size: clamp(7px, 1.8cqw, 10px);
+  letter-spacing: 1.6px;
+  font-weight: 650;
+  min-height: 24px;
+}
+.pb-board-header span:first-child {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+.pb-board-header span:last-child {
+  max-width: 54%;
+  text-align: right;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.pb-board-header svg {
+  width: 18px;
+  height: 18px;
+  color: var(--board-accent);
+  flex-shrink: 0;
+}
+.pb-score-rows {
+  display: grid;
+  gap: 4px;
+}
+.pb-score-row {
+  display: flex;
+  gap: 4px;
+  align-items: stretch;
+  width: 100%;
+  color: inherit;
+  text-align: left;
+  min-width: 0;
+}
+.pb-scoreboard .pb-player-name {
+  font-size: var(--board-name-size, clamp(11px, 3.5cqw, 22px));
+  font-weight: 650;
+  letter-spacing: -0.4px;
+  flex: 1;
+  min-width: 0;
+  background: var(--board-row);
+  border: 1px solid var(--board-border);
+  border-radius: 4px;
+  padding: 0 9px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  height: var(--board-row-height, clamp(32px, 8cqw, 50px));
+  white-space: nowrap;
+}
+.pb-pair-names {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  flex: 1;
+}
+.pb-player-part {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  flex: 0 1 auto;
+}
+.pb-player-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.pb-name-divider {
+  margin: 0 0.3em;
+  flex: none;
+  opacity: 0.65;
+}
+.pb-serve {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  color: var(--board-accent);
+}
+.pb-set-group {
+  display: flex;
+  gap: 4px;
+}
+.pb-scoreboard .pb-set,
+.pb-scoreboard .pb-points {
+  font-size: clamp(18px, 5cqw, 30px);
+  font-weight: 750;
+  letter-spacing: -0.6px;
+  background: var(--board-score-bg, var(--board-row));
+  color: var(--board-score-text, var(--board-text));
+  border: 1px solid var(--board-border);
+  border-radius: 4px;
+  min-width: 23px;
+  width: 8cqw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 2px;
+  font-variant-numeric: tabular-nums;
+}
+.pb-scoreboard .pb-points {
+  width: 10cqw;
+  min-width: 32px;
+}
+.pb-scoreboard .pb-points-accent {
+  background: var(--board-accent);
+  color: var(--board-point-text, #11120f);
+  border-color: var(--board-accent);
+}
+.pb-board-status {
+  margin-top: 8px;
+  font-size: 10px;
+  letter-spacing: 1.4px;
+  font-weight: 800;
+  text-align: right;
+}
+.pb-board-tour-premier {
+  border-radius: 3px;
+  border-top: 3px solid var(--board-accent);
+}
+.pb-board-tour-premier .pb-player-name,
+.pb-board-tour-premier .pb-set,
+.pb-board-tour-premier .pb-points {
+  border: 0;
+  border-radius: 0;
+}
+.pb-board-tour-premier .pb-set,
+.pb-board-tour-premier .pb-board-header {
+  color: var(--board-accent);
+}
+.pb-board-tour-fip {
+  border-radius: 2px;
+  padding-top: 0;
+  overflow: hidden;
+}
+.pb-board-tour-fip .pb-board-header {
+  margin-inline: -12px;
+  padding: 8px 14px;
+  background: #123761;
+  color: white;
+  border: 0;
+}
+.pb-board-tour-fip .pb-player-name {
+  font-weight: 750;
+}
+.pb-board-tour-fip .pb-score-rows {
+  gap: 1px;
+}
+.pb-board-tour-fip .pb-player-name,
+.pb-board-tour-fip .pb-set,
+.pb-board-tour-fip .pb-points {
+  border: 0;
+  border-radius: 0;
+}
+.pb-board-tour-fip .pb-points {
+  background: #123761;
+  color: white;
+}
+.pb-board-tour-fip .pb-serve {
+  color: #123761;
+}
+.pb-board-tour-fip .pb-points-accent {
+  background: var(--board-accent);
+  color: #123761;
+}
+.pb-board-tour-apt {
+  border-radius: 0;
+  border-left: 4px solid var(--board-accent);
+}
+.pb-board-tour-apt .pb-board-header {
+  border: 0;
+}
+.pb-board-tour-apt .pb-player-name {
+  text-transform: uppercase;
+  font-style: italic;
+}
+.pb-board-tour-apt .pb-player-name,
+.pb-board-tour-apt .pb-set,
+.pb-board-tour-apt .pb-points {
+  border: 0;
+  border-radius: 0;
+}
+.pb-board-tour-apt .pb-points {
+  background: var(--board-accent);
+  color: #11182b;
+}
+.pb-board-tour-clay {
+  border-radius: 2px;
+  border-top: 4px solid #c16e4b;
+}
+.pb-board-tour-clay .pb-board-header {
+  color: #f1d7ab;
+}
+.pb-board-tour-clay .pb-player-name {
+  font-family: Georgia, serif;
+  font-weight: 500;
+}
+.pb-board-tour-clay .pb-player-name,
+.pb-board-tour-clay .pb-set,
+.pb-board-tour-clay .pb-points {
+  border: 0;
+  border-radius: 0;
+}
+.pb-board-tour-clay .pb-set,
+.pb-board-tour-clay .pb-points {
+  background: var(--board-accent);
+  color: #174d3d;
+}
+
+/* Keep custom score type proportional to the rows, not the preview width. */
+.pb-board-custom .pb-set,
+.pb-board-custom .pb-points {
+  font-size: var(--board-score-size, 22px);
+  line-height: 1;
+}
+.pb-board-custom .pb-points {
+  background: var(--board-point-bg, var(--board-accent));
+  color: var(--board-point-text);
+  border-color: var(--board-point-bg, var(--board-accent));
+}
+.pb-board-header .pb-board-brand {
+  max-width: 44%;
+  overflow: hidden;
+}
+.pb-board-logo {
+  display: block;
+  height: var(--board-logo-height, 20px);
+  max-width: 120px;
+  object-fit: contain;
+  object-position: left center;
+}
+.pb-board-custom .pb-board-brand > svg {
+  width: var(--board-logo-height, 20px);
+  height: var(--board-logo-height, 20px);
+}
+
+.pb-player-part .pb-serve {
+  width: 12px;
+  height: 12px;
+  margin-left: 5px;
+  flex: none;
+}
+
+/* Reserve one fixed serve-marker slot; highlight the actual server by name. */
+.pb-serve-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  flex: 0 0 20px;
+}
+.pb-serve-slot .pb-serve {
+  width: 18px;
+  height: 18px;
+  color: var(--board-serving, var(--board-accent));
+}
+.pb-player-label.is-serving {
+  color: var(--board-serving, var(--board-accent));
+  font-weight: 800;
+}
+.pb-scoreboard .pb-set {
+  width: 6cqw;
+  min-width: 22px;
+  flex: 0 0 auto;
+}
+.pb-scoreboard .pb-points {
+  width: 8cqw;
+  min-width: 28px;
+  flex: 0 0 auto;
+}
+.pb-set-group {
+  gap: 3px;
+  flex: none;
+}
+
+/* Compact broadcast proportions: little chrome, strong names, tight score cells. */
+.pb-scoreboard {
+  padding: 3px;
+  border-radius: 4px;
+  box-shadow: none;
+}
+.pb-score-rows {
+  gap: 1px;
+}
+.pb-score-row {
+  gap: 1px;
+}
+.pb-scoreboard .pb-player-name {
+  padding-inline: 7px;
+  gap: 4px;
+  border-radius: 1px;
+  font-size: var(--board-name-size, clamp(16px, 4.8cqw, 26px));
+  height: var(--board-row-height, clamp(30px, 7.5cqw, 38px));
+  letter-spacing: 0;
+  font-weight: 750;
+}
+.pb-scoreboard .pb-set,
+.pb-scoreboard .pb-points {
+  border-radius: 1px;
+  font-size: var(--board-score-size, clamp(18px, 5cqw, 26px));
+}
+.pb-scoreboard .pb-set {
+  width: 6.5cqw;
+  min-width: 24px;
+}
+.pb-scoreboard .pb-points {
+  width: 9cqw;
+  min-width: 34px;
+}
+.pb-set-group {
+  gap: 1px;
+}
+.pb-board-header {
+  padding: 3px 6px 5px;
+  margin-bottom: 3px;
+  min-height: 22px;
+}
+.pb-board-tour-fip .pb-board-header {
+  margin-inline: -3px;
+}
+.pb-score-notice {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition:
+    grid-template-rows 240ms ease,
+    opacity 220ms ease,
+    transform 240ms ease;
+}
+.pb-score-notice.is-visible {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  transform: translateY(0);
+}
+.pb-score-notice-clip {
+  overflow: hidden;
+  min-height: 0;
+}
+.pb-score-notice-text {
+  padding: 6px 8px 3px;
+  border-top: 1px solid var(--board-border);
+  margin-top: 3px;
+  color: var(--board-serving, var(--board-text));
+  font: 750 10px var(--board-font, Arial, sans-serif);
+  letter-spacing: 1.1px;
+  text-align: center;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pb-score-notice {
+    transition: none;
+    transform: none;
+  }
+}
+
+.pb-scoreboard .pb-points.pb-points-long {font-size:calc(var(--board-score-size,22px) * .76);letter-spacing:-.6px;}
