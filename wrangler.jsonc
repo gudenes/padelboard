@@ -23,5 +23,13 @@
   "account_id": "46705e91af9cb759be6d57d5c09ed726",
   "vars": {
     "CLOUDFLARE_WORKER": "1"
-  }
+  },
+  "workers_dev": true,
+  "preview_urls": false,
+  "routes": [
+    {
+      "pattern": "padelboard.padellabs.tech/*",
+      "zone_name": "padellabs.tech"
+    }
+  ]
 }

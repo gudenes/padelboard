@@ -17,3 +17,9 @@ Runtime secrets: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `S
 Supabase Auth includes the production `/auth/callback` and `/auth/callback?match=*` URLs alongside localhost. Google OAuth remains disabled until credentials are configured.
 
 The legacy Railway configuration is retained for rollback. Cloudflare does not execute the old Vercel cron configuration. Draft cleanup is inactive unless a scheduler and `CRON_SECRET` are explicitly configured; the endpoint rejects all requests without a configured secret.
+
+## Production routing
+
+`padelboard.padellabs.tech/*` is routed directly to the `padelboard` Worker. `padelboard.gudenes.workers.dev` is also available for smoke checks. The previous proxied DNS origin and Railway service are retained for rollback; normal app requests are handled by Workers. Removing the Worker route would restore the old origin.
+
+Validated: production build, 141 unit tests, server secrets absent from public assets, Worker health/login/unauthenticated redirects, and a disposable authenticated match exercising score editing, serving, finish/reset and design persistence.
