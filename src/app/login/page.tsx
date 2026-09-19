@@ -33,7 +33,7 @@ export default async function Login({
           <br />
           Less fuss.
         </h1>
-        <p>Sign in to access your boards and match history.</p>
+        <p>{matchId ? "Sign in with the account that created this match. We’ll take you straight to its controls." : "Sign in to access your boards and match history."}</p>
         {params.auth_error && (
           <p role="alert" className="pbw-error">
             We couldn’t verify this link. Request a new email code and enter it

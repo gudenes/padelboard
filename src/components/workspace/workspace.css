@@ -1618,3 +1618,16 @@
 .pbw-camera-board.is-draggable { cursor: grab; touch-action: none; user-select: none; }
 .pbw-camera-board.is-draggable:active { cursor: grabbing; }
 .pbw-camera-board.is-draggable:focus-visible { outline: 3px dashed #f5ff36; outline-offset: 5px; }
+
+.pbw-match-nav { flex-wrap: wrap; align-items: center; }
+.pbw-phone-trigger { margin-left: auto; background: #fafbf5; border: 1px solid #111; border-radius: 999px; padding: 10px 15px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+.pbw-phone-trigger:hover { background: #fff; box-shadow: 2px 2px 0 #111; }
+.pbw-phone-dialog { width: min(520px, calc(100vw - 24px)); }
+.pbw-phone-dialog p { line-height: 1.5; margin-block: 14px; }
+.pbw-phone-dialog .pbw-primary { margin-top: 14px; }
+.pbw-phone-qr { display: block; margin: 16px auto; border-radius: 12px; max-width: 100%; height: auto; }
+@media (max-width: 650px) {
+  .pbw-phone-trigger { margin-left: 0; }
+  .pbw-operator .pbw-points { position: sticky; bottom: 12px; z-index: 3; padding: 8px; background: #fafbf5; border-radius: 20px; box-shadow: 0 4px 20px #1112; }
+  .pbw-operator .pbw-points button { min-height: 108px; touch-action: manipulation; }
+}

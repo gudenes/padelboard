@@ -2414,3 +2414,19 @@
 
 .pb-fine-tune-template { width: 100%; padding: 10px 14px; border: 1px solid #171812; border-radius: 12px; background: #f5ff36; font: inherit; font-weight: 700; cursor: pointer; margin-top: 10px; }
 .pb-fine-tune-template:hover { background: #e8f227; }
+
+/* The homepage illustration has its own presentation size, independent of live overlays. */
+.pb-hero-board > .pb-scoreboard {
+  width: 100%;
+  max-width: none;
+  --board-name-size: clamp(18px, 4.3cqw, 30px);
+  --board-row-height: clamp(36px, 8cqw, 50px);
+  --board-score-size: clamp(22px, 5cqw, 32px);
+}
+@media (min-width: 901px) {
+  .pb-hero-visual { margin-left: 12px; padding-top: 150px; }
+  .pb-hero-board { width: 100%; margin: 0; transform: rotate(-2deg); }
+  .pb-board-note { right: 12px; top: 48px; }
+  .pb-ball { top: 302px; right: -20px; }
+  .pb-preview-link { top: 444px; left: 24px; }
+}

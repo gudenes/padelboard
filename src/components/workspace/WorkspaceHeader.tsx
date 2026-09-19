@@ -3,6 +3,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { browserSupabase } from "@/lib/supabase";
+import { PhoneControl } from "./PhoneControl";
 import { WorkspaceBrand } from "./WorkspaceBrand";
 import { PlayerAvatar } from "./PlayerAvatar";
 import "./workspace.css";
@@ -168,6 +169,7 @@ export function WorkspaceHeader({
               {label}
             </Link>
           ))}
+          <PhoneControl code={matchCode} />
         </nav>
       )}
     </div>

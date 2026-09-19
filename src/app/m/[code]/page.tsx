@@ -26,7 +26,7 @@ export default async function MatchPage({
   const {
     data: { user },
   } = await auth.auth.getUser();
-  if (!user) redirect("/login");
+  if (!user) redirect(`/login?match=${row.id}`);
   if (user.id !== row.owner_id) return notFound();
   if (!user.user_metadata?.padelboard_profile?.completed)
     redirect(`/welcome?match=${row.id}`);
