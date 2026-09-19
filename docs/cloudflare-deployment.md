@@ -23,3 +23,5 @@ The legacy Railway configuration is retained for rollback. Cloudflare does not e
 `padelboard.padellabs.tech/*` is routed directly to the `padelboard` Worker. `padelboard.gudenes.workers.dev` is also available for smoke checks. The previous proxied DNS origin and Railway service are retained for rollback; normal app requests are handled by Workers. Removing the Worker route would restore the old origin.
 
 Validated: production build, 141 unit tests, server secrets absent from public assets, Worker health/login/unauthenticated redirects, and a disposable authenticated match exercising score editing, serving, finish/reset and design persistence.
+
+Vercel Git auto-deployments are disabled in `vercel.json`. Website AI design was verified against padellabs.tech. Maresme currently returns an anti-bot HTTP 202 response to Worker fetch; its logo can be uploaded instead.
