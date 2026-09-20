@@ -1,17 +1,109 @@
 .pbl-footer {
   background: #f6f7ed;
-  color: #657052;
-  padding: 24px;
-  text-align: center;
+  color: #171c12;
+  padding: 0 24px;
   font-family: var(--font-dm-sans), Arial, sans-serif;
-  font-size: 13px;
 }
-.pbl-footer p { margin: 0; }
+.pbl-footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  border-top: 1px solid #cdd3bd;
+  padding: 30px 0 24px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 24px 32px;
+  align-items: center;
+}
+.pbl-footer-note {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.pbl-footer-mark {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  background: #f5ff36;
+  border: 1px solid #171c12;
+  border-radius: 50%;
+  font-size: 33px;
+  transform: rotate(-12deg);
+}
+.pbl-footer-note p {
+  margin: 0;
+  font-size: 16px;
+  letter-spacing: -0.4px;
+  font-weight: 600;
+}
+.pbl-footer-project {
+  text-decoration: none;
+  color: inherit;
+  display: grid;
+  gap: 4px;
+}
+.pbl-footer-project > span {
+  font-size: 11px;
+  color: #5c654d;
+}
+.pbl-footer-project strong {
+  font-size: 26px;
+  letter-spacing: -1.2px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.pbl-footer-project strong span {
+  display: inline-block;
+  font-size: 20px;
+  transition: transform 0.18s;
+}
+.pbl-footer-project:hover strong span {
+  transform: translate(2px, -2px);
+}
+.pbl-footer nav {
+  grid-column: 1/-1;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  font-size: 11px;
+  color: #657052;
+}
+.pbl-footer nav a {
+  color: inherit;
+  text-decoration: none;
+}
+.pbl-footer nav a:hover {
+  text-decoration: underline;
+}
+.pbl-footer a:focus-visible {
+  outline: 3px solid #718b28;
+  outline-offset: 5px;
+  border-radius: 3px;
+}
 body:has(.pbw-studio-clean) .pbl-footer,
 body:has(.pbw-match-workspace.is-clean) .pbl-footer,
 body:has(.pbw-match-workspace.is-focused) .pbl-footer,
 body:has(.pbw-studio-focused) .pbl-footer,
-body:has(:fullscreen) .pbl-footer { display: none; }
+body:has(:fullscreen) .pbl-footer {
+  display: none;
+}
 @media (max-width: 600px) {
-  .pbl-footer { padding-bottom: 76px; }
+  .pbl-footer {
+    padding: 0 20px 65px;
+  }
+  .pbl-footer-inner {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+  .pbl-footer-project {
+    padding-left: 59px;
+  }
+  .pbl-footer-note p {
+    font-size: 15px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pbl-footer-project strong span {
+    transition: none;
+  }
 }
