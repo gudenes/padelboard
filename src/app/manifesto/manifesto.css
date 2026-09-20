@@ -1,0 +1,27 @@
+.pbm-eyebrow{font-size:12px;font-weight:800;letter-spacing:2px;margin:0 0 26px}
+.pbm-hero{padding-top:65px;padding-bottom:65px}
+.pbm-hero h1{font-size:clamp(60px,8.5vw,124px);font-weight:850;line-height:.98;letter-spacing:-.065em;max-width:1150px;margin:0}
+.pbm-hero h1 span{position:relative;display:inline-block}
+.pbm-hero h1 span:after{content:"";position:absolute;bottom:-10px;left:0;width:100%;height:7px;background:#111;border-radius:60%;transform:rotate(-2deg)}
+.pbm-hero-bottom{display:flex;align-items:center;justify-content:space-between;gap:40px;margin-top:56px}
+.pbm-hero-bottom p{font-size:clamp(18px,2vw,25px);max-width:700px;line-height:1.5}
+.pbm-scribble{font-size:36px;line-height:1;transform:rotate(-7deg);padding-right:35px}
+.pbm-read{display:inline-flex;gap:30px;font-size:13px;font-weight:700;margin-top:38px;border-bottom:1px solid #111;padding-bottom:8px}
+.pbm-story{background:#fafbf5;padding:90px 0}
+.pbm-story-grid,.pbm-labs{display:grid;grid-template-columns:1fr 1fr;gap:70px}
+.pb-manifesto h2{font-size:clamp(36px,4.5vw,66px);line-height:1.04;letter-spacing:-.05em;font-weight:800;margin:0}
+.pbm-prose{font-size:19px;line-height:1.65}
+.pbm-prose p{margin:0 0 24px}.pbm-prose p:last-child{margin-bottom:0}
+.pbm-emphasis{font-weight:800;font-size:27px;letter-spacing:-.8px;line-height:1.3}
+.pbm-principles{padding-top:90px;padding-bottom:90px}
+.pbm-principles h2 span{font-size:.8em}
+.pbm-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:45px}
+.pbm-cards article{background:#fffde8;border:2px solid #111;border-radius:22px;padding:30px;box-shadow:5px 5px 0 #111}
+.pbm-cards article:nth-child(2){background:#ffb8d5}.pbm-cards article:nth-child(3){background:#d9f1db}
+.pbm-number{display:inline-grid;place-items:center;border:1.5px solid;border-radius:50%;width:42px;height:42px;font-weight:800;transform:rotate(-10deg)}
+.pbm-cards h3{font-size:26px;font-weight:800;letter-spacing:-1px;margin:30px 0 15px}.pbm-cards p{font-size:17px;line-height:1.6;margin:0}
+.pbm-ripple{background:#10110c;color:#fafbf5;padding:90px 0}.pbm-ripple h2 span{color:#f9ff43}.pbm-ripple p:not(.pbm-eyebrow){max-width:740px;font-size:21px;line-height:1.6;margin:35px 0}.pbm-ripple .pb-hand{display:block;font-size:36px;color:#f9ff43}
+.pbm-labs{padding-top:90px;padding-bottom:90px}.pbm-prose a{font-weight:800;text-decoration:underline;text-underline-offset:5px}
+.pbm-invite{text-align:center;padding-top:60px;padding-bottom:90px;border-top:1px solid #1115}.pbm-invite .pb-hand{display:block;font-size:38px;transform:rotate(-4deg);margin-bottom:24px}.pbm-invite .pb-button{display:inline-flex;margin:32px auto 20px}.pbm-invite p{font-size:14px}
+@media(max-width:800px){.pbm-hero{padding-top:40px}.pbm-hero-bottom{gap:24px}.pbm-scribble{font-size:28px;padding:0}.pbm-story-grid,.pbm-labs{grid-template-columns:1fr;gap:30px}.pbm-cards{grid-template-columns:1fr}.pbm-cards article{padding:25px}.pbm-cards h3{margin-top:20px}.pbm-story,.pbm-ripple{padding:60px 0}.pbm-principles,.pbm-labs{padding-top:60px;padding-bottom:60px}}
+@media(max-width:500px){.pbm-hero h1{font-size:56px}.pbm-hero-bottom{align-items:flex-start;flex-direction:column;margin-top:40px}.pbm-scribble{align-self:flex-end}.pbm-prose{font-size:17px}.pbm-ripple p:not(.pbm-eyebrow){font-size:18px}.pbm-hero h1 span:after{height:4px}.pbm-invite{padding-bottom:60px}}

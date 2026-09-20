@@ -29,6 +29,7 @@ export function ProjectFooter() {
           </strong>
         </a>
         <nav aria-label="Footer navigation">
+          <Link href="/manifesto">Our manifesto</Link>
           <Link href="/help">Help & guides</Link>
         </nav>
       </div>

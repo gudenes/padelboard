@@ -26,6 +26,7 @@ export default async function HelpPage() {
           <WorkspaceBrand />
           <nav className="pbw-main-nav" aria-label="Main navigation">
             <Link href="/">Home</Link>
+            <Link href="/manifesto">Our manifesto</Link>
             <Link href="/help" aria-current="page">
               Help & guides
             </Link>

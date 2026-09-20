@@ -2471,3 +2471,6 @@
 @media(prefers-reduced-motion:reduce){.pb-demo-pair{transition:none}.pb-demo-pair.is-active .pb-demo-tap i,.tap-a .pb-points-accent,.tap-b .pb-score-row:nth-child(2) .pb-points{animation:none}}
 .pb-demo-pair:not(.is-active) .pb-demo-tap i{animation:none}
 .pb-demo-playback button{background:#f5ff36;border-radius:12px;padding:5px 8px}
+
+.pb-public-header nav a[aria-current="page"]{text-decoration:underline;text-underline-offset:6px;font-weight:750}
+@media(max-width:900px){.pb-header.pb-public-header{height:auto;min-height:110px;flex-wrap:wrap;padding-top:24px;padding-bottom:20px;gap:18px}.pb-public-header .pb-nav-cta{margin-left:auto}.pb-header.pb-public-header nav{display:flex;order:3;width:100%;margin-left:0;justify-content:center;gap:26px;font-size:13px}}

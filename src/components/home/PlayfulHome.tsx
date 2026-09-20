@@ -1,4 +1,5 @@
 "use client";
+import { PublicHeader } from "./PublicHeader";
 import { HeroScoreDemo } from "./HeroScoreDemo";
 import { editableTemplate } from "@/lib/template-design";
 
@@ -243,25 +244,7 @@ export function PlayfulHome({
       {!workspace && (
         <>
           <div className="pb-sunshine">
-            <header className="pb-header pb-container">
-              <a href="#" className="pb-wordmark" aria-label="Padelboard home">
-                padelboard
-                <span className="pb-logo-score">
-                  <sup>6</sup>
-                  <span>/</span>
-                  <sub>4</sub>
-                </span>
-              </a>
-              <nav aria-label="Main navigation">
-                <a href="#features">Features</a>
-                <a href="#examples">Examples</a>
-                <a href="/help">Help & guides</a>
-                <a href="/dashboard">My matches</a>
-              </nav>
-              <a className="pb-button pb-nav-cta" href="/login">
-                Sign in <ArrowRight weight="bold" />
-              </a>
-            </header>
+            <PublicHeader />
             <main>
               <section
                 className="pb-hero pb-container"
