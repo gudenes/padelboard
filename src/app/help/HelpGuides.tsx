@@ -215,11 +215,21 @@ export function HelpGuides() {
               </Step>
               <Step n={2} title="Set the scene.">
                 <p>
-                  Choose your camera under <b>Set the scene</b>, then press{" "}
-                  <b>Start camera</b> and allow camera access. Drag the
-                  scoreboard into place and use <b>Whole scoreboard size</b> to
-                  scale the entire board.
+                  Under <b>Set the scene → Video source</b>, choose{" "}
+                  <b>Camera</b>, then press <b>Start camera</b> and allow camera
+                  access. Drag the scoreboard into place and use{" "}
+                  <b>Whole scoreboard size</b> to scale the entire board.
                 </p>
+                <div className="pbh-tip">
+                  <b>Showing a replay or a remote broadcast?</b> Choose{" "}
+                  <b>Screen / window / tab</b> as your video source, then press{" "}
+                  <b>Choose screen</b>. Open the video on this computer and
+                  select its tab or window in the browser picker. Keep it
+                  playing and tap points as you watch. Avoid capturing the
+                  Studio itself. Screen capture supplies video only; configure
+                  the original audio in your streaming service. This option
+                  needs a supported desktop browser.
+                </div>
                 <p>
                   Want a different look? <b>Edit board</b> lets you adjust the
                   design. Press <b>Save scoreboard</b> to apply it.

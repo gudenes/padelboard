@@ -4,7 +4,12 @@ import Link from "next/link";
 import type { MatchRow } from "@/types/match";
 import { useMatchState } from "@/hooks/useMatchState";
 import { matchClock } from "@/lib/match-clock";
-import { stopMedia, cameraError } from "@/lib/studio-media";
+import {
+  stopMedia,
+  cameraError,
+  screenError,
+  captureStudioSource,
+} from "@/lib/studio-media";
 import { BoardPreview } from "./BoardPreview";
 import { MatchDuration } from "./MatchDuration";
 import { AnimatedMatchTime } from "./AnimatedMatchTime";
@@ -43,6 +48,8 @@ export function BrowserStudio({
     [clean, setClean] = useState(false),
     [ownFocused, setFocused] = useState(false),
     [busy, setBusy] = useState(false);
+  const [source, setSource] = useState<"camera" | "screen">("camera");
+  const [sourceName, setSourceName] = useState("");
   const focused = embedded ? focus : ownFocused;
   useEffect(() => {
     onCleanChange?.(clean);
@@ -98,6 +105,8 @@ export function BrowserStudio({
     if (video.current) video.current.srcObject = null;
     setReady(false);
     setLoading(false);
+    setClean(false);
+    setSourceName("");
   }
   useEffect(() => {
     if (!active) stop();
@@ -130,38 +139,42 @@ export function BrowserStudio({
   }, []);
   async function start(selected = device) {
     const version = ++request.current;
+    let candidate: MediaStream | null = null;
     setLoading(true);
     setError("");
-    setReady(false);
-    stopMedia(stream.current);
-    stream.current = null;
-    if (video.current) video.current.srcObject = null;
     try {
-      if (!navigator.mediaDevices?.getUserMedia) throw new Error("unsupported");
-      const next = await navigator.mediaDevices.getUserMedia({
-        video: selected
-          ? {
-              deviceId: { exact: selected },
-              width: { ideal: 1920 },
-              height: { ideal: 1080 },
-            }
-          : { width: { ideal: 1920 }, height: { ideal: 1080 } },
-        audio: false,
-      });
+      const next = await captureStudioSource(
+        navigator.mediaDevices,
+        source,
+        selected,
+      );
       if (version !== request.current) {
         stopMedia(next);
         return;
       }
+      candidate = next;
+      stopMedia(stream.current);
       stream.current = next;
       const track = next.getVideoTracks()[0];
-      setDevice(track.getSettings().deviceId || selected);
+      if (source === "camera")
+        setDevice(track.getSettings().deviceId || selected);
+      setSourceName(
+        track.label || (source === "screen" ? "Shared screen" : "Camera"),
+      );
       track.addEventListener("ended", () => {
         if (stream.current === next) {
           stopMedia(next);
           stream.current = null;
+          if (video.current) video.current.srcObject = null;
           setReady(false);
           setClean(false);
-          setError("Camera disconnected. Connect it and start again.");
+          if (document.fullscreenElement === stage.current)
+            void document.exitFullscreen().catch(() => {});
+          setError(
+            source === "screen"
+              ? "Screen sharing ended. Choose a screen to continue."
+              : "Camera disconnected. Connect it and start again.",
+          );
         }
       });
       if (video.current) {
@@ -172,13 +185,21 @@ export function BrowserStudio({
         stopMedia(next);
         return;
       }
-      setReady(true);
-      void listCameras();
+      setReady(track.readyState === "live");
+      if (source === "camera") void listCameras();
     } catch (e) {
+      if (candidate) stopMedia(candidate);
       if (version === request.current) {
-        stopMedia(stream.current);
-        stream.current = null;
-        setError(cameraError(e));
+        if (candidate && stream.current === candidate) {
+          stream.current = null;
+          if (video.current) video.current.srcObject = null;
+        }
+        setReady(
+          !!stream.current
+            ?.getVideoTracks()
+            .some((track) => track.readyState === "live"),
+        );
+        setError(source === "screen" ? screenError(e) : cameraError(e));
       }
     } finally {
       if (version === request.current) setLoading(false);
@@ -253,10 +274,10 @@ export function BrowserStudio({
                   ? "You call the points."
                   : "Your browser is the studio."}
               </h1>
-              <p>One camera. Your scoreboard. No OBS needed.</p>
+              <p>Your video. Your scoreboard. No OBS needed.</p>
             </div>
             <span className="pbw-badge">
-              {ready ? "● Camera ready" : "Camera off"}
+              {ready ? "● Source ready" : "Source off"}
             </span>
           </div>
         </>
@@ -266,7 +287,7 @@ export function BrowserStudio({
           <div
             ref={stage}
             className="pbw-camera-stage"
-            aria-label="Camera and live scoreboard"
+            aria-label="Video source and live scoreboard"
             onDoubleClick={() => {
               if (clean) {
                 setClean(false);
@@ -280,15 +301,21 @@ export function BrowserStudio({
               muted
               autoPlay
               playsInline
-              style={{ transform: mirror ? "scaleX(-1)" : undefined }}
+              style={{
+                transform:
+                  source === "camera" && mirror ? "scaleX(-1)" : undefined,
+                objectFit: source === "screen" ? "contain" : "cover",
+              }}
             />
             {!ready && (
               <div className="pbw-camera-empty">
                 <span className="pbw-hand">Your court goes here.</span>
                 <p>
                   {loading
-                    ? "Connecting your camera…"
-                    : "Start your camera to see the action."}
+                    ? "Connecting your source…"
+                    : source === "screen"
+                      ? "Choose a screen, window or tab to see the action."
+                      : "Start your camera to see the action."}
                 </p>
               </div>
             )}
@@ -469,42 +496,95 @@ export function BrowserStudio({
               </button>
             )}
             <label>
-              Camera
+              Video source
               <select
-                value={device}
-                disabled={loading}
+                value={source}
                 onChange={(e) => {
-                  setDevice(e.target.value);
-                  if (ready) void start(e.target.value);
+                  stop();
+                  setError("");
+                  setSource(e.target.value as "camera" | "screen");
                 }}
               >
-                <option value="">Default camera</option>
-                {devices.map((d, i) => (
-                  <option key={d.deviceId || i} value={d.deviceId}>
-                    {d.label || `Camera ${i + 1}`}
-                  </option>
-                ))}
+                <option value="camera">Camera</option>
+                <option value="screen">Screen / window / tab</option>
               </select>
             </label>
-            <button
-              className="pbw-primary"
-              disabled={loading}
-              onClick={() => (ready ? stop() : void start())}
-            >
-              {loading
-                ? "Connecting…"
-                : ready
-                  ? "Turn camera off"
-                  : "Start camera →"}
-            </button>
-            <label className="pbw-toggle">
-              <input
-                type="checkbox"
-                checked={mirror}
-                onChange={(e) => setMirror(e.target.checked)}
-              />
-              Mirror camera
-            </label>
+            {source === "camera" && (
+              <>
+                <label>
+                  Camera
+                  <select
+                    value={device}
+                    disabled={loading}
+                    onChange={(e) => {
+                      setDevice(e.target.value);
+                      if (ready) void start(e.target.value);
+                    }}
+                  >
+                    <option value="">Default camera</option>
+                    {devices.map((d, i) => (
+                      <option key={d.deviceId || i} value={d.deviceId}>
+                        {d.label || `Camera ${i + 1}`}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <button
+                  className="pbw-primary"
+                  disabled={loading}
+                  onClick={() => (ready ? stop() : void start())}
+                >
+                  {loading
+                    ? "Connecting…"
+                    : ready
+                      ? "Turn camera off"
+                      : "Start camera →"}
+                </button>
+                <label className="pbw-toggle">
+                  <input
+                    type="checkbox"
+                    checked={mirror}
+                    onChange={(e) => setMirror(e.target.checked)}
+                  />
+                  Mirror camera
+                </label>
+              </>
+            )}
+            {source === "screen" && (
+              <>
+                <p className="pbw-muted">
+                  Open a replay or remote broadcast in another tab or window,
+                  then choose it below. Avoid sharing this Studio tab or a
+                  screen containing it, to prevent a repeating mirror.
+                </p>
+                <button
+                  className="pbw-primary"
+                  disabled={loading}
+                  onClick={() => void start()}
+                >
+                  {loading
+                    ? "Choosing source…"
+                    : ready
+                      ? "Choose another screen →"
+                      : "Choose screen →"}
+                </button>
+                {ready && (
+                  <>
+                    <p className="pbw-muted" role="status">
+                      Sharing: {sourceName}
+                    </p>
+                    <button className="pbw-secondary" onClick={stop}>
+                      Stop screen sharing
+                    </button>
+                  </>
+                )}
+                <p className="pbw-muted">
+                  Video only. Set up the original audio and microphone in your
+                  streaming service. Keep the source playing; the scoreboard
+                  follows your point taps.
+                </p>
+              </>
+            )}
             <label>
               Scoreboard position
               <select
@@ -590,7 +670,7 @@ export function BrowserStudio({
             </button>
             <p className="pbw-muted">
               Press Esc or double-tap the video to return to controls. This
-              studio prepares your camera and scoreboard; it doesn’t broadcast
+              studio prepares your video and scoreboard; it doesn’t broadcast
               directly to YouTube or other platforms.
             </p>
           </aside>
