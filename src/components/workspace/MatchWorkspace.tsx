@@ -29,7 +29,7 @@ export function MatchWorkspace({
     Date.parse(remote.updated_at) > Date.parse(local.updated_at)
       ? remote
       : local;
-  const [output, setOutput] = useState<Output | null>(initialOutput ?? null);
+  const [output, setOutput] = useState<Output>(initialOutput ?? "studio");
   const [remember, setRemember] = useState(false);
   const [tab, setTab] = useState(
     initialView === "insights" ||
@@ -202,34 +202,24 @@ export function MatchWorkspace({
       >
         {!focused && (
           <section
-            className={`pbw-output-picker${output ? " is-chosen" : ""}`}
+            className="pbw-output-picker is-chosen"
             aria-label="Broadcast output"
           >
-            <div>
-              <span className="pbw-eyebrow">
-                {output ? "YOUR OUTPUT" : "WHERE ARE WE PLAYING?"}
+            <span className="pbw-eyebrow">OUTPUT</span>
+            <div className="pbw-output-switch">
+              <span className={output === "studio" ? "is-active" : ""}>
+                Padelboard Studio
               </span>
-              <p>
-                {output
-                  ? "Switch your output here. Your match stays right here."
-                  : "Choose how to put your scoreboard on screen."}
-              </p>
-            </div>
-            <div className="pbw-output-options">
               <button
-                aria-pressed={output === "studio"}
-                onClick={() => choose("studio")}
+                type="button"
+                role="switch"
+                aria-label="Use OBS overlay"
+                aria-checked={output === "obs"}
+                onClick={() => choose(output === "studio" ? "obs" : "studio")}
               >
-                <strong>Padelboard Studio</strong>
-                <span>Camera + scoreboard in your browser</span>
+                <span />
               </button>
-              <button
-                aria-pressed={output === "obs"}
-                onClick={() => choose("obs")}
-              >
-                <strong>OBS overlay</strong>
-                <span>Add your scoreboard to an existing stream</span>
-              </button>
+              <span className={output === "obs" ? "is-active" : ""}>OBS</span>
             </div>
             <label className="pbw-toggle">
               <input
@@ -242,7 +232,7 @@ export function MatchWorkspace({
             {notice && <p role="status">{notice}</p>}
           </section>
         )}
-        <div className="pbw-live-grid" hidden={!output}>
+        <div className="pbw-live-grid">
           <div className="pbw-live-stage">
             {/* Keep Studio mounted while switching outputs or tabs so media survives. */}
             <div hidden={output !== "studio"}>

@@ -1741,3 +1741,12 @@
 @media (max-width: 650px) { .pbw-output-picker.is-chosen .pbw-toggle { margin-left: 0; } }
 
 html:has(.pbw-editor-drawer[open]) { overflow: hidden; }
+
+.pbw-output-switch { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+.pbw-output-switch > span { color: #656955; }
+.pbw-output-switch > span.is-active { color: #111; font-weight: 800; }
+.pbw-output-switch button { display: flex; align-items: center; width: 54px; height: 32px; padding: 3px; border: 1.5px solid #111; border-radius: 24px; background: #f5ff36; cursor: pointer; }
+.pbw-output-switch button > span { width: 23px; height: 23px; border-radius: 50%; background: #111; transition: transform .18s ease; }
+.pbw-output-switch button[aria-checked="true"] > span { transform: translateX(21px); }
+.pbw-output-switch button:focus-visible { outline: 3px solid #111; outline-offset: 4px; }
+@media (prefers-reduced-motion: reduce) { .pbw-output-switch button > span { transition: none; } }
