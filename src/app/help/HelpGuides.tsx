@@ -28,6 +28,39 @@ function Shot({
     </figure>
   );
 }
+function ObsShot({
+  src,
+  alt,
+  caption,
+  source,
+}: {
+  src: string;
+  alt: string;
+  caption: string;
+  source: string;
+}) {
+  return (
+    <figure className="pbh-shot pbh-obs-shot">
+      <a
+        href={src}
+        target="_blank"
+        rel="noreferrer"
+        aria-label={`Enlarge screenshot: ${alt}`}
+      >
+        <img src={src} alt={alt} loading="lazy" referrerPolicy="no-referrer" />
+      </a>
+      <figcaption>
+        {caption}
+        <span>
+          <a href={source} target="_blank" rel="noreferrer">
+            Screenshot: OBS Project · Official documentation ↗
+          </a>{" "}
+          · Tap image to enlarge
+        </span>
+      </figcaption>
+    </figure>
+  );
+}
 function Step({
   n,
   title,
@@ -238,6 +271,18 @@ export function HelpGuides() {
                   name it “Padelboard”. Leave <b>Local file</b> off and paste
                   your overlay link into <b>URL</b>.
                 </p>
+                <ObsShot
+                  src="https://obsproject.com/media/pages/kb/quick-start-guide/bb9f5b282f-1767489968/add-sources-menu.png"
+                  alt="OBS add-source menu with Browser near the top"
+                  caption="In OBS: Sources → + → Browser. Choose Browser near the top; the official example highlights Game Capture. Name your new source Padelboard."
+                  source="https://obsproject.com/kb/quick-start-guide"
+                />
+                <ObsShot
+                  src="https://obsproject.com/media/pages/kb/browser-source/f506ac48ba-1767490374/browser-properties.png"
+                  alt="OBS Browser Source properties showing Local file, URL, Width, Height and Custom CSS"
+                  caption="This official screenshot shows OBS defaults. Replace its example URL with your Padelboard overlay link and change 800 × 600 to 1920 × 1080. The appearance may vary by OBS version."
+                  source="https://obsproject.com/kb/browser-source"
+                />
                 <div className="pbh-settings">
                   <span>
                     URL <b>Your copied overlay link</b>
@@ -279,6 +324,12 @@ export function HelpGuides() {
                   visible over the camera and the player names are readable. OBS
                   handles your camera, microphone, recording and broadcast.
                 </div>
+                <ObsShot
+                  src="https://obsproject.com/media/pages/kb/quick-start-guide/0fa79f2a03-1767489971/controls-dock.png"
+                  alt="OBS Controls dock with Start Streaming, Start Recording, Studio Mode and Settings"
+                  caption="Use Start Recording for a short test. Once your streaming destination is configured in OBS and everything looks right, Start Streaming goes live."
+                  source="https://obsproject.com/kb/quick-start-guide"
+                />
                 <p>
                   Keep Padelboard open as your scoring desk. The overlay follows
                   your saved score and design changes automatically.

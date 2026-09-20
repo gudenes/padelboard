@@ -356,3 +356,21 @@
     transition: none;
   }
 }
+
+.pbh-obs-shot {
+  background: #1d222c;
+  margin-bottom: 24px;
+}
+.pbh-obs-shot img {
+  width: auto;
+  max-width: 100%;
+  margin: 0 auto;
+  max-height: 560px;
+  object-fit: contain;
+}
+.pbh-obs-shot figcaption {
+  background: white;
+}
+.pbh-obs-shot figcaption a {
+  text-decoration: underline;
+}
