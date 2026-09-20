@@ -78,17 +78,20 @@ export function WorkspaceHeader({
       setBusy(false);
     }
   }
-  const section = path.endsWith("/insights")
-    ? "Match insights"
-    : path.endsWith("/studio")
-      ? "Studio"
-      : path.endsWith("/edit")
-        ? "Edit scoreboard"
-        : path === "/dashboard/profile"
-          ? "Profile"
-          : path === "/dashboard/new"
-            ? "New match"
-            : "Match controls";
+  const section =
+    path === "/help"
+      ? "Help & guides"
+      : path.endsWith("/insights")
+        ? "Match insights"
+        : path.endsWith("/studio")
+          ? "Studio"
+          : path.endsWith("/edit")
+            ? "Edit scoreboard"
+            : path === "/dashboard/profile"
+              ? "Profile"
+              : path === "/dashboard/new"
+                ? "New match"
+                : "Match controls";
   return (
     <div className="pbw-header">
       <header className="pbw-nav">
@@ -105,6 +108,12 @@ export function WorkspaceHeader({
             aria-current={path === "/dashboard/new" ? "page" : undefined}
           >
             + New match
+          </Link>
+          <Link
+            href="/help"
+            aria-current={path === "/help" ? "page" : undefined}
+          >
+            Help & guides
           </Link>
         </nav>
         <details ref={menu} className="pbw-account">

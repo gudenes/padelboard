@@ -252,7 +252,7 @@ export function PlayfulHome({
               <nav aria-label="Main navigation">
                 <a href="#features">Features</a>
                 <a href="#examples">Examples</a>
-                <a href="#how-it-works">How it works</a>
+                <a href="/help">Help & guides</a>
                 <a href="/dashboard">My matches</a>
               </nav>
               <a className="pb-button pb-nav-cta" href="/login">
