@@ -10,6 +10,7 @@ import { ScoreboardEditor } from "./ScoreboardEditor";
 import { MatchAnalytics } from "./MatchAnalytics";
 import { BoardPreview } from "./BoardPreview";
 import { AnimatedMatchTime } from "./AnimatedMatchTime";
+import { BroadcastGuide } from "./BroadcastGuide";
 import { PhoneControl } from "./PhoneControl";
 import "./workspace.css";
 
@@ -200,6 +201,7 @@ export function MatchWorkspace({
         aria-labelledby="tab-live"
         hidden={tab !== "live"}
       >
+        {!focused && !clean && <BroadcastGuide code={row.short_code} owner={row.owner_id} fresh={!initial.started_at && initial.status !== "finished"} output={output} onOutput={choose} />}
         {!focused && (
           <section
             className="pbw-output-picker is-chosen"
