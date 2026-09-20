@@ -483,15 +483,6 @@ export function PlayfulHome({
               ))}
             </div>
           </section>
-          <footer className="pb-footer pb-container">
-            <a href="#" className="pb-wordmark">
-              padelboard
-            </a>
-            <span>Made for the love of the game.</span>
-            <a href="https://padellabs.tech" target="_blank" rel="noreferrer">
-              A Padel Labs project <ArrowRight />
-            </a>
-          </footer>
         </>
       )}
       <dialog

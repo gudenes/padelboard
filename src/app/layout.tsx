@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { ProjectFooter } from "@/components/workspace/ProjectFooter";
 import { FeedbackButton } from "@/components/feedback/FeedbackButton";
 
 export const metadata: Metadata = {
@@ -17,6 +18,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         {children}
+        <ProjectFooter />
         <FeedbackButton />
       </body>
     </html>
