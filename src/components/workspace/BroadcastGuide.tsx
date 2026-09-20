@@ -1,29 +1,26 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Destination = "youtube" | "other" | "practice";
 type Output = "studio" | "obs";
 
-export function BroadcastGuide({ code, owner, fresh, output, onOutput }: {
-  code: string; owner: string | null; fresh: boolean; output: Output; onOutput: (output: Output) => void;
+export function BroadcastGuide({ code, owner, output, onOutput }: {
+  code: string; owner: string | null; output: Output; onOutput: (output: Output) => void;
 }) {
   const key = `padelboard:broadcast-guide:${owner}:${code}`;
-  const [open, setOpen] = useState(false);
+  const dialog = useRef<HTMLDialogElement>(null);
   const [destination, setDestination] = useState<Destination>("youtube");
   const [step, setStep] = useState(0);
   const [checks, setChecks] = useState<string[]>([]);
-  const [loaded, setLoaded] = useState(false);
   useEffect(() => {
     try {
       const raw = localStorage.getItem(key);
       const saved = raw ? JSON.parse(raw) : null;
       if (["youtube", "other", "practice"].includes(saved?.destination)) setDestination(saved.destination);
-      setOpen(fresh && !saved?.dismissed);
-    } catch { setOpen(fresh); }
-    setLoaded(true);
-  }, [key, fresh]);
+    } catch { /* Optional browser preference. */ }
+  }, [key]);
   function close() {
-    setOpen(false);
+    dialog.current?.close();
     try { localStorage.setItem(key, JSON.stringify({ destination, dismissed: true })); } catch { /* Optional browser preference. */ }
   }
   const practice = destination === "practice";
@@ -31,12 +28,15 @@ export function BroadcastGuide({ code, owner, fresh, output, onOutput }: {
     ? ["I can see the court and read both pairs’ names.", "I know where the point buttons and Undo are."]
     : ["The court and scoreboard are visible in my streaming tool.", "I checked the microphone and listened to a test recording.", "I checked the preview on a phone: names and points are readable."];
   return (
+    <>
+    <button className="pbw-secondary" aria-haspopup="dialog" onClick={() => dialog.current?.showModal()}>Help me stream →</button>
+    <dialog ref={dialog} className="pbw-guide-dialog" aria-labelledby="broadcast-guide-title" onCancel={(event) => { event.preventDefault(); close(); }}>
     <section className="pbw-broadcast-guide" aria-label="Streaming setup guide">
       <div className="pbw-guide-heading">
-        <div><span className="pbw-hand">NEXT STOP: YOUR AUDIENCE.</span><h2>Your board is ready. Let’s give it a stage.</h2></div>
-        <button className="pbw-secondary" aria-expanded={open} aria-controls="broadcast-guide-content" onClick={() => open ? close() : setOpen(true)}>{open ? "Do this later" : "Help me stream →"}</button>
+        <div><span className="pbw-hand">NEXT STOP: YOUR AUDIENCE.</span><h2 id="broadcast-guide-title">Your board is ready. Let’s give it a stage.</h2></div>
+        <button className="pbw-secondary" onClick={close} aria-label="Close streaming guide">Close ×</button>
       </div>
-      {loaded && open && <div id="broadcast-guide-content">
+      <div id="broadcast-guide-content">
         <nav className="pbw-guide-progress" aria-label="Setup steps">{["Destination", "Your setup", "Sound check"].map((label, i) => <button key={label} aria-current={step === i ? "step" : undefined} onClick={() => setStep(i)}><span>{i + 1}</span>{label}</button>)}</nav>
         <div className="pbw-guide-content" key={`${step}-${output}-${destination}`}>
           {step === 0 && <>
@@ -52,12 +52,12 @@ export function BroadcastGuide({ code, owner, fresh, output, onOutput }: {
             <h3>{practice ? "Pick your practice setup." : "How will you put the match on screen?"}</h3>
             <div className="pbw-guide-options">{(["studio", "obs"] as const).map(value => <button key={value} aria-pressed={output === value} onClick={() => { onOutput(value); setChecks([]); }}><strong>{value === "studio" ? "Padelboard Studio" : "OBS overlay"}</strong><small>{value === "studio" ? "Build your camera + scoreboard scene here." : "Add the scoreboard to your OBS scene."}</small></button>)}</div>
             {output === "studio" ? <ol>
-              <li>Below this guide, select your camera or share a screen and position your board.</li>
+              <li>Close this guide to select your camera or share a screen and position your board. You can reopen it anytime.</li>
               {!practice && <li>In a browser broadcasting service that supports screen sharing, connect {destination === "youtube" ? "your YouTube channel" : "your destination"}. Share this Padelboard tab and turn on <b>Clean view to share</b>.</li>}
               <li>{practice ? "Try the scene before starting the match." : "Select your microphone in that broadcasting service. Use Phone control to score while the clean scene stays on screen."}</li>
             </ol> : <ol>
               <li>In OBS, add your camera under Sources → Video Capture Device.</li>
-              <li>Copy the overlay link below. Add Sources → Browser, paste the link and set 1920 × 1080. Keep it above the camera in Sources.</li>
+              <li>Close this guide and copy the overlay link in the OBS panel. Add Sources → Browser, paste the link and set 1920 × 1080. Keep it above the camera in Sources.</li>
               {!practice && <li>In Settings → Stream, connect {destination === "youtube" ? "YouTube" : "your destination"}. Check your microphone in the Audio Mixer.</li>}
             </ol>}
             <p className="pbw-guide-note">{output === "studio" ? "Studio prepares the picture; your broadcasting service sends it live. YouTube’s webcam mode won’t add this scene automatically. External services may require a paid plan." : "OBS sends the stream; Padelboard keeps the score. Nothing goes live just by completing this guide."}</p>
@@ -71,7 +71,9 @@ export function BroadcastGuide({ code, owner, fresh, output, onOutput }: {
           </>}
         </div>
         <div className="pbw-guide-footer"><button className="pbw-secondary" disabled={step === 0} onClick={() => setStep(step - 1)}>← Back</button><span>{step + 1} / 3</span><button className="pbw-primary" onClick={() => step < 2 ? setStep(step + 1) : close()}>{step < 2 ? "Continue →" : "Back to my match →"}</button></div>
-      </div>}
+      </div>
     </section>
+    </dialog>
+    </>
   );
 }

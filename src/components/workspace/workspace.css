@@ -1815,3 +1815,8 @@ html:has(.pbw-editor-drawer[open]) { overflow: hidden; }
 @keyframes pbw-guide-enter { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 @media (max-width: 650px) { .pbw-guide-heading { align-items: flex-start; flex-direction: column; } .pbw-guide-options { flex-direction: column; } .pbw-guide-progress { gap: 10px; } .pbw-guide-heading, .pbw-guide-content { padding: 20px; } .pbw-guide-footer { padding: 14px; } }
 @media (prefers-reduced-motion: reduce) { .pbw-guide-content { animation: none; } .pbw-guide-options button { transition: none; } }
+.pbw-guide-dialog { margin: auto; padding: 0; border: 0; border-radius: 22px; width: min(900px, calc(100vw - 32px)); max-height: calc(100dvh - 48px); overflow-y: auto; color: #171c12; background: #fffef5; box-shadow: 0 24px 80px #0004; text-align: left; }
+.pbw-guide-dialog::backdrop { background: #171c1270; backdrop-filter: blur(5px); }
+.pbw-guide-dialog .pbw-broadcast-guide { margin: 0; box-shadow: none; border: 0; }
+.pbw-guide-dialog[open] { animation: pbw-guide-enter 220ms ease both; }
+@media (prefers-reduced-motion: reduce) { .pbw-guide-dialog[open] { animation: none; } }

@@ -176,6 +176,7 @@ export function MatchWorkspace({
             ))}
           </div>
           <div className="pbw-workspace-actions">
+            {!focused && !clean && <BroadcastGuide code={row.short_code} owner={row.owner_id} output={output} onOutput={choose} />}
             {(tab === "live" || focused) && output && (
               <button
                 className="pbw-secondary"
@@ -201,7 +202,6 @@ export function MatchWorkspace({
         aria-labelledby="tab-live"
         hidden={tab !== "live"}
       >
-        {!focused && !clean && <BroadcastGuide code={row.short_code} owner={row.owner_id} fresh={!initial.started_at && initial.status !== "finished"} output={output} onOutput={choose} />}
         {!focused && (
           <section
             className="pbw-output-picker is-chosen"
