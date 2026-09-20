@@ -22,8 +22,10 @@ export function TourScoreboard({
   accent,
   title,
   variant = "padelboard",
+  announce = true,
   customDesign,
 }: {
+  announce?: boolean;
   names: [string, string];
   players?: DoublesPlayers;
   state: MatchState;
@@ -88,7 +90,7 @@ export function TourScoreboard({
           <span>{title || "YOUR MATCH"}</span>
         </div>
       )}
-      <div className="pb-score-rows" aria-live="polite" aria-atomic="true">
+      <div className="pb-score-rows" aria-live={announce ? "polite" : "off"} aria-atomic="true">
         {(["a", "b"] as const).map((team, i) => {
           const pair =
             players?.[i * 2] || players?.[i * 2 + 1]
