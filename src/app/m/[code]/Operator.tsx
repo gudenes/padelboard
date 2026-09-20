@@ -9,8 +9,18 @@ import { matchClock } from "@/lib/match-clock";
 import { BoardPreview } from "@/components/workspace/BoardPreview";
 import { MatchDuration } from "@/components/workspace/MatchDuration";
 import "@/components/workspace/workspace.css";
-export function Operator({ initial, phone = false }: { initial: MatchRow; phone?: boolean }) {
-  const remote = useMatchState(initial.id, initial),
+export function Operator({
+  initial,
+  phone = false,
+  embedded = false,
+  onChange,
+}: {
+  initial: MatchRow;
+  phone?: boolean;
+  embedded?: boolean;
+  onChange?: (row: MatchRow) => void;
+}) {
+  const remote = useMatchState(initial.id, initial, !embedded),
     [local, setLocal] = useState(initial),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
@@ -18,8 +28,9 @@ export function Operator({ initial, phone = false }: { initial: MatchRow; phone?
     [confirmation, setConfirmation] = useState<"finish_match" | "reset" | null>(
       null,
     );
-  const row =
-    Date.parse(remote.updated_at) > Date.parse(local.updated_at)
+  const row = embedded
+    ? initial
+    : Date.parse(remote.updated_at) > Date.parse(local.updated_at)
       ? remote
       : local;
   const clock = matchClock(row),
@@ -37,6 +48,7 @@ export function Operator({ initial, phone = false }: { initial: MatchRow; phone?
       const json = await response.json();
       if (!response.ok) throw new Error(json.error);
       setLocal(json.row);
+      onChange?.(json.row);
       setConfirmation(null);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not save. Try again.");
@@ -44,32 +56,54 @@ export function Operator({ initial, phone = false }: { initial: MatchRow; phone?
       setBusy(false);
     }
   }
+  const Root = embedded ? "div" : "main";
   return (
-    <main className={`pbw${phone ? " pbw-remote" : ""}`}>
-      {phone ? <header className="pbw-remote-brand"><strong>padelboard</strong><span>PHONE REMOTE · {row.short_code}</span></header> : <WorkspaceHeader
-        matchCode={row.short_code}
-        matchName={row.overlay.tournamentName}
-      />}
-      <div className="pbw-title">
-        <div>
-          <span className="pbw-eyebrow">{phone ? "JUST TAP. WE’LL KEEP SCORE." : `OPERATOR MODE · ${row.short_code}`}</span>
-          <h1>{row.overlay.tournamentName || "Let’s play some padel."}</h1>
-        </div>
-        <span className="pbw-badge">
-          {finished
-            ? "Match finished"
-            : clock.runningSince
-              ? "● On court"
-              : row.started_at
-                ? "Paused"
-                : "Ready to play"}
-        </span>
-      </div>
+    <Root
+      className={
+        embedded ? "pbw-embedded-operator" : `pbw${phone ? " pbw-remote" : ""}`
+      }
+    >
+      {!embedded && (
+        <>
+          {phone ? (
+            <header className="pbw-remote-brand">
+              <strong>padelboard</strong>
+              <span>PHONE REMOTE · {row.short_code}</span>
+            </header>
+          ) : (
+            <WorkspaceHeader
+              matchCode={row.short_code}
+              matchName={row.overlay.tournamentName}
+            />
+          )}
+          <div className="pbw-title">
+            <div>
+              <span className="pbw-eyebrow">
+                {phone
+                  ? "JUST TAP. WE’LL KEEP SCORE."
+                  : `OPERATOR MODE · ${row.short_code}`}
+              </span>
+              <h1>{row.overlay.tournamentName || "Let’s play some padel."}</h1>
+            </div>
+            <span className="pbw-badge">
+              {finished
+                ? "Match finished"
+                : clock.runningSince
+                  ? "● On court"
+                  : row.started_at
+                    ? "Paused"
+                    : "Ready to play"}
+            </span>
+          </div>
+        </>
+      )}
       <div className="pbw-operator">
         <section className="pbw-card">
-          <div className="pbw-score-preview">
-            <BoardPreview row={row} />
-          </div>
+          {!embedded && (
+            <div className="pbw-score-preview">
+              <BoardPreview row={row} />
+            </div>
+          )}
           <div className="pbw-clock">
             <div>
               <span className="pbw-eyebrow">MATCH DURATION</span>
@@ -95,44 +129,47 @@ export function Operator({ initial, phone = false }: { initial: MatchRow; phone?
               </button>
             )}
           </div>
-          <details className="pbw-serving-disclosure" open={phone ? undefined : true}>
+          <details
+            className="pbw-serving-disclosure"
+            open={phone || embedded ? undefined : true}
+          >
             <summary>Change serving player</summary>
-          <fieldset className="pbw-servers" disabled={busy || finished}>
-            <legend>Who’s serving?</legend>
-            <div className="pbw-server-pairs">
-              {(["a", "b"] as const).map((team) => (
-                <div key={team}>
-                  <span className="pbw-muted">
-                    Pair {team === "a" ? "one" : "two"}
-                  </span>
-                  {([0, 1] as const).map((player) => (
-                    <button
-                      type="button"
-                      key={player}
-                      aria-pressed={
-                        row.state.servingTeam === team &&
+            <fieldset className="pbw-servers" disabled={busy || finished}>
+              <legend>Who’s serving?</legend>
+              <div className="pbw-server-pairs">
+                {(["a", "b"] as const).map((team) => (
+                  <div key={team}>
+                    <span className="pbw-muted">
+                      Pair {team === "a" ? "one" : "two"}
+                    </span>
+                    {([0, 1] as const).map((player) => (
+                      <button
+                        type="button"
+                        key={player}
+                        aria-pressed={
+                          row.state.servingTeam === team &&
+                          Math.floor(row.state.servingPlayer / 2) === player
+                        }
+                        onClick={() =>
+                          void act({ kind: "set_server", team, player })
+                        }
+                      >
+                        {row.state.servingTeam === team &&
                         Math.floor(row.state.servingPlayer / 2) === player
-                      }
-                      onClick={() =>
-                        void act({ kind: "set_server", team, player })
-                      }
-                    >
-                      {row.state.servingTeam === team &&
-                      Math.floor(row.state.servingPlayer / 2) === player
-                        ? "● "
-                        : ""}
-                      {row.teams[team].players[player] ||
-                        `Player ${player + 1}`}
-                    </button>
-                  ))}
-                </div>
-              ))}
-            </div>
-            <p className="pbw-muted">
-              Choose the server before play, or correct it here. We rotate
-              automatically after games and during tiebreaks.
-            </p>
-          </fieldset>
+                          ? "● "
+                          : ""}
+                        {row.teams[team].players[player] ||
+                          `Player ${player + 1}`}
+                      </button>
+                    ))}
+                  </div>
+                ))}
+              </div>
+              <p className="pbw-muted">
+                Choose the server before play, or correct it here. We rotate
+                automatically after games and during tiebreaks.
+              </p>
+            </fieldset>
           </details>
           <div className="pbw-points">
             {(["a", "b"] as const).map((team) => (
@@ -153,7 +190,9 @@ export function Operator({ initial, phone = false }: { initial: MatchRow; phone?
           </div>
           {!row.started_at && !finished && (
             <p className="pbw-muted">
-              {phone ? "Tap Start match when the first serve is ready." : "Start the match when the first serve is ready. Your clock and scoring controls start together."}
+              {phone
+                ? "Tap Start match when the first serve is ready."
+                : "Start the match when the first serve is ready. Your clock and scoring controls start together."}
             </p>
           )}
           <button
@@ -183,11 +222,16 @@ export function Operator({ initial, phone = false }: { initial: MatchRow; phone?
           )}
         </section>
         <aside>
-          {!phone && <AddToScreen row={row} />}
+          {!phone && !embedded && <AddToScreen row={row} />}
           <section className="pbw-card">
-            {!phone && <Link className="pbw-secondary" href={`/m/${row.short_code}/edit`}>
-              Edit scoreboard design ↗
-            </Link>}
+            {!phone && !embedded && (
+              <Link
+                className="pbw-secondary"
+                href={`/m/${row.short_code}/edit`}
+              >
+                Edit scoreboard design ↗
+              </Link>
+            )}
             <label className="pbw-toggle">
               <input
                 type="checkbox"
@@ -254,7 +298,9 @@ export function Operator({ initial, phone = false }: { initial: MatchRow; phone?
             {settings && !confirmation && (
               <>
                 <p>
-                  {phone ? "Save the result and stop the clock." : "Finish this match or start fresh with the same players and board."}
+                  {phone
+                    ? "Save the result and stop the clock."
+                    : "Finish this match or start fresh with the same players and board."}
                 </p>
                 {!finished && (
                   <button
@@ -265,18 +311,20 @@ export function Operator({ initial, phone = false }: { initial: MatchRow; phone?
                     End match
                   </button>
                 )}
-                {!phone && <button
-                  className="pbw-secondary"
-                  disabled={busy}
-                  onClick={() => setConfirmation("reset")}
-                >
-                  Reset score & clock
-                </button>}
+                {!phone && (
+                  <button
+                    className="pbw-secondary"
+                    disabled={busy}
+                    onClick={() => setConfirmation("reset")}
+                  >
+                    Reset score & clock
+                  </button>
+                )}
               </>
             )}
           </section>
         </aside>
       </div>
-    </main>
+    </Root>
   );
 }

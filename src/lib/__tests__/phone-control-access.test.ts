@@ -4,6 +4,7 @@ vi.mock("next/navigation",()=>({redirect:(url:string)=>{throw new Error(`redirec
 vi.mock("@/lib/supabase-server",()=>({serviceSupabase:()=>({from:()=>({select:()=>({eq:()=>({single:async()=>({data:state.row})})})})}),serverSupabase:async()=>({auth:{getUser:async()=>({data:{user:state.user}})}})}));
 vi.mock("@/components/workspace/ReadyMatch",()=>({ReadyMatch:()=>null}));
 vi.mock("@/app/m/[code]/Operator",()=>({Operator:()=>null}));
+vi.mock("@/components/workspace/MatchWorkspace",()=>({MatchWorkspace:()=>null}));
 import MatchPage from "@/app/m/[code]/page";
 beforeEach(()=>{state.user=null;});
 it("preserves the exact match through phone login",async()=>{
@@ -27,4 +28,15 @@ it("opens the focused operator for the owner without onboarding", async () => {
  const page=await RemotePage({params:Promise.resolve({code:"PHONE1"})});
  expect(page.props.phone).toBe(true);
  expect(page.props.initial.draft_token).toBeNull();
+});
+it("opens the unified workspace with a bookmarked output and panel", async () => {
+ state.user={id:"owner",user_metadata:{padelboard_profile:{completed:true}}};
+ const page=await MatchPage({params:Promise.resolve({code:"PHONE1"}),searchParams:Promise.resolve({output:"studio",view:"edit"})});
+ expect(page.props.initialOutput).toBe("studio");
+ expect(page.props.initialView).toBe("edit");
+});
+it("ignores unsupported output values", async () => {
+ state.user={id:"owner",user_metadata:{padelboard_profile:{completed:true}}};
+ const page=await MatchPage({params:Promise.resolve({code:"PHONE1"}),searchParams:Promise.resolve({output:"unknown"})});
+ expect(page.props.initialOutput).toBeUndefined();
 });

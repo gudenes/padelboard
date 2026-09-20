@@ -1,10 +1,9 @@
-import { ownedMatch } from "@/lib/owned-match";
-import { ScoreboardEditor } from "@/components/workspace/ScoreboardEditor";
-export default async function Edit({
+import { redirect } from "next/navigation";
+export default async function LegacyMatchPage({
   params,
 }: {
   params: Promise<{ code: string }>;
 }) {
   const { code } = await params;
-  return <ScoreboardEditor initial={await ownedMatch(code)} />;
+  redirect(`/m/${encodeURIComponent(code)}?view=edit`);
 }

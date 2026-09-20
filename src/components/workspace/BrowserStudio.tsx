@@ -11,11 +11,26 @@ import { AnimatedMatchTime } from "./AnimatedMatchTime";
 import { boardLayoutWidth } from "@/lib/custom-board";
 import { WorkspaceHeader } from "./WorkspaceHeader";
 import "./workspace.css";
-export function BrowserStudio({ initial }: { initial: MatchRow }) {
-  const live = useMatchState(initial.id, initial),
+export function BrowserStudio({
+  initial,
+  embedded = false,
+  focus = false,
+  active = true,
+  onCleanChange,
+}: {
+  initial: MatchRow;
+  embedded?: boolean;
+  focus?: boolean;
+  active?: boolean;
+  onCleanChange?: (clean: boolean) => void;
+}) {
+  const live = useMatchState(initial.id, initial, !embedded),
     [local, setLocal] = useState(initial);
-  const row =
-    Date.parse(live.updated_at) > Date.parse(local.updated_at) ? live : local;
+  const row = embedded
+    ? initial
+    : Date.parse(live.updated_at) > Date.parse(local.updated_at)
+      ? live
+      : local;
   const video = useRef<HTMLVideoElement>(null),
     stage = useRef<HTMLDivElement>(null),
     stream = useRef<MediaStream | null>(null),
@@ -26,8 +41,12 @@ export function BrowserStudio({ initial }: { initial: MatchRow }) {
     [loading, setLoading] = useState(false),
     [error, setError] = useState(""),
     [clean, setClean] = useState(false),
-    [focused, setFocused] = useState(false),
+    [ownFocused, setFocused] = useState(false),
     [busy, setBusy] = useState(false);
+  const focused = embedded ? focus : ownFocused;
+  useEffect(() => {
+    onCleanChange?.(clean);
+  }, [clean, onCleanChange]);
   const [mirror, setMirror] = useState(false),
     [position, setPosition] = useState(row.overlay.position),
     [size, setSize] = useState(
@@ -43,6 +62,13 @@ export function BrowserStudio({ initial }: { initial: MatchRow }) {
   const [placement, setPlacement] = useState<{ x: number; y: number } | null>(
     null,
   );
+  useEffect(() => {
+    setPosition(row.overlay.position);
+    setPlacement(null);
+  }, [row.overlay.position]);
+  useEffect(() => {
+    setSize(Math.max(20, Math.min(80, 30 * row.overlay.scale)));
+  }, [row.overlay.scale]);
   const [stageHeight, setStageHeight] = useState(720);
   const [boardHeight, setBoardHeight] = useState(100);
   useEffect(() => {
@@ -73,6 +99,9 @@ export function BrowserStudio({ initial }: { initial: MatchRow }) {
     setReady(false);
     setLoading(false);
   }
+  useEffect(() => {
+    if (!active) stop();
+  }, [active]);
   useEffect(() => {
     void listCameras();
     const media = navigator.mediaDevices;
@@ -194,7 +223,10 @@ export function BrowserStudio({ initial }: { initial: MatchRow }) {
     return () => observer.disconnect();
   }, []);
   // Scale the whole saved layout; never squeeze its name column independently.
-  const boardWidth = boardLayoutWidth(row.overlay.template, row.overlay.customDesign);
+  const boardWidth = boardLayoutWidth(
+    row.overlay.template,
+    row.overlay.customDesign,
+  );
   const boardScale = (stageWidth * size) / 100 / boardWidth;
   const travelX = Math.max(0, stageWidth - boardWidth * boardScale);
   const travelY = Math.max(0, stageHeight - boardHeight * boardScale);
@@ -202,11 +234,12 @@ export function BrowserStudio({ initial }: { initial: MatchRow }) {
   const movable = !clean && row.overlay.showScoreboard !== false;
   const clock = matchClock(row),
     finished = row.status === "finished";
+  const Root = embedded ? "div" : "main";
   return (
-    <main
-      className={`pbw pbw-studio ${focused ? "pbw-studio-focused" : ""} ${clean ? "pbw-studio-clean" : ""}`}
+    <Root
+      className={`${embedded ? "pbw-embedded-studio" : "pbw"} pbw-studio ${focused ? "pbw-studio-focused" : ""} ${clean ? "pbw-studio-clean" : ""}`}
     >
-      {!clean && (
+      {!clean && !embedded && (
         <>
           <WorkspaceHeader
             matchCode={row.short_code}
@@ -373,7 +406,7 @@ export function BrowserStudio({ initial }: { initial: MatchRow }) {
               </div>
             </div>
           </div>
-          {!clean && (
+          {!clean && !embedded && (
             <section className="pbw-card pbw-studio-scoring">
               <div className="pbw-clock">
                 <strong>
@@ -430,9 +463,11 @@ export function BrowserStudio({ initial }: { initial: MatchRow }) {
         {!clean && !focused && (
           <aside className="pbw-card pbw-studio-controls">
             <h2>Set the scene.</h2>
-            <button className="pbw-primary" onClick={() => setFocused(true)}>
-              Setup complete · Focus mode →
-            </button>
+            {!embedded && (
+              <button className="pbw-primary" onClick={() => setFocused(true)}>
+                Setup complete · Focus mode →
+              </button>
+            )}
             <label>
               Camera
               <select
@@ -507,24 +542,31 @@ export function BrowserStudio({ initial }: { initial: MatchRow }) {
                 onChange={(e) => setSize(Number(e.target.value))}
               />
             </label>
-            <label className="pbw-toggle">
-              <input
-                type="checkbox"
-                checked={row.overlay.showTimer}
-                disabled={busy}
-                onChange={(e) =>
-                  void act({ kind: "show_timer", value: e.target.checked })
-                }
-              />
-              Show match time
-            </label>
-            <p className="pbw-muted">
-              Hide or show the time on the studio and stream overlay. The match
-              clock keeps running.
-            </p>
-            <Link className="pbw-text-link" href={`/m/${row.short_code}/edit`}>
-              Edit scoreboard design ↗
-            </Link>
+            {!embedded && (
+              <>
+                <label className="pbw-toggle">
+                  <input
+                    type="checkbox"
+                    checked={row.overlay.showTimer}
+                    disabled={busy}
+                    onChange={(e) =>
+                      void act({ kind: "show_timer", value: e.target.checked })
+                    }
+                  />
+                  Show match time
+                </label>
+                <p className="pbw-muted">
+                  Hide or show the time on the studio and stream overlay. The
+                  match clock keeps running.
+                </p>
+                <Link
+                  className="pbw-text-link"
+                  href={`/m/${row.short_code}/edit`}
+                >
+                  Edit scoreboard design ↗
+                </Link>
+              </>
+            )}
             <hr />
             <h3>Ready to share?</h3>
             <ol className="pbw-share-steps">
@@ -556,34 +598,44 @@ export function BrowserStudio({ initial }: { initial: MatchRow }) {
       </div>
       {!clean && focused && (
         <section className="pbw-card pbw-focus-tools">
-          <button className="pbw-secondary" onClick={() => setFocused(false)}>
-            ← Adjust scene
-          </button>
-          <button
-            className="pbw-secondary"
-            disabled={busy}
-            aria-pressed={row.overlay.showScoreboard !== false}
-            onClick={() =>
-              void act({
-                kind: "show_scoreboard",
-                value: row.overlay.showScoreboard === false,
-              })
-            }
-          >
-            {row.overlay.showScoreboard === false
-              ? "Show scoreboard"
-              : "Hide scoreboard"}
-          </button>
-          <button
-            className="pbw-secondary"
-            disabled={busy}
-            aria-pressed={row.overlay.showTimer}
-            onClick={() =>
-              void act({ kind: "show_timer", value: !row.overlay.showTimer })
-            }
-          >
-            {row.overlay.showTimer ? "Hide match time" : "Show match time"}
-          </button>
+          {!embedded && (
+            <>
+              <button
+                className="pbw-secondary"
+                onClick={() => setFocused(false)}
+              >
+                ← Adjust scene
+              </button>
+              <button
+                className="pbw-secondary"
+                disabled={busy}
+                aria-pressed={row.overlay.showScoreboard !== false}
+                onClick={() =>
+                  void act({
+                    kind: "show_scoreboard",
+                    value: row.overlay.showScoreboard === false,
+                  })
+                }
+              >
+                {row.overlay.showScoreboard === false
+                  ? "Show scoreboard"
+                  : "Hide scoreboard"}
+              </button>
+              <button
+                className="pbw-secondary"
+                disabled={busy}
+                aria-pressed={row.overlay.showTimer}
+                onClick={() =>
+                  void act({
+                    kind: "show_timer",
+                    value: !row.overlay.showTimer,
+                  })
+                }
+              >
+                {row.overlay.showTimer ? "Hide match time" : "Show match time"}
+              </button>
+            </>
+          )}
           <button
             className="pbw-primary"
             disabled={!ready}
@@ -598,6 +650,6 @@ export function BrowserStudio({ initial }: { initial: MatchRow }) {
           {error}
         </p>
       )}
-    </main>
+    </Root>
   );
 }

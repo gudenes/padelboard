@@ -3,14 +3,16 @@ import { notFound, redirect } from "next/navigation";
 import { serviceSupabase, serverSupabase } from "@/lib/supabase-server";
 import type { MatchRow } from "@/types/match";
 import { ReadyMatch } from "@/components/workspace/ReadyMatch";
-import { Operator } from "./Operator";
+import { MatchWorkspace } from "@/components/workspace/MatchWorkspace";
 
 export const dynamic = "force-dynamic";
 
 export default async function MatchPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ code: string }>;
+  searchParams?: Promise<{ output?: string; view?: string }>;
 }) {
   const { code } = await params;
   const sb = serviceSupabase();
@@ -30,5 +32,16 @@ export default async function MatchPage({
   if (user.id !== row.owner_id) return notFound();
   if (!user.user_metadata?.padelboard_profile?.completed)
     redirect(`/welcome?match=${row.id}`);
-  return <Operator initial={row} />;
+  const query = await searchParams;
+  return (
+    <MatchWorkspace
+      initial={row}
+      initialOutput={
+        query?.output === "studio" || query?.output === "obs"
+          ? query.output
+          : undefined
+      }
+      initialView={query?.view}
+    />
+  );
 }

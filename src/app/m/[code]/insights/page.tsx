@@ -1,10 +1,9 @@
-import { ownedMatch } from "@/lib/owned-match";
-import { MatchInsights } from "@/components/workspace/MatchInsights";
-export default async function Insights({
+import { redirect } from "next/navigation";
+export default async function LegacyMatchPage({
   params,
 }: {
   params: Promise<{ code: string }>;
 }) {
   const { code } = await params;
-  return <MatchInsights initial={await ownedMatch(code)} />;
+  redirect(`/m/${encodeURIComponent(code)}?view=insights`);
 }

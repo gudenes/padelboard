@@ -10,9 +10,11 @@ import "./workspace.css";
 export function WorkspaceHeader({
   matchCode,
   matchName,
+  unified = false,
 }: {
   matchCode?: string;
   matchName?: string;
+  unified?: boolean;
 }) {
   const path = usePathname(),
     router = useRouter(),
@@ -145,13 +147,13 @@ export function WorkspaceHeader({
             )}
             <span aria-current="page">
               {matchCode && path === `/m/${matchCode}`
-                ? matchName || "Match controls"
+                ? matchName || (unified ? "Match workspace" : "Match controls")
                 : section}
             </span>
           </>
         )}
       </nav>
-      {matchCode && (
+      {matchCode && !unified && (
         <nav className="pbw-match-nav" aria-label="Match navigation">
           {[
             ["", "Controls"],

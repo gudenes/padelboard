@@ -10,8 +10,19 @@ import { CustomBoardEditor } from "@/components/scoreboard/CustomBoardEditor";
 import { BoardPreview } from "./BoardPreview";
 import { WorkspaceHeader } from "./WorkspaceHeader";
 import "./workspace.css";
-export function ScoreboardEditor({ initial }: { initial: MatchRow }) {
-  const live = useMatchState(initial.id, initial);
+export function ScoreboardEditor({
+  initial,
+  embedded = false,
+  onSaved,
+  onDirtyChange,
+}: {
+  initial: MatchRow;
+  embedded?: boolean;
+  onSaved?: (row: MatchRow) => void;
+  onDirtyChange?: (dirty: boolean) => void;
+}) {
+  const remote = useMatchState(initial.id, initial, !embedded);
+  const live = embedded ? initial : remote;
   const [overlay, setOverlay] = useState(initial.overlay),
     [busy, setBusy] = useState(false),
     [message, setMessage] = useState(""),
@@ -20,6 +31,7 @@ export function ScoreboardEditor({ initial }: { initial: MatchRow }) {
   function change(patch: Partial<typeof overlay>) {
     setOverlay((o) => ({ ...o, ...patch }));
     setDirty(true);
+    onDirtyChange?.(true);
     setMessage("");
   }
   const accent = overlay.customColors?.accent?.color || "#f5ff36";
@@ -44,6 +56,8 @@ export function ScoreboardEditor({ initial }: { initial: MatchRow }) {
       if (!r.ok) throw new Error(data.error);
       setOverlay(data.row.overlay);
       setDirty(false);
+      onDirtyChange?.(false);
+      onSaved?.(data.row);
       setMessage("Saved! Your overlay and studio now use this design.");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not save.");
@@ -51,12 +65,15 @@ export function ScoreboardEditor({ initial }: { initial: MatchRow }) {
       setBusy(false);
     }
   }
+  const Root = embedded ? "div" : "main";
   return (
-    <main className="pbw">
-      <WorkspaceHeader
-        matchCode={initial.short_code}
-        matchName={initial.overlay.tournamentName}
-      />
+    <Root className={embedded ? "pbw-embedded-editor" : "pbw"}>
+      {!embedded && (
+        <WorkspaceHeader
+          matchCode={initial.short_code}
+          matchName={initial.overlay.tournamentName}
+        />
+      )}
       <div className="pbw-title">
         <div>
           <span className="pbw-eyebrow">SAME MATCH. FRESH LOOK.</span>
@@ -209,6 +226,6 @@ export function ScoreboardEditor({ initial }: { initial: MatchRow }) {
           <p>Live score · design preview</p>
         </aside>
       </div>
-    </main>
+    </Root>
   );
 }

@@ -1,10 +1,9 @@
-import { ownedMatch } from "@/lib/owned-match";
-import { BrowserStudio } from "@/components/workspace/BrowserStudio";
-export default async function Studio({
+import { redirect } from "next/navigation";
+export default async function LegacyMatchPage({
   params,
 }: {
   params: Promise<{ code: string }>;
 }) {
   const { code } = await params;
-  return <BrowserStudio initial={await ownedMatch(code)} />;
+  redirect(`/m/${encodeURIComponent(code)}?output=studio`);
 }
