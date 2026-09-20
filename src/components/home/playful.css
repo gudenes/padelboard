@@ -2440,3 +2440,17 @@
 .pb-example-board{animation:pb-example-in .22s ease-out}
 @keyframes pb-example-in{from{opacity:.4;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:reduce){.pb-example-board{animation:none}.pb-example-templates button{transition:none}}
+
+/* Hero demo: one gentle automatic tap, then visitor-controlled scoring. */
+.pb-demo-control{display:flex;align-items:center;gap:12px;margin:24px 0 0 12px;position:relative;z-index:4;width:max-content;max-width:100%}
+.pb-demo-control button{display:flex;align-items:center;gap:9px;border:1.5px solid #171c12;border-radius:14px;background:#fafbec;padding:10px 15px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;box-shadow:3px 3px 0 #171c12;transition:transform .15s,box-shadow .15s}
+.pb-demo-control button:focus-visible{outline:3px solid #171c12;outline-offset:5px}
+.pb-demo-control>span{font-size:12px}.pb-demo-tap{position:relative;display:flex}.pb-demo-tap svg{width:23px;height:23px}.pb-demo-tap i{position:absolute;inset:-5px;border:2px solid #171c12;border-radius:50%;opacity:0;pointer-events:none}
+.is-tapping .pb-demo-control button{transform:translate(2px,2px);box-shadow:1px 1px 0 #171c12}
+.is-tapping .pb-demo-tap i{animation:pb-tap-ring .6s ease-out}.is-tapping .pb-points-accent{animation:pb-point-bump .45s .18s ease-out}
+@keyframes pb-tap-ring{0%{opacity:.7;transform:scale(.5)}100%{opacity:0;transform:scale(1.6)}}
+@keyframes pb-point-bump{50%{transform:scale(1.14);filter:brightness(1.15)}100%{transform:scale(1);filter:none}}
+@media(min-width:901px){.pb-hero-visual{padding-top:174px}.pb-board-note{top:20px;right:18px}.pb-board-note svg{width:48px;height:48px;margin-top:8px}.pb-demo-control{margin-top:25px}}
+@media(max-width:900px){.pb-hero-visual{padding-top:122px;min-height:465px}.pb-board-note{top:0;right:8px}.pb-board-note svg{width:42px;height:42px}.pb-ball{top:265px}.pb-preview-link{top:410px}}
+@media(max-width:600px){.pb-hero-visual{padding-top:116px;min-height:415px}.pb-board-note{top:0}.pb-demo-control{margin-left:0;gap:10px}.pb-demo-control button{padding:9px 12px;font-size:13px}.pb-demo-control>span{font-size:11px}.pb-ball{top:235px}.pb-preview-link{top:357px}}
+@media(prefers-reduced-motion:reduce){.pb-demo-control button{transition:none}.is-tapping .pb-demo-tap i,.is-tapping .pb-points-accent{animation:none}}

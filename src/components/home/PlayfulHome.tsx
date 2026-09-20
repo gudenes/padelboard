@@ -1,4 +1,5 @@
 "use client";
+import { HeroScoreDemo } from "./HeroScoreDemo";
 import { editableTemplate } from "@/lib/template-design";
 
 import { useEffect, useRef, useState } from "react";
@@ -313,14 +314,7 @@ export function PlayfulHome({
                     ON STREAM.
                     <ArrowBendDownLeft weight="bold" />
                   </p>
-                  <div className="pb-hero-board">
-                    <Scoreboard
-                      names={["Galán / Chingotto", "Coello / Tapia"]}
-                      state={exampleState}
-                      accent="#f5ff36"
-                      title="FINAL · MADRID P1"
-                    />
-                  </div>
+                  <HeroScoreDemo />
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src="/images/padel-ball.png"
