@@ -7,6 +7,7 @@ import {
   type CustomBoardDesign,
 } from "@/lib/custom-board";
 import "./editor.css";
+import { LogoPicker } from "./LogoPicker";
 
 export function CustomBoardEditor({
   design: input,
@@ -134,59 +135,37 @@ export function CustomBoardEditor({
             />{" "}
             Show logo
           </label>
-          {design.logo && (
-            <img
-              className="board-editor-logo"
-              src={design.logo}
-              alt="Your board logo"
-            />
-          )}
-          <label className="board-editor-select">
-            {design.logo ? "Replace logo" : "Upload your logo"}
-            <input
-              type="file"
-              accept="image/png,image/jpeg,image/webp"
-              disabled={readingLogo}
-              onChange={async (e) => {
-                const file = e.target.files?.[0];
-                if (!file) return;
-                const version = ++logoVersion.current;
-                setReadingLogo(true);
-                setLogoError("");
-                try {
-                  const logo = await prepareBoardLogo(file);
-                  if (version === logoVersion.current)
-                    latest.current.onChange({
-                      ...resolveCustomDesign(latest.current.input),
-                      logo,
-                      showLogo: true,
-                    });
-                } catch (err) {
-                  if (version === logoVersion.current)
-                    setLogoError(
-                      err instanceof Error
-                        ? err.message
-                        : "Could not read logo.",
-                    );
-                } finally {
-                  if (version === logoVersion.current) setReadingLogo(false);
-                }
-              }}
-            />
-          </label>
-          {design.logo && (
-            <button
-              className="board-editor-remove"
-              type="button"
-              onClick={() => {
-                logoVersion.current++;
-                setReadingLogo(false);
-                update({ logo: "", logoText: "PADELBOARD" });
-              }}
-            >
-              Use Padelboard logo
-            </button>
-          )}
+          <LogoPicker
+            logo={design.logo || ""}
+            busy={readingLogo}
+            onSelect={async (file) => {
+              const version = ++logoVersion.current;
+              setReadingLogo(true);
+              setLogoError("");
+              try {
+                const logo = await prepareBoardLogo(file);
+                if (version === logoVersion.current)
+                  latest.current.onChange({
+                    ...resolveCustomDesign(latest.current.input),
+                    logo,
+                    showLogo: true,
+                  });
+              } catch (err) {
+                if (version === logoVersion.current)
+                  setLogoError(
+                    err instanceof Error ? err.message : "Could not read logo.",
+                  );
+              } finally {
+                if (version === logoVersion.current) setReadingLogo(false);
+              }
+            }}
+            onRemove={() => {
+              logoVersion.current++;
+              setReadingLogo(false);
+              setLogoError("");
+              update({ logo: "", logoText: "PADELBOARD" });
+            }}
+          />
           <label className="board-editor-select">
             Brand name
             <input

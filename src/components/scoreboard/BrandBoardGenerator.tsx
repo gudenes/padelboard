@@ -12,6 +12,7 @@ import { TourScoreboard } from "./TourScoreboard";
 import { createInitialState } from "@/lib/padel-scoring";
 import { defaultConfig } from "@/types/match";
 import "./brand-generator.css";
+import { LogoPicker } from "./LogoPicker";
 
 export function BrandBoardGenerator({
   available,
@@ -165,24 +166,21 @@ export function BrandBoardGenerator({
               </small>
             </label>
           ) : (
-            <div className="pb-brand-upload">
-              {logo ? (
-                <img src={logo} alt="Selected brand logo" />
-              ) : (
-                <UploadSimple size={30} />
-              )}
-              <label>
-                {filename || "Choose your logo"}
-                <input
-                  type="file"
-                  aria-label="Choose your logo"
-                  accept="image/png,image/jpeg,image/webp"
-                  disabled={busy || reading}
-                  onChange={(e) => void chooseLogo(e.target.files?.[0])}
-                />
-              </label>
-              <small>PNG, JPG or WebP · up to 2 MB</small>
-            </div>
+            <LogoPicker
+              logo={logo}
+              filename={filename}
+              busy={reading}
+              disabled={busy}
+              onSelect={(file) => void chooseLogo(file)}
+              onRemove={() => {
+                readVersion.current++;
+                setReading(false);
+                setLogo("");
+                setFilename("");
+                setResult(null);
+                setError("");
+              }}
+            />
           )}
           <p className="pb-brand-notice">
             {kind === "website"

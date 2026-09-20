@@ -1,0 +1,22 @@
+.pb-logo-picker { position: relative; border: 1.5px dashed #a7ad94; border-radius: 16px; background: #f4f5e9; padding: 14px; transition: background .2s, border-color .2s, transform .2s; animation: pb-logo-enter .24s ease-out; }
+.pb-logo-picker.is-dragging { border-color: #111; background: #f5ff75; transform: translateY(-2px); }
+.pb-logo-picker.has-logo { border-style: solid; border-color: #bec7a3; }
+.pb-logo-picker input[type="file"][hidden] { display: none; }
+.pb-logo-picker .pb-logo-drop { display: flex; align-items: center; gap: 14px; border: 0; border-radius: 10px; padding: 0; width: 100%; text-align: left; font: inherit; color: #111; background: transparent; cursor: pointer; }
+.pb-logo-drop:focus-visible { outline: 2px solid #111; outline-offset: 5px; }
+.pb-logo-drop:disabled { cursor: wait; }
+.pb-logo-art { flex: 0 0 64px; height: 64px; display: grid; place-items: center; background: white; border: 1px solid #d1d6c1; border-radius: 12px; overflow: hidden; animation: pb-logo-enter .28s ease-out; }
+.pb-logo-art img { width: 100%; height: 100%; object-fit: contain; padding: 6px; }
+.pb-logo-copy { min-width: 0; flex: 1; display: grid; gap: 5px; }
+.pb-logo-copy strong { font-size: 14px; }
+.pb-logo-copy > span { font-size: 12px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.pb-logo-copy small { font-size: 10px; color: #62694f; }
+.pb-logo-check { color: #477022; flex: none; animation: pb-logo-enter .3s ease-out; }
+.pb-logo-spinner { width: 22px; height: 22px; border: 2px solid #d3d8bf; border-top-color: #111; border-radius: 50%; animation: pb-logo-spin .7s linear infinite; flex: none; }
+.pb-logo-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.pb-logo-picker .pb-logo-remove { display: block; margin: 10px 0 0 auto; padding: 4px; border: 0; background: none; color: #555e42; text-decoration: underline; font: inherit; font-size: 11px; cursor: pointer; }
+@keyframes pb-logo-enter { from { opacity: 0; transform: translateY(6px) scale(.98); } to { opacity: 1; transform: none; } }
+@keyframes pb-logo-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .pb-logo-picker, .pb-logo-art, .pb-logo-check, .pb-logo-spinner { animation: none; transition: none; } }
+
+.board-editor-brand > .pb-logo-picker { grid-column: 1 / -1; }
