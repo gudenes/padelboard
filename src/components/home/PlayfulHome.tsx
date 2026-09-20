@@ -111,6 +111,8 @@ export function PlayfulHome({
   });
   const [editorMode, setEditorMode] = useState<"ai" | "manual">("ai");
   const [boardStyle, setBoardStyle] = useState<BoardStyleId>(initialStyle);
+  const [exampleStyle, setExampleStyle] = useState<BoardStyleId>("padelboard");
+  const [exampleAccent, setExampleAccent] = useState<string>(accents[0].value);
   const [title, setTitle] = useState(
     initialBoard?.overlay.tournamentName ?? "Friday night padel",
   );
@@ -413,18 +415,60 @@ export function PlayfulHome({
                   <br />
                   There’s a board with your name on it.
                 </p>
-                <button className="pb-button" onClick={openSetup}>
-                  Try your colors <ArrowRight weight="bold" />
+                <button
+                  className="pb-button"
+                  onClick={() => {
+                    setBoardStyle(exampleStyle);
+                    setAccent(exampleAccent);
+                    savedTemplate.current = {
+                      id: exampleStyle,
+                      accent: exampleAccent,
+                    };
+                    setLookPath("templates");
+                    setTemplatePage(
+                      Math.floor(
+                        BOARD_STYLES.findIndex(
+                          (style) => style.id === exampleStyle,
+                        ) / 4,
+                      ),
+                    );
+                    openSetup();
+                  }}
+                >
+                  Use this look <ArrowRight weight="bold" />
                 </button>
               </div>
               <div className="pb-example-preview">
-                <Scoreboard
-                  names={["Alex / Sam", "Dani / Nico"]}
-                  players={["Alex", "Sam", "Dani", "Nico"]}
-                  state={exampleState}
-                  accent={accent}
-                  title="FRIDAY NIGHT · COURT 01"
-                />
+                <div
+                  className="pb-example-templates"
+                  role="group"
+                  aria-label="Example scoreboard template"
+                >
+                  {BOARD_STYLES.filter((style) => style.id !== "custom").map(
+                    (style) => (
+                      <button
+                        key={style.id}
+                        aria-pressed={exampleStyle === style.id}
+                        onClick={() => {
+                          setExampleStyle(style.id);
+                          setExampleAccent(style.accent);
+                        }}
+                      >
+                        {style.name}
+                      </button>
+                    ),
+                  )}
+                </div>
+                <div className="pb-example-board" key={exampleStyle}>
+                  <Scoreboard
+                    names={["Alex / Sam", "Dani / Nico"]}
+                    players={["Alex", "Sam", "Dani", "Nico"]}
+                    state={exampleState}
+                    variant={exampleStyle}
+                    accent={exampleAccent}
+                    title="FRIDAY NIGHT · COURT 01"
+                  />
+                </div>
                 <div
                   className="pb-swatches"
                   aria-label="Example scoreboard color"
@@ -434,13 +478,13 @@ export function PlayfulHome({
                       key={color.value}
                       style={{ background: color.value }}
                       aria-label={color.name}
-                      aria-pressed={accent === color.value}
-                      onClick={() => setAccent(color.value)}
+                      aria-pressed={exampleAccent === color.value}
+                      onClick={() => setExampleAccent(color.value)}
                     >
-                      {accent === color.value && <Check weight="bold" />}
+                      {exampleAccent === color.value && <Check weight="bold" />}
                     </button>
                   ))}
-                  <span>Pick your vibe.</span>
+                  <span>Make it your colors.</span>
                 </div>
               </div>
             </div>
