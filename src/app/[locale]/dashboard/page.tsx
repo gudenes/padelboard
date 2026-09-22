@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { WorkspaceHeader } from "@/components/workspace/WorkspaceHeader";
 import { Link } from "@/i18n/navigation";
 import { PlayerAvatar } from "@/components/workspace/PlayerAvatar";
@@ -8,6 +9,7 @@ import { MatchHistory } from "@/components/workspace/MatchHistory";
 import "@/components/workspace/workspace.css";
 export const dynamic = "force-dynamic";
 export default async function Dashboard() {
+  const t = await getTranslations("dashboard");
   const sb = await serverSupabase();
   const {
     data: { user },
@@ -32,22 +34,24 @@ export default async function Dashboard() {
           style={user.user_metadata.padelboard_profile.style}
         />
         <span className="pbw-hand">
-          Hey, {user.user_metadata.padelboard_profile.name}. Ready for a rally?
+          {t("greeting", {
+            name: user.user_metadata.padelboard_profile.name,
+          })}
         </span>
       </div>
       <div className="pbw-title">
         <div>
-          <span className="pbw-eyebrow">YOUR PADEL CLUBHOUSE</span>
-          <h1>Every match has a story.</h1>
-          <p>Your live boards and past matches, all in one place.</p>
+          <span className="pbw-eyebrow">{t("eyebrow")}</span>
+          <h1>{t("title")}</h1>
+          <p>{t("lead")}</p>
         </div>
         <Link href="/dashboard/new" className="pbw-primary">
-          New match →
+          {t("newMatchCta")}
         </Link>
       </div>
       {error ? (
         <section className="pbw-card" role="alert">
-          We couldn’t load your matches. Refresh to try again.
+          {t("loadError")}
         </section>
       ) : (
         <MatchHistory rows={rows} />

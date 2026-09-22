@@ -1,10 +1,12 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { serverSupabase } from "@/lib/supabase-server";
 import { NewMatchWorkspace } from "@/components/workspace/NewMatchWorkspace";
 import { reusableOverlay, type SavedBoardSetup } from "@/lib/reuse-board";
 export const dynamic = "force-dynamic";
 export default async function NewMatch() {
+  const t = await getTranslations("dashboard");
   const sb = await serverSupabase();
   const {
     data: { user },
@@ -21,9 +23,9 @@ export default async function NewMatch() {
   if (error)
     return (
       <main style={{ padding: 40 }}>
-        <h1>Couldn’t load your latest board.</h1>
-        <p>Please refresh to try again.</p>
-        <Link href="/dashboard">Back to my matches</Link>
+        <h1>{t("newBoardErrorTitle")}</h1>
+        <p>{t("newBoardErrorBody")}</p>
+        <Link href="/dashboard">{t("newBoardErrorBackLink")}</Link>
       </main>
     );
   const latest = data

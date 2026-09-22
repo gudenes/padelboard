@@ -1,5 +1,6 @@
 import { Link } from "@/i18n/navigation";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { serverSupabase, serviceSupabase } from "@/lib/supabase-server";
 import { WorkspaceBrand } from "@/components/workspace/WorkspaceBrand";
 import { FinishSetup } from "@/components/workspace/FinishSetup";
@@ -9,6 +10,7 @@ export default async function Welcome({
 }: {
   searchParams: Promise<{ match?: string }>;
 }) {
+  const t = await getTranslations("dashboard");
   const { match } = await searchParams;
   const sb = await serverSupabase();
   const {
@@ -31,7 +33,7 @@ export default async function Welcome({
     <main className="pbw pbw-onboarding">
       <header className="pbw-nav">
         <WorkspaceBrand />
-        <Link href="/">Home ↗</Link>
+        <Link href="/">{t("welcomeHomeLink")} ↗</Link>
       </header>
       <section className="pbw-card pbw-signin">
         <FinishSetup

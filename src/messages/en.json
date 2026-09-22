@@ -294,6 +294,21 @@
     "codeInvalid": "That code is invalid or has expired. Use the newest email, or request a new code.",
     "codeVerifyFailed": "We couldn’t verify your code. Check your connection and try again."
   },
+  "dashboard": {
+    "greeting": "Hey, {name}. Ready for a rally?",
+    "eyebrow": "YOUR PADEL CLUBHOUSE",
+    "title": "Every match has a story.",
+    "lead": "Your live boards and past matches, all in one place.",
+    "newMatchCta": "New match →",
+    "loadError": "We couldn’t load your matches. Refresh to try again.",
+    "newBoardErrorTitle": "Couldn’t load your latest board.",
+    "newBoardErrorBody": "Please refresh to try again.",
+    "newBoardErrorBackLink": "Back to my matches",
+    "profileEyebrow": "YOUR CORNER OF THE COURT",
+    "profileTitle": "Your profile. Your personality.",
+    "profileLead": "Keep your details and court-side avatar up to date.",
+    "welcomeHomeLink": "Home"
+  },
   "boardEditor": {
     "aiSectionAria": "Design from your brand",
     "aiTitle": "A board with your DNA.",
