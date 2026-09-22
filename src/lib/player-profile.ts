@@ -1,3 +1,5 @@
+import { locales } from "@/i18n/routing";
+
 export const AVATAR_COLORS = [
   "#f5ff36",
   "#ff95c7",
@@ -29,5 +31,10 @@ export function parsePlayerProfile(value: unknown) {
     club: v.club.trim(),
     color: String(v.color),
     style: String(v.style),
+    // Opcional de propósito: os perfis gravados antes do seletor não o têm,
+    // e uma preferência de língua inválida não deve impedir guardar o perfil.
+    locale: locales.includes(v.locale as (typeof locales)[number])
+      ? (v.locale as string)
+      : undefined,
   };
 }

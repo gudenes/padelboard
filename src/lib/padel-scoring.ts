@@ -6,26 +6,10 @@ export type TeamId = "a" | "b";
 export type PlayerIndex = 0 | 1 | 2 | 3;
 export type DeuceRule = "advantage" | "golden-point" | "star-point";
 
-export const DEUCE_RULES: Array<{
-  id: DeuceRule;
-  label: string;
-  description: string;
-}> = [
-  {
-    id: "star-point",
-    label: "Star Point",
-    description: "Two advantages, then one deciding point.",
-  },
-  {
-    id: "golden-point",
-    label: "Golden point",
-    description: "At 40–40, the next point wins.",
-  },
-  {
-    id: "advantage",
-    label: "Advantage",
-    description: "Keep playing until a pair wins two in a row.",
-  },
+export const DEUCE_RULES: Array<{ id: DeuceRule }> = [
+  { id: "star-point" },
+  { id: "golden-point" },
+  { id: "advantage" },
 ];
 
 export interface MatchConfig {

@@ -3,9 +3,9 @@ const state=vi.hoisted(()=>({user:null as null | {id:string;user_metadata:object
 vi.mock("next/navigation",()=>({redirect:(url:string)=>{throw new Error(`redirect:${url}`)},notFound:()=>{throw new Error("notFound")}}));
 vi.mock("@/lib/supabase-server",()=>({serviceSupabase:()=>({from:()=>({select:()=>({eq:()=>({single:async()=>({data:state.row})})})})}),serverSupabase:async()=>({auth:{getUser:async()=>({data:{user:state.user}})}})}));
 vi.mock("@/components/workspace/ReadyMatch",()=>({ReadyMatch:()=>null}));
-vi.mock("@/app/m/[code]/Operator",()=>({Operator:()=>null}));
+vi.mock("@/app/[locale]/m/[code]/Operator",()=>({Operator:()=>null}));
 vi.mock("@/components/workspace/MatchWorkspace",()=>({MatchWorkspace:()=>null}));
-import MatchPage from "@/app/m/[code]/page";
+import MatchPage from "@/app/[locale]/m/[code]/page";
 beforeEach(()=>{state.user=null;});
 it("preserves the exact match through phone login",async()=>{
  await expect(MatchPage({params:Promise.resolve({code:"PHONE1"})})).rejects.toThrow(`redirect:/login?match=${state.row.id}`);
@@ -15,7 +15,7 @@ it("does not grant control to a different signed-in account",async()=>{
  await expect(MatchPage({params:Promise.resolve({code:"PHONE1"})})).rejects.toThrow("notFound");
 });
 
-import RemotePage from "@/app/m/[code]/remote/page";
+import RemotePage from "@/app/[locale]/m/[code]/remote/page";
 it("returns a phone scan to the remote after login", async () => {
  await expect(RemotePage({params:Promise.resolve({code:"PHONE1"})})).rejects.toThrow(`redirect:/login?match=${state.row.id}&mode=remote`);
 });

@@ -44,14 +44,24 @@ import {
 import { FinishSetup } from "@/components/workspace/FinishSetup";
 import { reusableOverlay, type SavedBoardSetup } from "@/lib/reuse-board";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import "./playful.css";
 
+const richTags = {
+  br: () => <br />,
+  brDesktop: () => <br className="pb-desktop-break" />,
+  b: (chunks: React.ReactNode) => <b>{chunks}</b>,
+  hl: (chunks: React.ReactNode) => <span>{chunks}</span>,
+};
+
 const accents = [
-  { name: "Court yellow", value: "#f5ff36" },
-  { name: "Rally pink", value: "#ff95c7" },
-  { name: "Club mint", value: "#9af0ce" },
-  { name: "Sky blue", value: "#99caff" },
-];
+  { id: "court-yellow", value: "#f5ff36" },
+  { id: "rally-pink", value: "#ff95c7" },
+  { id: "club-mint", value: "#9af0ce" },
+  { id: "sky-blue", value: "#99caff" },
+] as const;
+
+const playerExamples = ["Galán", "Chingotto", "Coello", "Tapia"] as const;
 const exampleState: MatchState = {
   ...createInitialState(defaultConfig()),
   sets: [
@@ -75,6 +85,10 @@ export function PlayfulHome({
   onSwitchBoard?: () => void;
 }) {
   const router = useRouter();
+  const t = useTranslations("home");
+  const w = useTranslations("wizard");
+  const boardStyleText = useTranslations("boardStyles");
+  const ruleText = useTranslations("rules");
   const initialStyle =
     BOARD_STYLES.find((style) => style.id === initialBoard?.overlay.template)
       ?.id ?? "padelboard";
@@ -116,7 +130,7 @@ export function PlayfulHome({
   const [exampleStyle, setExampleStyle] = useState<BoardStyleId>("padelboard");
   const [exampleAccent, setExampleAccent] = useState<string>(accents[0].value);
   const [title, setTitle] = useState(
-    initialBoard?.overlay.tournamentName ?? "Friday night padel",
+    initialBoard?.overlay.tournamentName ?? w("matchNamePlaceholder"),
   );
   const [accent, setAccent] = useState(initialAccent);
   const [config, setConfig] = useState<MatchConfig>(
@@ -184,10 +198,7 @@ export function PlayfulHome({
     try {
       if (!draft.current) {
         const response = await fetch("/api/matches", { method: "POST" });
-        if (!response.ok)
-          throw new Error(
-            "We couldn’t save your board. Your setup is still here. Please try again.",
-          );
+        if (!response.ok) throw new Error(w("errorSaveBoard"));
         draft.current = await response.json();
       }
       const saved = draft.current!;
@@ -210,10 +221,7 @@ export function PlayfulHome({
           },
         }),
       });
-      if (!response.ok)
-        throw new Error(
-          "Your draft was saved, but its settings couldn’t be updated. Please try again.",
-        );
+      if (!response.ok) throw new Error(w("errorUpdateSettings"));
       if (workspace) {
         const claim = await fetch(`/api/matches/${saved.id}/claim`, {
           method: "POST",
@@ -221,19 +229,12 @@ export function PlayfulHome({
           body: JSON.stringify({ draftToken: saved.draftToken }),
         });
         if (!claim.ok)
-          throw new Error(
-            (await claim.json()).error ||
-              "Could not open your match. Please retry.",
-          );
+          throw new Error((await claim.json()).error || w("errorOpenMatch"));
         clearDraftToken(saved.id);
         router.push(`/m/${saved.shortCode}`);
       } else setStage("account");
     } catch (reason) {
-      setError(
-        reason instanceof Error
-          ? reason.message
-          : "Something went wrong. Please try again.",
-      );
+      setError(reason instanceof Error ? reason.message : w("errorGeneric"));
     } finally {
       setCreating(false);
     }
@@ -252,49 +253,28 @@ export function PlayfulHome({
               >
                 <div className="pb-hero-copy">
                   <p className="pb-hand pb-eyebrow">
-                    STREAM
-                    <br />
-                    MORE PADEL.
+                    {t.rich("heroScribble", richTags)}
                   </p>
-                  <h1 id="hero-title">
-                    Professional
-                    <br />
-                    scoreboards.
-                    <br />
-                    In seconds.
-                  </h1>
+                  <h1 id="hero-title">{t.rich("heroTitle", richTags)}</h1>
                   <p className="pb-hero-description">
-                    Create beautiful, real-time padel scoreboards
-                    <br className="pb-desktop-break" /> for OBS, StreamYard or
-                    your favorite streaming
-                    <br className="pb-desktop-break" /> software. No account
-                    needed to try.
+                    {t.rich("heroLead", richTags)}
                   </p>
                   <div className="pb-cta-group">
                     <button
                       className="pb-button pb-primary"
                       onClick={openSetup}
                     >
-                      Create your board <ArrowRight weight="bold" />
+                      {t("heroCta")} <ArrowRight weight="bold" />
                     </button>
                     <span className="pb-hand pb-cta-note">
                       <ArrowBendDownLeft weight="bold" />
-                      FREE.
-                      <br />
-                      NO FUSS.
-                      <br />
-                      JUST PLAY.
+                      {t.rich("heroFree", richTags)}
                     </span>
                   </div>
                 </div>
-                <div
-                  className="pb-hero-visual"
-                  aria-label="Example of a Padelboard scoreboard"
-                >
+                <div className="pb-hero-visual" aria-label={t("heroBoardAria")}>
                   <p className="pb-hand pb-board-note">
-                    LOOKS GREAT
-                    <br />
-                    ON STREAM.
+                    {t.rich("heroLooksGreat", richTags)}
                     <ArrowBendDownLeft weight="bold" />
                   </p>
                   <HeroScoreDemo />
@@ -307,73 +287,80 @@ export function PlayfulHome({
                     height="1254"
                   />
                   <button className="pb-preview-link" onClick={openSetup}>
-                    <Play weight="fill" /> Make it yours
+                    <Play weight="fill" /> {t("heroMakeItYours")}
                   </button>
                 </div>
               </section>
               <section
                 id="features"
                 className="pb-features pb-container"
-                aria-label="Features"
+                aria-label={t("featuresAria")}
               >
                 {[
                   {
+                    id: "scoring",
                     Icon: Lightning,
-                    title: "Real-time scoring",
-                    text: "Tap a point. Your stream keeps up.",
+                    titleKey: "featureScoringTitle",
+                    bodyKey: "featureScoringBody",
                   },
                   {
+                    id: "stream",
                     Icon: Monitor,
-                    title: "Stream ready",
-                    text: "Works with OBS, StreamYard, vMix and more.",
+                    titleKey: "featureStreamTitle",
+                    bodyKey: "featureStreamBody",
                   },
                   {
+                    id: "yours",
                     Icon: Palette,
-                    title: "Make it yours",
-                    text: "Your players, your colors, your match.",
+                    titleKey: "featureYoursTitle",
+                    bodyKey: "featureYoursBody",
                   },
                   {
+                    id: "noInstall",
                     Icon: ShareNetwork,
-                    title: "No installation",
-                    text: "One browser. All you need to get going.",
+                    titleKey: "featureNoInstallTitle",
+                    bodyKey: "featureNoInstallBody",
                   },
-                ].map(({ Icon, title: heading, text }) => (
-                  <div className="pb-feature" key={heading}>
+                ].map(({ id, Icon, titleKey, bodyKey }) => (
+                  <div className="pb-feature" key={id}>
                     <Icon weight="bold" />
-                    <h2>{heading}</h2>
-                    <p>{text}</p>
+                    <h2>{t(titleKey)}</h2>
+                    <p>{t(bodyKey)}</p>
                   </div>
                 ))}
               </section>
               <div className="pb-tagline">
                 <span />
-                SCORE <b>·</b> STREAM <b>·</b> PADEL
+                {t.rich("tagline", richTags)}
                 <span />
               </div>
             </main>
           </div>
           <section id="how-it-works" className="pb-section pb-container">
-            <p className="pb-section-label">LESS SETUP. MORE MATCH.</p>
-            <h2>Ready before the warm-up.</h2>
+            <p className="pb-section-label">{t("stepsEyebrow")}</p>
+            <h2>{t("stepsTitle")}</h2>
             <div className="pb-steps">
               {[
                 {
-                  title: "Make it your match.",
-                  text: "Add your players, choose a color, and set the rules. See your board change as you go.",
+                  id: "setup",
+                  titleKey: "stepOneTitle",
+                  bodyKey: "stepOneBody",
                 },
                 {
-                  title: "Give it a quick rally.",
-                  text: "Try the scoring controls for free. Golden point, deuce, and tiebreaks are taken care of.",
+                  id: "rally",
+                  titleKey: "stepTwoTitle",
+                  bodyKey: "stepTwoBody",
                 },
                 {
-                  title: "Take it to your stream.",
-                  text: "Sign in to publish, copy your overlay link, and add it as a browser source. You’re on.",
+                  id: "stream",
+                  titleKey: "stepThreeTitle",
+                  bodyKey: "stepThreeBody",
                 },
-              ].map((step, i) => (
-                <article key={step.title}>
+              ].map(({ id, titleKey, bodyKey }, i) => (
+                <article key={id}>
                   <span className="pb-step-number">0{i + 1}</span>
-                  <h3>{step.title}</h3>
-                  <p>{step.text}</p>
+                  <h3>{t(titleKey)}</h3>
+                  <p>{t(bodyKey)}</p>
                 </article>
               ))}
             </div>
@@ -381,17 +368,9 @@ export function PlayfulHome({
           <section id="examples" className="pb-examples">
             <div className="pb-container pb-examples-inner">
               <div>
-                <p className="pb-section-label">YOUR CLUB. YOUR COLORS.</p>
-                <h2>
-                  A little more <br />
-                  you. A lot more <br />
-                  match day.
-                </h2>
-                <p>
-                  From the Friday-night friendly to the club final.
-                  <br />
-                  There’s a board with your name on it.
-                </p>
+                <p className="pb-section-label">{t("examplesEyebrow")}</p>
+                <h2>{t.rich("examplesTitle", richTags)}</h2>
+                <p>{t.rich("examplesLead", richTags)}</p>
                 <button
                   className="pb-button"
                   onClick={() => {
@@ -412,14 +391,14 @@ export function PlayfulHome({
                     openSetup();
                   }}
                 >
-                  Use this look <ArrowRight weight="bold" />
+                  {t("examplesUseLook")} <ArrowRight weight="bold" />
                 </button>
               </div>
               <div className="pb-example-preview">
                 <div
                   className="pb-example-templates"
                   role="group"
-                  aria-label="Example scoreboard template"
+                  aria-label={t("examplesTemplateAria")}
                 >
                   {BOARD_STYLES.filter((style) => style.id !== "custom").map(
                     (style) => (
@@ -448,58 +427,58 @@ export function PlayfulHome({
                 </div>
                 <div
                   className="pb-swatches"
-                  aria-label="Example scoreboard color"
+                  aria-label={t("examplesColorAria")}
                 >
                   {accents.map((color) => (
                     <button
                       key={color.value}
                       style={{ background: color.value }}
-                      aria-label={color.name}
+                      aria-label={w(`accent.${color.id}`)}
                       aria-pressed={exampleAccent === color.value}
                       onClick={() => setExampleAccent(color.value)}
                     >
                       {exampleAccent === color.value && <Check weight="bold" />}
                     </button>
                   ))}
-                  <span>Make it your colors.</span>
+                  <span>{t("examplesColorsTitle")}</span>
                 </div>
               </div>
             </div>
           </section>
           <section id="faq" className="pb-section pb-faq pb-container">
             <div>
-              <p className="pb-section-label">GOOD QUESTION.</p>
-              <h2>
-                A few things
-                <br />
-                before first serve.
-              </h2>
+              <p className="pb-section-label">{t("faqEyebrow")}</p>
+              <h2>{t.rich("faqTitle", richTags)}</h2>
             </div>
             <div>
               {[
                 {
-                  q: "Do I need an account?",
-                  a: "You can customize a board and try the scoring controls without an account. Sign in when you’re ready to publish a live board and share its overlay.",
+                  id: "account",
+                  questionKey: "faqAccountQ",
+                  answerKey: "faqAccountA",
                 },
                 {
-                  q: "How does it work with my stream?",
-                  a: "Once your board is published, add its overlay URL as a browser source in your streaming software. Control the match from your browser while the overlay shows the score.",
+                  id: "stream",
+                  questionKey: "faqStreamQ",
+                  answerKey: "faqStreamA",
                 },
                 {
-                  q: "Does it understand padel scoring?",
-                  a: "Yes. Star Point, golden point, advantage, set tiebreaks, and a deciding super-tiebreak are built in. Choose your match format during setup.",
+                  id: "scoring",
+                  questionKey: "faqScoringQ",
+                  answerKey: "faqScoringA",
                 },
                 {
-                  q: "Can I fix an accidental point?",
-                  a: "Of course. Tap Undo to go back a point. Try it in the preview — no pressure.",
+                  id: "undo",
+                  questionKey: "faqUndoQ",
+                  answerKey: "faqUndoA",
                 },
-              ].map((item) => (
-                <details key={item.q}>
+              ].map(({ id, questionKey, answerKey }) => (
+                <details key={id}>
                   <summary>
-                    {item.q}
+                    {t(questionKey)}
                     <Plus weight="bold" />
                   </summary>
-                  <p>{item.a}</p>
+                  <p>{t(answerKey)}</p>
                 </details>
               ))}
             </div>
@@ -523,27 +502,21 @@ export function PlayfulHome({
             <span className="pb-wordmark">padelboard</span>
             {workspace && (
               <div className="pb-reuse-board">
-                <span>
-                  {initialBoard
-                    ? "Your latest board · fresh match"
-                    : "A brand-new board"}
-                </span>
+                <span>{w(initialBoard ? "reuseLatest" : "reuseNew")}</span>
                 {onSwitchBoard && (
                   <button
                     type="button"
                     onClick={onSwitchBoard}
                     disabled={creating}
                   >
-                    {initialBoard
-                      ? "Create a new board instead"
-                      : "Use my latest board"}
+                    {w(initialBoard ? "reuseCreateNew" : "reuseUseLatest")}
                   </button>
                 )}
               </div>
             )}
             <button
               className="pb-icon-button"
-              aria-label={workspace ? "Back to my matches" : "Close setup"}
+              aria-label={w(workspace ? "backToMatchesAria" : "closeAria")}
               onClick={closeSetup}
             >
               <X weight="bold" />
@@ -554,26 +527,28 @@ export function PlayfulHome({
               className={`pb-setup-form ${stage === "setup" && setupStep === 2 && editorOpen ? "pb-custom-step" : ""}`}
             >
               <p className="pb-section-label">
-                {stage === "setup"
-                  ? "YOUR MATCH STARTS HERE"
-                  : stage === "account"
-                    ? "YOUR BOARD IS SAVED"
-                    : "GIVE IT A QUICK RALLY"}
+                {w(
+                  stage === "setup"
+                    ? "eyebrowSetup"
+                    : stage === "account"
+                      ? "eyebrowAccount"
+                      : "eyebrowPlay",
+                )}
               </p>
               <h2 id="setup-title" tabIndex={-1}>
-                {stage === "setup"
-                  ? setupStep === 2 && lookPath === null
-                    ? "How will you make it yours?"
-                    : setupStep === 2 && editorOpen
-                      ? "Make it yours."
-                      : [
-                          "Who’s on court?",
-                          "Find your match-day look.",
-                          "Your match. Your rules.",
-                        ][setupStep - 1]
-                  : stage === "account"
-                    ? "Make it official."
-                    : "You call the points."}
+                {w(
+                  stage === "setup"
+                    ? setupStep === 2 && lookPath === null
+                      ? "titleLookPath"
+                      : setupStep === 2 && editorOpen
+                        ? "titleCustom"
+                        : (
+                            ["titlePlayers", "titleLook", "titleRules"] as const
+                          )[setupStep - 1]
+                    : stage === "account"
+                      ? "titleAccount"
+                      : "titlePlay",
+                )}
               </h2>
               {stage === "account" && draft.current ? (
                 <FinishSetup
@@ -596,41 +571,48 @@ export function PlayfulHome({
                     } else startPreview();
                   }}
                 >
-                  <ol className="pb-setup-steps" aria-label="Setup progress">
-                    {["Players", "Look", "Rules"].map((label, i) => (
-                      <li
-                        key={label}
-                        aria-current={setupStep === i + 1 ? "step" : undefined}
-                        className={setupStep >= i + 1 ? "is-active" : ""}
-                      >
-                        <span>{i + 1}</span>
-                        {label}
-                      </li>
-                    ))}
+                  <ol className="pb-setup-steps" aria-label={w("stepsAria")}>
+                    {(["stepPlayers", "stepLook", "stepRules"] as const).map(
+                      (labelKey, i) => (
+                        <li
+                          key={labelKey}
+                          aria-current={
+                            setupStep === i + 1 ? "step" : undefined
+                          }
+                          className={setupStep >= i + 1 ? "is-active" : ""}
+                        >
+                          <span>{i + 1}</span>
+                          {w(labelKey)}
+                        </li>
+                      ),
+                    )}
                   </ol>
                   <div className="pb-step-body pb-step-transition">
                     {setupStep === 1 && (
                       <>
                         <div className="pb-pairs">
-                          {(["Pair one", "Pair two"] as const).map(
-                            (pair, i) => (
-                              <fieldset className="pb-pair" key={pair}>
+                          {(["pairOne", "pairTwo"] as const).map(
+                            (pairKey, i) => (
+                              <fieldset className="pb-pair" key={pairKey}>
                                 <legend>
-                                  {pair}
-                                  <span>DOUBLES</span>
+                                  {w(pairKey)}
+                                  <span>{w("pairFormat")}</span>
                                 </legend>
                                 <div className="pb-player-inputs">
                                   {[0, 1].map((member) => {
                                     const index = i * 2 + member;
                                     return (
                                       <label className="pb-field" key={index}>
-                                        Player {member + 1}
+                                        {w("playerN", { n: member + 1 })}
                                         <input
                                           autoFocus={index === 0}
                                           required
                                           pattern=".*\S.*"
                                           maxLength={24}
-                                          aria-label={`${pair}, player ${member + 1}`}
+                                          aria-label={w("pairPlayerAria", {
+                                            pair: w(pairKey),
+                                            n: member + 1,
+                                          })}
                                           value={players[index]}
                                           onFocus={(event) =>
                                             event.currentTarget.select()
@@ -645,14 +627,9 @@ export function PlayfulHome({
                                                 ) as DoublesPlayers,
                                             )
                                           }
-                                          placeholder={
-                                            [
-                                              "e.g. Galán",
-                                              "e.g. Chingotto",
-                                              "e.g. Coello",
-                                              "e.g. Tapia",
-                                            ][index]
-                                          }
+                                          placeholder={w("playerPlaceholder", {
+                                            name: playerExamples[index],
+                                          })}
                                         />
                                       </label>
                                     );
@@ -661,28 +638,23 @@ export function PlayfulHome({
                               </fieldset>
                             ),
                           )}
-                          <p className="pb-input-hint">
-                            Four players. Two pairs. We’ll put the names
-                            together.
-                          </p>
+                          <p className="pb-input-hint">{w("playersHint")}</p>
                         </div>
                         <label className="pb-field">
-                          Match name <span>optional</span>
+                          {w("matchNameLabel")}{" "}
+                          <span>{w("matchNameOptional")}</span>
                           <input
                             maxLength={48}
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            placeholder="Friday night padel"
+                            placeholder={w("matchNamePlaceholder")}
                           />
                         </label>
                       </>
                     )}
                     {setupStep === 2 && lookPath === null && (
                       <div className="pb-look-paths">
-                        <p>
-                          Pick a match-ready look, or bring your own
-                          personality.
-                        </p>
+                        <p>{w("lookPathLead")}</p>
                         <button
                           type="button"
                           className="pb-look-path"
@@ -710,10 +682,10 @@ export function PlayfulHome({
                             />
                           </div>
                           <span className="pb-path-title">
-                            Pick a template <ArrowRight />
+                            {w("lookPathTemplates")} <ArrowRight />
                           </span>
                           <span className="pb-path-description">
-                            Premier, FIP, APT & more. Ready for first serve.
+                            {w("lookPathTemplatesBody")}
                           </span>
                         </button>
                         <button
@@ -747,10 +719,10 @@ export function PlayfulHome({
                             </span>
                           </div>
                           <span className="pb-path-title">
-                            Create your own <ArrowRight />
+                            {w("lookPathCustom")} <ArrowRight />
                           </span>
                           <span className="pb-path-description">
-                            From your website, from your logo, or from scratch.
+                            {w("lookPathCustomBody")}
                           </span>
                         </button>
                       </div>
@@ -758,8 +730,8 @@ export function PlayfulHome({
                     {setupStep === 2 && lookPath === "templates" && (
                       <>
                         <fieldset className="pb-template-field">
-                          <legend>Choose your look</legend>
-                          <p>Tour-inspired styles. Always padel rules.</p>
+                          <legend>{w("templateLegend")}</legend>
+                          <p>{w("templateLead")}</p>
                           <div className="pb-template-grid">
                             {BOARD_STYLES.filter(
                               (style) => style.id !== "custom",
@@ -770,7 +742,9 @@ export function PlayfulHome({
                                   type="button"
                                   key={style.id}
                                   className={`pb-template-card ${boardStyle === style.id ? "is-selected" : ""}`}
-                                  aria-label={`${style.name} template`}
+                                  aria-label={w("templateAria", {
+                                    style: style.name,
+                                  })}
                                   aria-pressed={boardStyle === style.id}
                                   onClick={() => {
                                     setBoardStyle(style.id);
@@ -813,20 +787,20 @@ export function PlayfulHome({
                                       <Check weight="bold" />
                                     )}
                                   </span>
-                                  <small>{style.note}</small>
+                                  <small>{boardStyleText(style.id)}</small>
                                 </button>
                               ))}
                           </div>
                           <div
                             className="pb-template-pages"
-                            aria-label="Template pages"
+                            aria-label={w("templatePagesAria")}
                           >
                             <button
                               type="button"
                               disabled={templatePage === 0}
                               onClick={() => setTemplatePage(0)}
                             >
-                              Previous
+                              {w("templatePrevious")}
                             </button>
                             <span>{templatePage + 1} / 2</span>
                             <button
@@ -834,13 +808,13 @@ export function PlayfulHome({
                               disabled={templatePage === 1}
                               onClick={() => setTemplatePage(1)}
                             >
-                              More templates
+                              {w("templateMore")}
                             </button>
                           </div>
                         </fieldset>
                         {boardStyle !== "custom" && (
                           <fieldset className="pb-color-field">
-                            <legend>Accent color</legend>
+                            <legend>{w("accentLegend")}</legend>
                             <button
                               type="button"
                               className="pb-reset-color"
@@ -848,14 +822,16 @@ export function PlayfulHome({
                                 setAccent(getBoardStyle(boardStyle).accent)
                               }
                             >
-                              Use template color
+                              {w("accentUseTemplate")}
                             </button>
                             <div className="pb-swatches">
                               {accents.map((color) => (
                                 <button
                                   type="button"
                                   key={color.value}
-                                  aria-label={`Use ${color.name}`}
+                                  aria-label={w("accentUse", {
+                                    color: w(`accent.${color.id}`),
+                                  })}
                                   aria-pressed={accent === color.value}
                                   style={{ background: color.value }}
                                   onClick={() => setAccent(color.value)}
@@ -883,38 +859,37 @@ export function PlayfulHome({
                           setEditorMode("manual");
                         }}
                       >
-                        Fine-tune this template →
+                        {w("fineTuneTemplate")}{" "}
+                        <span aria-hidden="true">→</span>
                       </button>
                     )}
                     {setupStep === 2 && editorOpen && (
                       <div className="pb-editor-workspace">
-                        <p className="pb-editor-intro">
-                          Your own look, down to the last detail.
-                        </p>
+                        <p className="pb-editor-intro">{w("editorIntro")}</p>
                         <div
                           className="pb-editor-modes"
                           role="group"
-                          aria-label="Design method"
+                          aria-label={w("editorModesAria")}
                         >
                           <button
                             type="button"
                             aria-pressed={editorMode === "ai"}
                             onClick={() => setEditorMode("ai")}
                           >
-                            Design with AI
+                            {w("editorModeAi")}
                           </button>
                           <button
                             type="button"
                             aria-pressed={editorMode === "manual"}
                             onClick={() => setEditorMode("manual")}
                           >
-                            Fine-tune
+                            {w("editorModeManual")}
                           </button>
                         </div>
                         <div
                           className="pb-editor-scroll"
                           role="region"
-                          aria-label="Custom board settings"
+                          aria-label={w("editorRegionAria")}
                           tabIndex={0}
                         >
                           {editorMode === "ai" ? (
@@ -941,7 +916,7 @@ export function PlayfulHome({
                     {setupStep === 3 && (
                       <div className="pb-rules">
                         <label className="pb-field">
-                          Match format
+                          {w("formatLabel")}
                           <select
                             value={
                               config.format === "bo3" && config.superTiebreak
@@ -960,18 +935,18 @@ export function PlayfulHome({
                               })
                             }
                           >
-                            <option value="bo3">Best of 3 full sets</option>
+                            <option value="bo3">{w("formatBo3")}</option>
                             <option value="two-sets-stb">
-                              2 sets + deciding super-tiebreak
+                              {w("formatTwoSetsStb")}
                             </option>
-                            <option value="single-set">One set</option>
-                            <option value="pro-set">
-                              Pro set · first to 9
+                            <option value="single-set">
+                              {w("formatSingleSet")}
                             </option>
+                            <option value="pro-set">{w("formatProSet")}</option>
                           </select>
                         </label>
                         <fieldset className="pb-deuce-rules">
-                          <legend>At 40–40</legend>
+                          <legend>{w("deuceLegend")}</legend>
                           {DEUCE_RULES.map((rule) => (
                             <label
                               className={`pb-rule-option ${getDeuceRule(config) === rule.id ? "is-selected" : ""}`}
@@ -991,16 +966,17 @@ export function PlayfulHome({
                                 }
                               />
                               <span>
-                                {rule.label}
-                                <small>{rule.description}</small>
+                                {ruleText(rule.id)}
+                                <small>
+                                  {ruleText(`${rule.id}Description`)}
+                                </small>
                               </span>
                             </label>
                           ))}
                         </fieldset>
                         {config.format === "bo3" && config.superTiebreak && (
                           <p className="pb-format-explanation">
-                            Play two full sets. At one set each, play a
-                            super-tiebreak: first to 10, win by two.
+                            {w("formatStbExplanation")}
                           </p>
                         )}
                       </div>
@@ -1019,9 +995,11 @@ export function PlayfulHome({
                           }}
                         >
                           <ArrowUUpLeft />{" "}
-                          {setupStep === 2 && lookPath !== null
-                            ? "Back to look options"
-                            : "Back"}
+                          {w(
+                            setupStep === 2 && lookPath !== null
+                              ? "backToLookOptions"
+                              : "back",
+                          )}
                         </button>
                       )}
                       {setupStep === 2 && lookPath !== null && (
@@ -1032,9 +1010,9 @@ export function PlayfulHome({
                             chooseLookPath(editorOpen ? "templates" : "custom")
                           }
                         >
-                          {editorOpen
-                            ? "Switch to templates"
-                            : "Create your own instead"}
+                          {w(
+                            editorOpen ? "switchToTemplates" : "switchToCustom",
+                          )}
                         </button>
                       )}
                     </div>
@@ -1043,28 +1021,24 @@ export function PlayfulHome({
                         className="pb-button pb-form-submit"
                         type="submit"
                       >
-                        {setupStep === 1
-                          ? "Next: choose a look"
-                          : setupStep === 2
-                            ? editorOpen
-                              ? "Use this board: match rules"
-                              : "Next: match rules"
-                            : "Try the controls"}{" "}
+                        {w(
+                          setupStep === 1
+                            ? "submitStepOne"
+                            : setupStep === 2
+                              ? editorOpen
+                                ? "submitCustom"
+                                : "submitStepTwo"
+                              : "submitStepThree",
+                        )}{" "}
                         <ArrowRight weight="bold" />
                       </button>
                     )}
-                    <p className="pb-fine-print">
-                      No account. No commitment. Just a test rally.
-                    </p>
+                    <p className="pb-fine-print">{w("finePrint")}</p>
                   </footer>
                 </form>
               ) : (
                 <div className="pb-controls">
-                  <p>
-                    Tap the team that won the point.
-                    <br />
-                    We’ll handle the padel math.
-                  </p>
+                  <p>{w.rich("playLead", richTags)}</p>
                   <div className="pb-point-buttons">
                     {(["a", "b"] as const).map((team, i) => (
                       <button
@@ -1075,7 +1049,7 @@ export function PlayfulHome({
                       >
                         <span>{names[i]}</span>
                         <Plus weight="bold" />
-                        <small>Add point</small>
+                        <small>{w("addPoint")}</small>
                       </button>
                     ))}
                   </div>
@@ -1084,21 +1058,25 @@ export function PlayfulHome({
                       onClick={() => setHistory((prev) => prev.slice(0, -1))}
                       disabled={history.length < 2}
                     >
-                      <ArrowUUpLeft /> Undo point
+                      <ArrowUUpLeft /> {w("undoPoint")}
                     </button>
-                    <button onClick={startPreview}>Reset match</button>
+                    <button onClick={startPreview}>{w("resetMatch")}</button>
                   </div>
                   <p className="pb-match-status" role="status">
                     {state.winner
-                      ? `${names[state.winner === "a" ? 0 : 1]} wins. Good game!`
+                      ? w("winnerNotice", {
+                          team: names[state.winner === "a" ? 0 : 1],
+                        })
                       : state.phase === "playing"
-                        ? `Set ${state.sets.length} · ${DEUCE_RULES.find((rule) => rule.id === getDeuceRule(config))?.label}`
-                        : "Tiebreak · win by two"}
+                        ? w("setNotice", {
+                            number: state.sets.length,
+                            rule: ruleText(getDeuceRule(config)),
+                          })
+                        : w("tiebreakNotice")}
                   </p>
                   {isStarPoint(state) && (
                     <p className="pb-star-callout" role="status">
-                      Star Point! Next point wins the game. The receiving pair
-                      chooses the side.
+                      {w("starPointNotice")}
                     </p>
                   )}
                   <button
@@ -1112,23 +1090,25 @@ export function PlayfulHome({
                       );
                     }}
                   >
-                    <SlidersHorizontal /> Edit your board
+                    <SlidersHorizontal /> {w("editBoard")}
                   </button>
                   <div className="pb-go-live">
-                    <h3>Looking good. Ready to stream?</h3>
+                    <h3>{w("goLiveTitle")}</h3>
                     <p>
-                      {liveAvailable
-                        ? workspace
-                          ? "Your new match starts at zero. Your previous match stays saved in your history."
-                          : "Save your board, then sign in to get your stream overlay. Your test points won’t carry over."
-                        : "This local preview is ready to play. Publishing will be available once this app is connected to its database."}
+                      {w(
+                        liveAvailable
+                          ? workspace
+                            ? "goLiveWorkspaceBody"
+                            : "goLiveBody"
+                          : "goLiveUnavailableBody",
+                      )}
                     </p>
                     <button
                       className="pb-button pb-form-submit"
                       onClick={createLiveBoard}
                       disabled={!liveAvailable || creating}
                     >
-                      {creating ? "Saving your board…" : "Save & open controls"}
+                      {w(creating ? "goLiveSaving" : "goLiveSubmit")}
                       <ArrowRight weight="bold" />
                     </button>
                     {error && (
@@ -1143,7 +1123,12 @@ export function PlayfulHome({
             <aside className="pb-setup-preview">
               <span className="pb-preview-badge">
                 <Monitor weight="bold" />{" "}
-                {getBoardStyle(boardStyle).name.toUpperCase()} · LIVE PREVIEW
+                {w("livePreview", {
+                  style: (boardStyle === "custom"
+                    ? boardStyleText("customName")
+                    : getBoardStyle(boardStyle).name
+                  ).toUpperCase(),
+                })}
               </span>
               <Scoreboard
                 names={names}
@@ -1157,17 +1142,15 @@ export function PlayfulHome({
                 title={title.toUpperCase()}
               />
               <div className="pb-preview-footer">
-                <p className="pb-hand">
-                  Big match energy.
-                  <br />
-                  Tiny setup effort.
-                </p>
+                <p className="pb-hand">{w.rich("previewScribble", richTags)}</p>
                 <span className="pb-preview-caption">
-                  {stage === "setup"
-                    ? "Your changes appear here as you make them."
-                    : stage === "account"
-                      ? "Saved. Looking good. Almost on court."
-                      : "Practice mode · points stay in this tab."}
+                  {w(
+                    stage === "setup"
+                      ? "previewCaptionSetup"
+                      : stage === "account"
+                        ? "previewCaptionAccount"
+                        : "previewCaptionPlay",
+                  )}
                 </span>
               </div>
             </aside>

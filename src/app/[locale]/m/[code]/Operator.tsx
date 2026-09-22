@@ -2,7 +2,7 @@
 import { AddToScreen } from "@/components/workspace/AddToScreen";
 import { WorkspaceHeader } from "@/components/workspace/WorkspaceHeader";
 import { useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import type { MatchRow } from "@/types/match";
 import { useMatchState } from "@/hooks/useMatchState";
 import { matchClock } from "@/lib/match-clock";

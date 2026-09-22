@@ -6,8 +6,22 @@ import {
   resolveCustomDesign,
   type CustomBoardDesign,
 } from "@/lib/custom-board";
+import { useTranslations } from "next-intl";
 import "./editor.css";
 import { LogoPicker } from "./LogoPicker";
+
+/** Mantém a interpolação crua do número, como antes da extração de texto. */
+const px = (value?: number) => String(value ?? "");
+
+const COLOR_FIELDS = [
+  "background",
+  "rowBackground",
+  "textColor",
+  "scoreBackground",
+  "scoreTextColor",
+  "pointTextColor",
+  "borderColor",
+] as const;
 
 export function CustomBoardEditor({
   design: input,
@@ -20,6 +34,7 @@ export function CustomBoardEditor({
   onChange: (design: CustomBoardDesign) => void;
   onAccentChange: (color: string) => void;
 }) {
+  const t = useTranslations("boardEditor");
   const [panel, setPanel] = useState<"colors" | "layout" | "brand">("colors");
   const [logoError, setLogoError] = useState("");
   const [readingLogo, setReadingLogo] = useState(false);
@@ -37,11 +52,11 @@ export function CustomBoardEditor({
     onChange({ ...design, ...patch });
   }
   return (
-    <section className="board-editor" aria-label="Custom board editor">
+    <section className="board-editor" aria-label={t("customSectionAria")}>
       <div className="board-editor-heading">
         <div>
-          <h3>Your board, your way.</h3>
-          <p>Every change appears in the preview.</p>
+          <h3>{t("customTitle")}</h3>
+          <p>{t("customLead")}</p>
         </div>
         <button
           type="button"
@@ -52,68 +67,55 @@ export function CustomBoardEditor({
             onAccentChange("#f5ff36");
           }}
         >
-          Reset
+          {t("reset")}
         </button>
       </div>
       <div
         className="board-editor-tabs"
         role="group"
-        aria-label="Editor section"
+        aria-label={t("tabsAria")}
       >
         <button
           type="button"
           aria-pressed={panel === "colors"}
           onClick={() => setPanel("colors")}
         >
-          Colors
+          {t("tabColors")}
         </button>
         <button
           type="button"
           aria-pressed={panel === "brand"}
           onClick={() => setPanel("brand")}
         >
-          Logo & header
+          {t("tabBrand")}
         </button>
         <button
           type="button"
           aria-pressed={panel === "layout"}
           onClick={() => setPanel("layout")}
         >
-          Typography & layout
+          {t("tabLayout")}
         </button>
       </div>
       {panel === "colors" && (
         <fieldset>
-          <legend>Colors</legend>
+          <legend>{t("colorsLegend")}</legend>
           <div className="board-editor-colors">
-            {(
-              [
-                { key: "background", label: "Board" },
-                { key: "rowBackground", label: "Player rows" },
-                { key: "textColor", label: "Names" },
-                { key: "scoreBackground", label: "Set cells" },
-                { key: "scoreTextColor", label: "Set numbers" },
-                { key: "pointTextColor", label: "Point numbers" },
-                { key: "borderColor", label: "Borders" },
-              ] as const
-            ).map(({ key, label }) => (
+            {COLOR_FIELDS.map((key) => (
               <ColorField
                 key={key}
-                label={label}
+                label={t(`colors.${key}`)}
                 value={design[key]}
                 onChange={(color) => update({ [key]: color })}
               />
             ))}
             <ColorField
-              label="Points accent"
+              label={t("accentLabel")}
               value={accent}
               onChange={onAccentChange}
             />
           </div>
-          <p className="board-editor-hint">
-            Point backgrounds stay distinct from sets and player rows
-            automatically.
-          </p>
+          <p className="board-editor-hint">{t("colorsHint")}</p>
         </fieldset>
       )}
       {panel === "brand" && (
@@ -124,7 +126,7 @@ export function CustomBoardEditor({
               checked={design.showHeader}
               onChange={(event) => update({ showHeader: event.target.checked })}
             />
-            Show first row (logo & match title)
+            {t("showHeader")}
           </label>
           <label className="board-editor-checkbox">
             <input
@@ -133,7 +135,7 @@ export function CustomBoardEditor({
               disabled={!design.showHeader}
               onChange={(e) => update({ showLogo: e.target.checked })}
             />{" "}
-            Show logo
+            {t("showLogo")}
           </label>
           <LogoPicker
             logo={design.logo || ""}
@@ -153,7 +155,7 @@ export function CustomBoardEditor({
               } catch (err) {
                 if (version === logoVersion.current)
                   setLogoError(
-                    err instanceof Error ? err.message : "Could not read logo.",
+                    err instanceof Error ? err.message : t("customLogoError"),
                   );
               } finally {
                 if (version === logoVersion.current) setReadingLogo(false);
@@ -167,7 +169,7 @@ export function CustomBoardEditor({
             }}
           />
           <label className="board-editor-select">
-            Brand name
+            {t("brandNameLabel")}
             <input
               type="text"
               maxLength={40}
@@ -177,11 +179,12 @@ export function CustomBoardEditor({
           </label>
           <label className="board-editor-range">
             <span>
-              Logo size<output>{design.logoHeight} px</output>
+              {t("logoSizeLabel")}
+              <output>{t("pxValue", { value: px(design.logoHeight) })}</output>
             </span>
             <input
               type="range"
-              aria-label="Logo size"
+              aria-label={t("logoSizeLabel")}
               min={14}
               max={36}
               value={design.logoHeight}
@@ -198,7 +201,7 @@ export function CustomBoardEditor({
       {panel === "layout" && (
         <>
           <label className="board-editor-select">
-            Typography
+            {t("typographyLabel")}
             <select
               value={design.font}
               onChange={(event) =>
@@ -207,34 +210,33 @@ export function CustomBoardEditor({
                 })
               }
             >
-              <option value="sans">Modern sans</option>
-              <option value="serif">Classic serif</option>
-              <option value="mono">Monospace</option>
+              <option value="sans">{t("fontSans")}</option>
+              <option value="serif">{t("fontSerif")}</option>
+              <option value="mono">{t("fontMono")}</option>
             </select>
           </label>
           <fieldset>
-            <legend>Layout</legend>
+            <legend>{t("layoutLegend")}</legend>
             {(
               [
-                { key: "rowHeight", label: "Row height", min: 28, max: 64 },
-                { key: "fontSize", label: "Name size", min: 12, max: 24 },
+                { key: "rowHeight", min: 28, max: 64 },
+                { key: "fontSize", min: 12, max: 24 },
                 {
                   key: "scoreSize",
-                  label: "Score size",
                   min: 14,
                   max: Math.min(32, design.rowHeight - 6),
                 },
-                { key: "radius", label: "Corner radius", min: 0, max: 20 },
-                { key: "width", label: "Overlay width", min: 320, max: 720 },
+                { key: "radius", min: 0, max: 20 },
+                { key: "width", min: 320, max: 720 },
               ] as const
-            ).map(({ key, label, min, max }) => (
+            ).map(({ key, min, max }) => (
               <label className="board-editor-range" key={key}>
                 <span>
-                  {label}
-                  <output>{design[key]} px</output>
+                  {t(`layout.${key}`)}
+                  <output>{t("pxValue", { value: px(design[key]) })}</output>
                 </span>
                 <input
-                  aria-label={label}
+                  aria-label={t(`layout.${key}`)}
                   type="range"
                   min={min}
                   max={max}
@@ -261,26 +263,27 @@ function ColorField({
   value: string;
   onChange: (value: string) => void;
 }) {
+  const t = useTranslations("boardEditor");
   const [text, setText] = useState(value);
   useEffect(() => setText(value), [value]);
   return (
     <div className="board-editor-color">
       <input
         type="color"
-        aria-label={`${label} color`}
+        aria-label={t("colorSwatchAria", { label })}
         value={value}
         onChange={(event) => onChange(event.target.value)}
       />
       <label>
         <span>{label}</span>
         <input
-          aria-label={`${label} hex`}
+          aria-label={t("colorHexAria", { label })}
           type="text"
           spellCheck={false}
           value={text}
           pattern="#[0-9a-fA-F]{6}"
           maxLength={7}
-          title="Use a six-digit hex color, such as #173f37"
+          title={t("hexHint", { example: "#173f37" })}
           onChange={(event) => {
             setText(event.target.value);
             if (/^#[0-9a-f]{6}$/i.test(event.target.value))

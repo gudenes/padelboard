@@ -4,9 +4,9 @@ vi.mock("next/navigation", () => ({
     throw new Error(`redirect:${url}`);
   },
 }));
-import Studio from "@/app/m/[code]/studio/page";
-import Edit from "@/app/m/[code]/edit/page";
-import Insights from "@/app/m/[code]/insights/page";
+import Studio from "@/app/[locale]/m/[code]/studio/page";
+import Edit from "@/app/[locale]/m/[code]/edit/page";
+import Insights from "@/app/[locale]/m/[code]/insights/page";
 it.each([
   [Studio, "output=studio"],
   [Edit, "view=edit"],

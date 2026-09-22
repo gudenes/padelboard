@@ -1,5 +1,5 @@
 import { WorkspaceHeader } from "@/components/workspace/WorkspaceHeader";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { PlayerAvatar } from "@/components/workspace/PlayerAvatar";
 import { redirect } from "next/navigation";
 import { serverSupabase } from "@/lib/supabase-server";

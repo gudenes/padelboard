@@ -1,6 +1,7 @@
 "use client";
 import { useRef, useState } from "react";
 import { CheckCircle, UploadSimple } from "@phosphor-icons/react";
+import { useTranslations } from "next-intl";
 import "./logo-picker.css";
 
 export function LogoPicker({
@@ -18,6 +19,7 @@ export function LogoPicker({
   onSelect: (file: File) => void;
   onRemove: () => void;
 }) {
+  const t = useTranslations("boardEditor");
   const input = useRef<HTMLInputElement>(null);
   const depth = useRef(0);
   const [dragging, setDragging] = useState(false);
@@ -55,7 +57,7 @@ export function LogoPicker({
         hidden
         type="file"
         accept="image/png,image/jpeg,image/webp"
-        aria-label="Choose logo file"
+        aria-label={t("logoFileAria")}
         disabled={locked}
         tabIndex={-1}
         onChange={(e) => {
@@ -69,11 +71,11 @@ export function LogoPicker({
         className="pb-logo-drop"
         disabled={locked}
         onClick={() => input.current?.click()}
-        aria-label={logo ? "Replace logo" : "Upload your logo"}
+        aria-label={logo ? t("logoReplaceAria") : t("logoUploadAria")}
       >
         <span className="pb-logo-art" key={logo || "empty"}>
           {logo ? (
-            <img src={logo} alt="Your logo preview" />
+            <img src={logo} alt={t("logoPreviewAlt")} />
           ) : (
             <UploadSimple size={28} weight="bold" />
           )}
@@ -81,22 +83,19 @@ export function LogoPicker({
         <span className="pb-logo-copy">
           <strong>
             {busy
-              ? "Getting your logo ready…"
+              ? t("logoBusyTitle")
               : dragging
-                ? "Drop it. Make it yours."
+                ? t("logoDraggingTitle")
                 : logo
-                  ? "Looking like you."
-                  : "Drop your logo here."}
+                  ? t("logoReadyTitle")
+                  : t("logoEmptyTitle")}
           </strong>
           <span>
             {busy
-              ? "Preparing a crisp preview"
-              : filename ||
-                (logo
-                  ? "Click to replace your logo"
-                  : "or click to choose a file")}
+              ? t("logoBusySub")
+              : filename || (logo ? t("logoReplaceSub") : t("logoEmptySub"))}
           </span>
-          <small>PNG, JPG or WebP · up to 2 MB</small>
+          <small>{t("logoFormats")}</small>
         </span>
         {busy ? (
           <span className="pb-logo-spinner" aria-hidden="true" />
@@ -105,7 +104,7 @@ export function LogoPicker({
         ) : null}
       </button>
       <div className="pb-logo-status" role="status">
-        {busy ? "Preparing logo…" : logo ? "Logo ready" : ""}
+        {busy ? t("logoStatusBusy") : logo ? t("logoStatusReady") : ""}
       </div>
       {logo && (
         <button
@@ -114,7 +113,7 @@ export function LogoPicker({
           disabled={locked}
           onClick={onRemove}
         >
-          Remove logo
+          {t("logoRemove")}
         </button>
       )}
     </div>

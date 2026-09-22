@@ -3,7 +3,6 @@ export const BOARD_STYLES = [
   {
     id: "padelboard",
     name: "Padelboard",
-    note: "Bold & playful",
     accent: "#f5ff36",
     background: "#11120f",
     row: "#1c1d19",
@@ -13,7 +12,6 @@ export const BOARD_STYLES = [
   {
     id: "tour-premier",
     name: "Premier",
-    note: "Premier Padel inspired",
     accent: "#dbca91",
     background: "#101b2a",
     row: "#16273b",
@@ -23,7 +21,6 @@ export const BOARD_STYLES = [
   {
     id: "tour-fip",
     name: "FIP",
-    note: "FIP circuit inspired",
     accent: "#bbdbff",
     background: "#f5f8ff",
     row: "#ffffff",
@@ -33,7 +30,6 @@ export const BOARD_STYLES = [
   {
     id: "tour-apt",
     name: "APT",
-    note: "APT tour inspired",
     accent: "#ff8b85",
     background: "#11182b",
     row: "#1c2741",
@@ -43,7 +39,6 @@ export const BOARD_STYLES = [
   {
     id: "tour-clay",
     name: "Roland-Garros",
-    note: "Paris clay inspired",
     accent: "#f1d7ab",
     background: "#174d3d",
     row: "#205e4a",
@@ -53,7 +48,6 @@ export const BOARD_STYLES = [
   {
     id: "custom",
     name: "Custom",
-    note: "Build your own",
     accent: "#f5ff36",
     background: "#111827",
     row: "#1f2937",

@@ -5,6 +5,7 @@ import { getDraftToken, clearDraftToken } from "@/lib/draft-token";
 import { AVATAR_COLORS, AVATAR_STYLES } from "@/lib/player-profile";
 import { SignIn } from "./SignIn";
 import { PlayerAvatar } from "./PlayerAvatar";
+import { useTranslations } from "next-intl";
 import "./workspace.css";
 export function FinishSetup({
   matchId,
@@ -17,6 +18,7 @@ export function FinishSetup({
   claimDraft?: boolean;
   editProfile?: boolean;
 }) {
+  const t = useTranslations("account");
   const [phase, setPhase] = useState<"loading" | "login" | "profile" | "ready">(
     "loading",
   );
@@ -72,7 +74,7 @@ export function FinishSetup({
         "padelboard_pending_match=; Path=/; Max-Age=0; SameSite=Lax";
       location.assign(shortCode ? `/m/${shortCode}` : "/dashboard");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Please try again.");
+      setError(e instanceof Error ? e.message : t("claimFailed"));
       setBusy(false);
     }
   }
@@ -97,17 +99,17 @@ export function FinishSetup({
         await finish();
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Please retry.");
+      setError(e instanceof Error ? e.message : t("saveFailed"));
       setBusy(false);
     }
   }
   return (
     <div className="pbw-finish" aria-live="polite">
-      {phase === "loading" && <p>Getting your spot on court ready…</p>}
+      {phase === "loading" && <p>{t("loading")}</p>}
       {phase === "login" && (
         <>
-          <span className="pbw-hand">ONE LAST LITTLE STEP.</span>
-          <p>Save your board to your account. Your design stays right here.</p>
+          <span className="pbw-hand">{t("loginEyebrow")}</span>
+          <p>{t("loginLead")}</p>
           <SignIn matchId={matchId} onSuccess={() => void inspect()} />
         </>
       )}
@@ -121,23 +123,22 @@ export function FinishSetup({
           <div className="pbw-profile-intro">
             <PlayerAvatar color={color} style={style} />
             <div>
-              <span className="pbw-hand">MEET YOUR COURT-SIDE SELF.</span>
+              <span className="pbw-hand">{t("profileEyebrow")}</span>
               <h3>
-                {editProfile ? "Your court-side self." : "A little about you."}
+                {editProfile ? t("profileTitleEdit") : t("profileTitleNew")}
               </h3>
-              <p>
-                {editProfile
-                  ? "Choose your look and update your details."
-                  : "One quick introduction, then let’s play."}
-              </p>
+              <p>{editProfile ? t("profileLeadEdit") : t("profileLeadNew")}</p>
             </div>
           </div>
-          <div className="pbw-avatar-options" aria-label="Avatar color">
+          <div
+            className="pbw-avatar-options"
+            aria-label={t("avatarColorGroupAria")}
+          >
             {AVATAR_COLORS.map((c) => (
               <button
                 key={c}
                 type="button"
-                aria-label={`Avatar color ${c}`}
+                aria-label={t("avatarColorAria", { color: c })}
                 aria-pressed={color === c}
                 style={{ background: c }}
                 onClick={() => setColor(c)}
@@ -155,15 +156,15 @@ export function FinishSetup({
                 disabled={busy}
               >
                 {s === "headband"
-                  ? "Rally ready"
+                  ? t("avatarStyleHeadband")
                   : s === "cap"
-                    ? "Club captain"
-                    : "Sunny side"}
+                    ? t("avatarStyleCap")
+                    : t("avatarStyleSunny")}
               </button>
             ))}
           </div>
           <label>
-            Your name
+            {t("nameLabel")}
             <input
               required
               maxLength={60}
@@ -175,20 +176,20 @@ export function FinishSetup({
           </label>
           <div className="pbw-profile-fields">
             <label>
-              I’m here as a
+              {t("roleLabel")}
               <select
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
                 disabled={busy}
               >
-                <option value="player">Player</option>
-                <option value="club">Club</option>
-                <option value="organizer">Organizer / streamer</option>
-                <option value="federation">Federation</option>
+                <option value="player">{t("rolePlayer")}</option>
+                <option value="club">{t("roleClub")}</option>
+                <option value="organizer">{t("roleOrganizer")}</option>
+                <option value="federation">{t("roleFederation")}</option>
               </select>
             </label>
             <label>
-              Club / community (optional)
+              {t("clubLabel")}
               <input
                 maxLength={80}
                 value={club}
@@ -199,27 +200,25 @@ export function FinishSetup({
           </div>
           <button className="pbw-primary" disabled={busy}>
             {busy
-              ? "Saving your court-side self…"
-              : editProfile
-                ? "Save profile →"
-                : "Let’s play →"}
+              ? t("profileSaving")
+              : `${editProfile ? t("profileSaveEdit") : t("profileSavePlay")} →`}
           </button>
         </form>
       )}
       {phase === "ready" && (
         <>
-          <span className="pbw-hand">YOU’RE IN. LET’S PLAY.</span>
-          <p>Your board is saved and ready for the first serve.</p>
+          <span className="pbw-hand">{t("readyEyebrow")}</span>
+          <p>{t("readyLead")}</p>
           <button
             className="pbw-primary"
             onClick={() => void finish()}
             disabled={busy}
           >
-            {busy ? "Opening your board…" : "Open match controls →"}
+            {busy ? t("readyOpening") : `${t("readyOpen")} →`}
           </button>
         </>
       )}
-      {saved && <p role="status">✓ Profile saved. Looking good!</p>}
+      {saved && <p role="status">✓ {t("profileSaved")}</p>}
       {error && (
         <p className="pbw-error" role="alert">
           {error}

@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import type { MatchRow } from "@/types/match";
 import { useMatchState } from "@/hooks/useMatchState";
 import { matchClock } from "@/lib/match-clock";
-import { Operator } from "@/app/m/[code]/Operator";
+import { Operator } from "@/app/[locale]/m/[code]/Operator";
 import { WorkspaceHeader } from "./WorkspaceHeader";
 import { BrowserStudio } from "./BrowserStudio";
 import { ScoreboardEditor } from "./ScoreboardEditor";

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { browserSupabase } from "@/lib/supabase";
+import { useTranslations } from "next-intl";
 export function SignIn({
   matchId,
   onSuccess,
@@ -10,6 +11,7 @@ export function SignIn({
   remote?: boolean;
   onSuccess?: () => void;
 }) {
+  const t = useTranslations("account");
   const [googleEnabled, setGoogleEnabled] = useState(false);
   useEffect(() => {
     const controller = new AbortController();
@@ -48,9 +50,7 @@ export function SignIn({
       });
       if (error) throw error;
     } catch {
-      setError(
-        "Google sign-in is not available yet. Please use an email code.",
-      );
+      setError(t("googleUnavailable"));
       setBusy(false);
     }
   }
@@ -68,20 +68,16 @@ export function SignIn({
       if (error) {
         if (error.status === 429) {
           setCooldown(60);
-          throw new Error(
-            "Please wait a minute before requesting another code.",
-          );
+          throw new Error(t("codeCooldown"));
         }
-        throw new Error(
-          "We couldn’t send your code. Check your email address and try again.",
-        );
+        throw new Error(t("codeSendFailed"));
       }
       setToken("");
       setSent(true);
       setCooldown(60);
     } catch (reason) {
       setError(
-        reason instanceof Error ? reason.message : "Could not send your code.",
+        reason instanceof Error ? reason.message : t("codeSendFailedGeneric"),
       );
     } finally {
       setBusy(false);
@@ -99,19 +95,17 @@ export function SignIn({
       });
       if (error) {
         setError(
-          error.status === 429
-            ? "Too many attempts. Wait a minute before trying again."
-            : "That code is invalid or has expired. Use the newest email, or request a new code.",
+          error.status === 429 ? t("codeTooManyAttempts") : t("codeInvalid"),
         );
         return;
       }
       if (onSuccess) onSuccess();
       else
-        location.assign(`/auth/callback${matchId ? `?match=${matchId}${remote ? "&mode=remote" : ""}` : ""}`);
+        location.assign(
+          `/auth/callback${matchId ? `?match=${matchId}${remote ? "&mode=remote" : ""}` : ""}`,
+        );
     } catch {
-      setError(
-        "We couldn’t verify your code. Check your connection and try again.",
-      );
+      setError(t("codeVerifyFailed"));
     } finally {
       setBusy(false);
     }
@@ -129,29 +123,26 @@ export function SignIn({
           <button
             type="button"
             className="pbw-google"
-            title={
-              googleEnabled
-                ? undefined
-                : "Google sign-in is being set up. Use email for now."
-            }
+            title={googleEnabled ? undefined : t("googleSoonTitle")}
             disabled={busy || !googleEnabled}
             onClick={() => void googleSignIn()}
           >
-            <b aria-hidden="true">G</b> Continue with Google
-            {!googleEnabled && " · soon"}
+            <b aria-hidden="true">G</b> {t("googleContinue")}
+            {!googleEnabled && ` · ${t("googleSoon")}`}
           </button>
-          <span className="pbw-auth-divider">or use your email</span>
+          <span className="pbw-auth-divider">{t("emailDivider")}</span>
         </>
       )}
       {sent ? (
         <>
-          <h2>Check your inbox.</h2>
+          <h2>{t("codeSentTitle")}</h2>
           <p>
-            Enter the 8-digit code sent to <strong>{email}</strong>. Stay on
-            this page — no link to open.
+            {t.rich("codeSentLead", {
+              email: () => <strong>{email}</strong>,
+            })}
           </p>
           <label>
-            Email code
+            {t("codeLabel")}
             <input
               type="text"
               inputMode="numeric"
@@ -167,7 +158,7 @@ export function SignIn({
             />
           </label>
           <button className="pbw-primary" disabled={busy || token.length !== 8}>
-            {busy ? "Verifying…" : "Verify & open my board →"}
+            {busy ? t("verifying") : `${t("verifyCta")} →`}
           </button>
           <div className="pbw-code-actions">
             <button
@@ -176,7 +167,7 @@ export function SignIn({
               disabled={busy || cooldown > 0}
               onClick={() => void sendCode()}
             >
-              {cooldown ? `Resend in ${cooldown}s` : "Resend code"}
+              {cooldown ? t("resendIn", { seconds: cooldown }) : t("resend")}
             </button>
             <button
               type="button"
@@ -188,35 +179,32 @@ export function SignIn({
                 setError("");
               }}
             >
-              Change email
+              {t("changeEmail")}
             </button>
           </div>
         </>
       ) : (
         <>
           <label>
-            Email address
+            {t("emailLabel")}
             <input
               type="email"
               autoComplete="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@yourclub.com"
+              placeholder={t("emailPlaceholder")}
               disabled={busy}
             />
           </label>
           <button className="pbw-primary" disabled={busy || cooldown > 0}>
             {busy
-              ? "Sending your code…"
+              ? t("sendingCode")
               : cooldown
-                ? `Try again in ${cooldown}s`
-                : "Email me a sign-in code →"}
+                ? t("retryIn", { seconds: cooldown })
+                : `${t("sendCodeCta")} →`}
           </button>
-          <p className="pbw-muted">
-            No password. Enter your email code here and keep your board exactly
-            as you made it.
-          </p>
+          <p className="pbw-muted">{t("noPassword")}</p>
         </>
       )}
       {error && (
