@@ -5,6 +5,7 @@ import { serverSupabase } from "@/lib/supabase-server";
 import { localeAlternates } from "@/lib/seo";
 import { WorkspaceHeader } from "@/components/workspace/WorkspaceHeader";
 import { WorkspaceBrand } from "@/components/workspace/WorkspaceBrand";
+import { LanguageChip } from "@/components/i18n/LanguageChip";
 import { HelpGuides } from "./HelpGuides";
 import "@/components/workspace/workspace.css";
 import "./help.css";
@@ -50,6 +51,7 @@ export default async function HelpPage({
               {t("navHelp")}
             </Link>
           </nav>
+          <LanguageChip />
           <Link href="/login" className="pbw-primary">
             {t("navSignIn")} →
           </Link>

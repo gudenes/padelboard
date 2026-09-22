@@ -115,56 +115,6 @@
   text-decoration: underline;
   text-underline-offset: 5px;
 }
-.pb-lang {
-  position: relative;
-}
-.pb-lang-chip {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 11px;
-  border: 2px solid var(--pb-black);
-  border-radius: 20px;
-  background: transparent;
-  color: var(--pb-black);
-  font: inherit;
-  font-size: 0.82rem;
-  cursor: pointer;
-}
-.pb-lang-list {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  z-index: 20;
-  min-width: 150px;
-  margin: 0;
-  padding: 5px;
-  list-style: none;
-  background: var(--pb-black);
-  border-radius: 10px;
-}
-.pb-lang-list button {
-  display: flex;
-  justify-content: space-between;
-  gap: 14px;
-  width: 100%;
-  padding: 6px 9px;
-  border: 0;
-  border-radius: 7px;
-  background: transparent;
-  color: #f4f3ea;
-  font: inherit;
-  font-size: 0.82rem;
-  text-align: left;
-  cursor: pointer;
-}
-.pb-lang-list button:hover {
-  background: rgba(255, 255, 255, 0.08);
-}
-.pb-lang-list button.is-active {
-  background: var(--pb-yellow);
-  color: var(--pb-black);
-}
 .pb-home .pb-button {
   display: inline-flex;
   align-items: center;
