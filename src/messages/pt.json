@@ -29,7 +29,7 @@
     "feedbackCategoryOther": "Something else",
     "feedbackMessageLabel": "Your feedback",
     "feedbackPlaceholder": "Tell us a little more…",
-    "feedbackCounter": "{count}/{max} · Your account and current page are included. Please don’t include passwords or sensitive information.",
+    "feedbackCounter": "{count, number}/{max, number} · Your account and current page are included. Please don’t include passwords or sensitive information.",
     "feedbackSending": "Sending…",
     "feedbackSubmit": "Send feedback",
     "feedbackErrorSend": "Couldn’t send feedback.",

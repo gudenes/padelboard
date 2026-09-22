@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 export function WorkspaceBrand({ href = "/" }: { href?: string }) {
   return (
     <Link href={href} className="pbw-logo" aria-label="Padelboard home">

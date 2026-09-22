@@ -1,12 +1,12 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { useFormatter, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 import { browserSupabase } from "@/lib/supabase";
 import "./feedback.css";
+const MAX_FEEDBACK = 2000;
 export function FeedbackButton() {
   const t = useTranslations("common");
-  const fmt = useFormatter();
   const path = usePathname();
   const dialog = useRef<HTMLDialogElement>(null);
   const [signedIn, setSignedIn] = useState(false),
@@ -52,9 +52,7 @@ export function FeedbackButton() {
       setSent(true);
       setMessage("");
     } catch (e) {
-      setError(
-        e instanceof Error ? e.message : t("feedbackErrorRetry"),
-      );
+      setError(e instanceof Error ? e.message : t("feedbackErrorRetry"));
     } finally {
       setBusy(false);
     }
@@ -125,7 +123,7 @@ export function FeedbackButton() {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               minLength={10}
-              maxLength={2000}
+              maxLength={MAX_FEEDBACK}
               required
               rows={5}
               disabled={busy}
@@ -134,8 +132,8 @@ export function FeedbackButton() {
             />
             <small id="feedback-note">
               {t("feedbackCounter", {
-                count: fmt.number(message.length),
-                max: fmt.number(2000),
+                count: message.length,
+                max: MAX_FEEDBACK,
               })}
             </small>
             {error && (
