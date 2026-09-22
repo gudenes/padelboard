@@ -1,18 +1,37 @@
 import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { serverSupabase } from "@/lib/supabase-server";
+import { localeAlternates } from "@/lib/seo";
 import { WorkspaceHeader } from "@/components/workspace/WorkspaceHeader";
 import { WorkspaceBrand } from "@/components/workspace/WorkspaceBrand";
 import { HelpGuides } from "./HelpGuides";
 import "@/components/workspace/workspace.css";
 import "./help.css";
 
-export const metadata: Metadata = {
-  title: "Help & guides — Padelboard",
-  description:
-    "Your first stream, one easy step at a time. Learn Padelboard Studio, OBS overlays and phone controls.",
-};
-export default async function HelpPage() {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "help" });
+
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+    alternates: { languages: localeAlternates("/help") },
+  };
+}
+
+export default async function HelpPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations("common");
   const sb = await serverSupabase();
   const {
     data: { user },
@@ -24,15 +43,15 @@ export default async function HelpPage() {
       ) : (
         <header className="pbw-nav">
           <WorkspaceBrand />
-          <nav className="pbw-main-nav" aria-label="Main navigation">
-            <Link href="/">Home</Link>
-            <Link href="/manifesto">Our manifesto</Link>
+          <nav className="pbw-main-nav" aria-label={t("navMainAria")}>
+            <Link href="/">{t("navHome")}</Link>
+            <Link href="/manifesto">{t("navManifesto")}</Link>
             <Link href="/help" aria-current="page">
-              Help & guides
+              {t("navHelp")}
             </Link>
           </nav>
           <Link href="/login" className="pbw-primary">
-            Sign in →
+            {t("navSignIn")} →
           </Link>
         </header>
       )}
