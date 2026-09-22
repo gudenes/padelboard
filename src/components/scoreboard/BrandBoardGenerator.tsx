@@ -11,6 +11,7 @@ import { prepareBoardLogo } from "@/lib/prepare-board-logo";
 import { TourScoreboard } from "./TourScoreboard";
 import { createInitialState } from "@/lib/padel-scoring";
 import { defaultConfig } from "@/types/match";
+import { useTranslations } from "next-intl";
 import "./brand-generator.css";
 import { LogoPicker } from "./LogoPicker";
 
@@ -21,6 +22,8 @@ export function BrandBoardGenerator({
   available: boolean;
   onApply: (result: GeneratedBoard) => void;
 }) {
+  const t = useTranslations("boardEditor");
+  const w = useTranslations("wizard");
   const [kind, setKind] = useState<"website" | "logo">("website");
   const [url, setUrl] = useState("");
   const [logo, setLogo] = useState("");
@@ -49,7 +52,7 @@ export function BrandBoardGenerator({
       !["image/png", "image/jpeg", "image/webp"].includes(file.type) ||
       file.size > 2 * 1024 * 1024
     ) {
-      setError("Choose a PNG, JPG or WebP image, up to 2 MB.");
+      setError(t("aiLogoTypeError"));
       return;
     }
     setReading(true);
@@ -60,8 +63,7 @@ export function BrandBoardGenerator({
         setFilename(file.name);
       }
     } catch {
-      if (version === readVersion.current)
-        setError("Could not read this image. Try another file.");
+      if (version === readVersion.current) setError(t("aiLogoReadError"));
     } finally {
       if (version === readVersion.current) setReading(false);
     }
@@ -84,32 +86,23 @@ export function BrandBoardGenerator({
         ),
       });
       const data = await response.json();
-      if (!response.ok)
-        throw new Error(
-          data.error || "Could not generate a design. Please try again.",
-        );
+      if (!response.ok) throw new Error(data.error || t("aiGenerateError"));
       setResult(data);
     } catch (err) {
-      if (request.signal.aborted)
-        setError("Design generation was stopped. You can try again.");
-      else
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Could not generate a design. Please try again.",
-        );
+      if (request.signal.aborted) setError(t("aiAbortedError"));
+      else setError(err instanceof Error ? err.message : t("aiGenerateError"));
     } finally {
       clearTimeout(timer);
       setBusy(false);
     }
   }
   return (
-    <section className="pb-brand-generator" aria-label="Design from your brand">
+    <section className="pb-brand-generator" aria-label={t("aiSectionAria")}>
       <div className="pb-brand-heading">
         <Sparkle weight="fill" />
         <div>
-          <h3>A board with your DNA.</h3>
-          <p>Bring your brand. We’ll find its match-day look.</p>
+          <h3>{t("aiTitle")}</h3>
+          <p>{t("aiLead")}</p>
         </div>
       </div>
       {!result && (
@@ -117,7 +110,7 @@ export function BrandBoardGenerator({
           <div
             className="pb-brand-source"
             role="group"
-            aria-label="Brand source"
+            aria-label={t("aiSourceAria")}
           >
             <button
               type="button"
@@ -129,7 +122,7 @@ export function BrandBoardGenerator({
                 setError("");
               }}
             >
-              <Globe /> Website
+              <Globe /> {t("aiSourceWebsite")}
             </button>
             <button
               type="button"
@@ -141,17 +134,17 @@ export function BrandBoardGenerator({
                 setError("");
               }}
             >
-              <UploadSimple /> Upload logo
+              <UploadSimple /> {t("aiSourceLogo")}
             </button>
           </div>
           {kind === "website" ? (
             <label className="pb-brand-url">
-              Your club or brand website
+              {t("aiUrlLabel")}
               <input
                 type="text"
                 inputMode="url"
                 autoComplete="url"
-                placeholder="yourclub.com"
+                placeholder={t("aiUrlPlaceholder")}
                 maxLength={2048}
                 value={url}
                 disabled={busy}
@@ -161,9 +154,7 @@ export function BrandBoardGenerator({
                   setError("");
                 }}
               />
-              <small>
-                We use public site content to suggest a brand-inspired look.
-              </small>
+              <small>{t("aiUrlHint")}</small>
             </label>
           ) : (
             <LogoPicker
@@ -183,14 +174,11 @@ export function BrandBoardGenerator({
             />
           )}
           <p className="pb-brand-notice">
-            {kind === "website"
-              ? "Public content and colors from your website are sent to OpenAI as design inspiration."
-              : "Your logo is sent to OpenAI for design inspiration and included in your board."}
+            {kind === "website" ? t("aiNoticeWebsite") : t("aiNoticeLogo")}
           </p>
           {!available && (
             <p className="pb-brand-unavailable" role="status">
-              AI design isn’t connected in this preview yet. You can still use
-              Fine-tune to create your own look.
+              {t("aiUnavailable", { mode: w("editorModeManual") })}
             </p>
           )}
           <button
@@ -211,15 +199,15 @@ export function BrandBoardGenerator({
               <Sparkle weight="fill" />
             )}
             {busy
-              ? "Finding your match-day look…"
+              ? t("aiGenerating")
               : result
-                ? "Generate another look"
-                : "Generate my board"}
+                ? t("aiGenerateAnother")
+                : t("aiGenerate")}
           </button>
           {busy && (
             <div className="pb-brand-progress" role="status">
               <span />
-              Reading your brand and designing the board…
+              {t("aiProgress")}
             </div>
           )}
           {error && (
@@ -236,7 +224,7 @@ export function BrandBoardGenerator({
             className="pb-edit-link"
             onClick={() => setResult(null)}
           >
-            Try another reference
+            {t("aiTryAnother")}
           </button>
           <h4>{result.name}</h4>
           <p>{result.reasoning}</p>
@@ -251,12 +239,22 @@ export function BrandBoardGenerator({
           />
           {result.sources.length > 0 && (
             <div className="pb-brand-sources">
-              Inspired by{" "}
-              {result.sources.map((source) => (
-                <a key={source} href={source} target="_blank" rel="noreferrer">
-                  {new URL(source).hostname}
-                </a>
-              ))}
+              {t.rich("aiInspiredBy", {
+                sources: () => (
+                  <>
+                    {result.sources.map((source) => (
+                      <a
+                        key={source}
+                        href={source}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {new URL(source).hostname}
+                      </a>
+                    ))}
+                  </>
+                ),
+              })}
             </div>
           )}
           <button
@@ -264,9 +262,9 @@ export function BrandBoardGenerator({
             type="button"
             onClick={() => onApply(result)}
           >
-            Use this look <ArrowRight />
+            {t("aiUseLook")} <ArrowRight />
           </button>
-          <small>You can fine-tune every detail next.</small>
+          <small>{t("aiFineTuneNext")}</small>
         </div>
       )}
     </section>
