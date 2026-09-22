@@ -8,6 +8,7 @@ describe('localeAlternates', () => {
       'pt-BR': '/pt/manifesto',
       it: '/it/manifesto',
       es: '/es/manifesto',
+      'x-default': '/manifesto',
     })
   })
 
@@ -17,6 +18,7 @@ describe('localeAlternates', () => {
       'pt-BR': '/pt',
       it: '/it',
       es: '/es',
+      'x-default': '/',
     })
   })
 })

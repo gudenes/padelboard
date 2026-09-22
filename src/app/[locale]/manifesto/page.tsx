@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { PublicHeader } from "@/components/home/PublicHeader";
+import { localeAlternates } from "@/lib/seo";
 import "@/components/home/playful.css";
 import "./manifesto.css";
 
@@ -16,6 +17,7 @@ export async function generateMetadata({
   return {
     title: t("metaTitle"),
     description: t("metaDescription"),
+    alternates: { languages: localeAlternates("/manifesto") },
   };
 }
 

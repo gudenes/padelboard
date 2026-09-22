@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
-import { localeAlternates } from "@/lib/seo";
 import { ProjectFooter } from "@/components/workspace/ProjectFooter";
 import { FeedbackButton } from "@/components/feedback/FeedbackButton";
 
@@ -20,9 +19,11 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: "metadata" });
 
   return {
+    metadataBase: new URL(
+      process.env.NEXT_PUBLIC_SITE_URL ?? "https://padelboard.padellabs.tech",
+    ),
     title: t("title"),
     description: t("description"),
-    alternates: { languages: localeAlternates("/") },
   };
 }
 
