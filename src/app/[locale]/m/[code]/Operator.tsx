@@ -2,6 +2,7 @@
 import { AddToScreen } from "@/components/workspace/AddToScreen";
 import { WorkspaceHeader } from "@/components/workspace/WorkspaceHeader";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import type { MatchRow } from "@/types/match";
 import { useMatchState } from "@/hooks/useMatchState";
@@ -21,6 +22,7 @@ export function Operator({
   embedded?: boolean;
   onChange?: (row: MatchRow) => void;
 }) {
+  const t = useTranslations("operator");
   const errorMessage = useApiErrorMessage();
   const remote = useMatchState(initial.id, initial, !embedded),
     [local, setLocal] = useState(initial),
@@ -70,7 +72,7 @@ export function Operator({
           {phone ? (
             <header className="pbw-remote-brand">
               <strong>padelboard</strong>
-              <span>PHONE REMOTE · {row.short_code}</span>
+              <span>{t("remoteEyebrow", { code: row.short_code })}</span>
             </header>
           ) : (
             <WorkspaceHeader
@@ -82,19 +84,19 @@ export function Operator({
             <div>
               <span className="pbw-eyebrow">
                 {phone
-                  ? "JUST TAP. WE’LL KEEP SCORE."
-                  : `OPERATOR MODE · ${row.short_code}`}
+                  ? t("eyebrowPhone")
+                  : t("eyebrow", { code: row.short_code })}
               </span>
-              <h1>{row.overlay.tournamentName || "Let’s play some padel."}</h1>
+              <h1>{row.overlay.tournamentName || t("titleFallback")}</h1>
             </div>
             <span className="pbw-badge">
               {finished
-                ? "Match finished"
+                ? t("badgeFinished")
                 : clock.runningSince
-                  ? "● On court"
+                  ? t("badgeLive")
                   : row.started_at
-                    ? "Paused"
-                    : "Ready to play"}
+                    ? t("badgePaused")
+                    : t("badgeReady")}
             </span>
           </div>
         </>
@@ -108,7 +110,7 @@ export function Operator({
           )}
           <div className="pbw-clock">
             <div>
-              <span className="pbw-eyebrow">MATCH DURATION</span>
+              <span className="pbw-eyebrow">{t("clockEyebrow")}</span>
               <strong>
                 <MatchDuration row={row} />
               </strong>
@@ -124,10 +126,10 @@ export function Operator({
                 }
               >
                 {clock.runningSince
-                  ? "Pause"
+                  ? t("clockPause")
                   : row.started_at
-                    ? "Resume match"
-                    : "Start match →"}
+                    ? t("clockResume")
+                    : t("clockStart")}
               </button>
             )}
           </div>
@@ -135,14 +137,14 @@ export function Operator({
             className="pbw-serving-disclosure"
             open={phone || embedded ? undefined : true}
           >
-            <summary>Change serving player</summary>
+            <summary>{t("servingSummary")}</summary>
             <fieldset className="pbw-servers" disabled={busy || finished}>
-              <legend>Who’s serving?</legend>
+              <legend>{t("servingLegend")}</legend>
               <div className="pbw-server-pairs">
                 {(["a", "b"] as const).map((team) => (
                   <div key={team}>
                     <span className="pbw-muted">
-                      Pair {team === "a" ? "one" : "two"}
+                      {team === "a" ? t("servingPairOne") : t("servingPairTwo")}
                     </span>
                     {([0, 1] as const).map((player) => (
                       <button
@@ -161,16 +163,13 @@ export function Operator({
                           ? "● "
                           : ""}
                         {row.teams[team].players[player] ||
-                          `Player ${player + 1}`}
+                          t("playerFallback", { number: player + 1 })}
                       </button>
                     ))}
                   </div>
                 ))}
               </div>
-              <p className="pbw-muted">
-                Choose the server before play, or correct it here. We rotate
-                automatically after games and during tiebreaks.
-              </p>
+              <p className="pbw-muted">{t("servingHint")}</p>
             </fieldset>
           </details>
           <div className="pbw-points">
@@ -182,19 +181,25 @@ export function Operator({
               >
                 <span>
                   {row.state.servingTeam === team
-                    ? `● ${row.teams[team].players[Math.floor(row.state.servingPlayer / 2)] || "Player " + (Math.floor(row.state.servingPlayer / 2) + 1)} serving`
-                    : "Receiving"}
+                    ? t("pointServing", {
+                        name:
+                          row.teams[team].players[
+                            Math.floor(row.state.servingPlayer / 2)
+                          ] ||
+                          t("playerFallback", {
+                            number: Math.floor(row.state.servingPlayer / 2) + 1,
+                          }),
+                      })
+                    : t("pointReceiving")}
                 </span>
                 <strong>{row.teams[team].name}</strong>
-                <b>+ Point</b>
+                <b>{t("pointAdd")}</b>
               </button>
             ))}
           </div>
           {!row.started_at && !finished && (
             <p className="pbw-muted">
-              {phone
-                ? "Tap Start match when the first serve is ready."
-                : "Start the match when the first serve is ready. Your clock and scoring controls start together."}
+              {phone ? t("startHintPhone") : t("startHint")}
             </p>
           )}
           <button
@@ -202,12 +207,12 @@ export function Operator({
             disabled={busy || !row.overlay.scoreHistory?.length}
             onClick={() => void act({ kind: "undo" })}
           >
-            ↶ Undo last point
+            {t("undo")}
           </button>
           {busy && (
             <span className="pbw-muted" role="status">
               {" "}
-              Saving…
+              {t("saving")}
             </span>
           )}
           {error && (
@@ -218,8 +223,8 @@ export function Operator({
           {finished && (
             <p className="pbw-result">
               {row.state.winner
-                ? `${row.teams[row.state.winner].name} win the match.`
-                : "Match saved to your history."}
+                ? t("resultWinner", { team: row.teams[row.state.winner].name })
+                : t("resultSaved")}
             </p>
           )}
         </section>
@@ -231,7 +236,7 @@ export function Operator({
                 className="pbw-secondary"
                 href={`/m/${row.short_code}/edit`}
               >
-                Edit scoreboard design ↗
+                {t("editDesign")}
               </Link>
             )}
             <label className="pbw-toggle">
@@ -243,7 +248,7 @@ export function Operator({
                   void act({ kind: "show_scoreboard", value: e.target.checked })
                 }
               />
-              Show scoreboard on screen
+              {t("toggleScoreboard")}
             </label>
             <label className="pbw-toggle">
               <input
@@ -254,7 +259,7 @@ export function Operator({
                   void act({ kind: "show_timer", value: e.target.checked })
                 }
               />
-              Show match time on screen
+              {t("toggleTimer")}
             </label>
           </section>
           <section className="pbw-card pbw-match-tools">
@@ -263,19 +268,19 @@ export function Operator({
               aria-expanded={settings}
               onClick={() => setSettings(!settings)}
             >
-              {phone ? "Finish match" : "Match options"} {settings ? "−" : "+"}
+              {phone ? t("optionsPhone") : t("options")} {settings ? "−" : "+"}
             </button>
             {confirmation && (
               <div className="pbw-confirm" role="alert" aria-live="assertive">
                 <h3>
                   {confirmation === "reset"
-                    ? "Start fresh?"
-                    : "Call it a match?"}
+                    ? t("confirmResetTitle")
+                    : t("confirmFinishTitle")}
                 </h3>
                 <p>
                   {confirmation === "reset"
-                    ? "This clears the score, clock and undo history. Your players, design and rules stay the same."
-                    : "Your current score will be saved to match history and the clock will stop."}
+                    ? t("confirmResetBody")
+                    : t("confirmFinishBody")}
                 </p>
                 <button
                   className="pbw-primary"
@@ -283,34 +288,30 @@ export function Operator({
                   onClick={() => void act({ kind: confirmation })}
                 >
                   {busy
-                    ? "Saving…"
+                    ? t("saving")
                     : confirmation === "reset"
-                      ? "Yes, reset score & clock"
-                      : "Yes, end match"}
+                      ? t("confirmReset")
+                      : t("confirmFinish")}
                 </button>
                 <button
                   className="pbw-secondary"
                   disabled={busy}
                   onClick={() => setConfirmation(null)}
                 >
-                  Cancel
+                  {t("confirmCancel")}
                 </button>
               </div>
             )}
             {settings && !confirmation && (
               <>
-                <p>
-                  {phone
-                    ? "Save the result and stop the clock."
-                    : "Finish this match or start fresh with the same players and board."}
-                </p>
+                <p>{phone ? t("optionsBodyPhone") : t("optionsBody")}</p>
                 {!finished && (
                   <button
                     className="pbw-secondary"
                     disabled={busy}
                     onClick={() => setConfirmation("finish_match")}
                   >
-                    End match
+                    {t("endMatch")}
                   </button>
                 )}
                 {!phone && (
@@ -319,7 +320,7 @@ export function Operator({
                     disabled={busy}
                     onClick={() => setConfirmation("reset")}
                   >
-                    Reset score & clock
+                    {t("resetMatch")}
                   </button>
                 )}
               </>

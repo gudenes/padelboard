@@ -1,15 +1,30 @@
+/**
+ * Códigos estáveis de falha de captura.
+ *
+ * Esta é uma função pura, sem acesso a hooks: não pode traduzir. Devolve o
+ * PROBLEMA; quem tem `useTranslations` resolve a frase (`messages.studio`),
+ * tal como `src/lib/api-errors.ts` faz para a API.
+ */
+export type StudioMediaError =
+  | "cameraBlocked"
+  | "cameraUnavailable"
+  | "cameraBusy"
+  | "cameraFailed"
+  | "screenCancelled"
+  | "screenUnreadable"
+  | "screenUnsupported";
+
 export function stopMedia(stream: MediaStream | null) {
   stream?.getTracks().forEach((track) => track.stop());
 }
-export function cameraError(error: unknown) {
+export function cameraError(error: unknown): StudioMediaError {
   const name = (error as { name?: string })?.name;
   if (name === "NotAllowedError" || name === "SecurityError")
-    return "Camera access was blocked. Allow it in your browser settings, then try again.";
+    return "cameraBlocked";
   if (name === "NotFoundError" || name === "OverconstrainedError")
-    return "That camera is unavailable. Connect a camera or choose another one.";
-  if (name === "NotReadableError")
-    return "The camera is busy. Close other apps using it, then try again.";
-  return "Could not start the camera. Try again in Chrome or Edge over HTTPS (or localhost).";
+    return "cameraUnavailable";
+  if (name === "NotReadableError") return "cameraBusy";
+  return "cameraFailed";
 }
 
 export async function captureStudioSource(
@@ -33,11 +48,10 @@ export async function captureStudioSource(
     audio: false,
   });
 }
-export function screenError(error: unknown) {
+export function screenError(error: unknown): StudioMediaError {
   const name = (error as { name?: string })?.name;
   if (name === "NotAllowedError" || name === "AbortError")
-    return "Screen sharing was cancelled or blocked. Choose a screen, window or tab to try again.";
-  if (name === "NotReadableError")
-    return "Couldn’t read that screen. Check your system’s screen-recording permission for this browser and try again.";
-  return "Screen sharing isn’t available here. Open Studio in a desktop browser that supports screen sharing, such as Chrome or Edge.";
+    return "screenCancelled";
+  if (name === "NotReadableError") return "screenUnreadable";
+  return "screenUnsupported";
 }

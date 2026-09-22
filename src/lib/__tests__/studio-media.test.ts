@@ -1,5 +1,6 @@
 import { it, expect, vi } from "vitest";
-import { stopMedia, cameraError } from "../studio-media";
+import { stopMedia, cameraError, type StudioMediaError } from "../studio-media";
+import en from "@/messages/en.json";
 it("releases every camera track on stop/unmount", () => {
   const a = { stop: vi.fn() },
     b = { stop: vi.fn() };
@@ -9,9 +10,22 @@ it("releases every camera track on stop/unmount", () => {
   expect(() => stopMedia(null)).not.toThrow();
 });
 it("explains permission, missing camera and busy-camera failures", () => {
-  expect(cameraError({ name: "NotAllowedError" })).toContain("blocked");
-  expect(cameraError({ name: "NotFoundError" })).toContain("unavailable");
-  expect(cameraError({ name: "NotReadableError" })).toContain("busy");
+  expect(cameraError({ name: "NotAllowedError" })).toBe("cameraBlocked");
+  expect(cameraError({ name: "NotFoundError" })).toBe("cameraUnavailable");
+  expect(cameraError({ name: "NotReadableError" })).toBe("cameraBusy");
+  expect(cameraError({})).toBe("cameraFailed");
+});
+it("cada código de captura tem mensagem em en.json", () => {
+  const codes: StudioMediaError[] = [
+    "cameraBlocked",
+    "cameraUnavailable",
+    "cameraBusy",
+    "cameraFailed",
+    "screenCancelled",
+    "screenUnreadable",
+    "screenUnsupported",
+  ];
+  expect(codes.filter((code) => !(code in en.studio))).toEqual([]);
 });
 
 import { captureStudioSource, screenError } from "../studio-media";
@@ -47,6 +61,7 @@ it("handles unavailable screen capture and cancelled sharing", async () => {
   await expect(captureStudioSource(undefined, "screen")).rejects.toThrow(
     "screen-unsupported",
   );
-  expect(screenError({ name: "NotAllowedError" })).toContain("cancelled");
-  expect(screenError({ name: "NotReadableError" })).toContain("permission");
+  expect(screenError({ name: "NotAllowedError" })).toBe("screenCancelled");
+  expect(screenError({ name: "NotReadableError" })).toBe("screenUnreadable");
+  expect(screenError({})).toBe("screenUnsupported");
 });

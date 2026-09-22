@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import type { MatchRow } from "@/types/match";
 import { useMatchState } from "@/hooks/useMatchState";
@@ -41,6 +42,8 @@ export function BrowserStudio({
     stage = useRef<HTMLDivElement>(null),
     stream = useRef<MediaStream | null>(null),
     request = useRef(0);
+  const t = useTranslations("studio");
+  const tWorkspace = useTranslations("workspace");
   const errorMessage = useApiErrorMessage();
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]),
     [device, setDevice] = useState(""),
@@ -161,7 +164,8 @@ export function BrowserStudio({
       if (source === "camera")
         setDevice(track.getSettings().deviceId || selected);
       setSourceName(
-        track.label || (source === "screen" ? "Shared screen" : "Camera"),
+        track.label ||
+          (source === "screen" ? t("sourceNameScreen") : t("sourceNameCamera")),
       );
       track.addEventListener("ended", () => {
         if (stream.current === next) {
@@ -174,8 +178,8 @@ export function BrowserStudio({
             void document.exitFullscreen().catch(() => {});
           setError(
             source === "screen"
-              ? "Screen sharing ended. Choose a screen to continue."
-              : "Camera disconnected. Connect it and start again.",
+              ? t("errorScreenEnded")
+              : t("errorCameraDisconnected"),
           );
         }
       });
@@ -201,7 +205,7 @@ export function BrowserStudio({
             ?.getVideoTracks()
             .some((track) => track.readyState === "live"),
         );
-        setError(source === "screen" ? screenError(e) : cameraError(e));
+        setError(t(source === "screen" ? screenError(e) : cameraError(e)));
       }
     } finally {
       if (version === request.current) setLoading(false);
@@ -270,16 +274,12 @@ export function BrowserStudio({
           />
           <div className="pbw-title">
             <div>
-              <span className="pbw-eyebrow">CAMERA. COURT. ACTION.</span>
-              <h1>
-                {focused
-                  ? "You call the points."
-                  : "Your browser is the studio."}
-              </h1>
-              <p>Your video. Your scoreboard. No OBS needed.</p>
+              <span className="pbw-eyebrow">{t("eyebrow")}</span>
+              <h1>{focused ? t("titleFocused") : t("title")}</h1>
+              <p>{t("lead")}</p>
             </div>
             <span className="pbw-badge">
-              {ready ? "● Source ready" : "Source off"}
+              {ready ? t("badgeReady") : t("badgeOff")}
             </span>
           </div>
         </>
@@ -289,7 +289,7 @@ export function BrowserStudio({
           <div
             ref={stage}
             className="pbw-camera-stage"
-            aria-label="Video source and live scoreboard"
+            aria-label={t("stageAria")}
             onDoubleClick={() => {
               if (clean) {
                 setClean(false);
@@ -311,13 +311,13 @@ export function BrowserStudio({
             />
             {!ready && (
               <div className="pbw-camera-empty">
-                <span className="pbw-hand">Your court goes here.</span>
+                <span className="pbw-hand">{t("emptyHand")}</span>
                 <p>
                   {loading
-                    ? "Connecting your source…"
+                    ? t("emptyLoading")
                     : source === "screen"
-                      ? "Choose a screen, window or tab to see the action."
-                      : "Start your camera to see the action."}
+                      ? t("emptyScreen")
+                      : t("emptyCamera")}
                 </p>
               </div>
             )}
@@ -326,11 +326,7 @@ export function BrowserStudio({
               className={`pbw-camera-board ${placement ? "" : position} ${movable ? "is-draggable" : ""}`}
               tabIndex={movable ? 0 : undefined}
               role={movable ? "group" : undefined}
-              aria-label={
-                movable
-                  ? "Scoreboard position. Drag to move, or use arrow keys."
-                  : undefined
-              }
+              aria-label={movable ? t("boardAria") : undefined}
               onPointerDown={(e) => {
                 if (!movable || e.button !== 0 || !stage.current) return;
                 e.preventDefault();
@@ -451,12 +447,12 @@ export function BrowserStudio({
                   }
                 >
                   {finished
-                    ? "Match finished"
+                    ? t("clockFinished")
                     : clock.runningSince
-                      ? "Pause match"
+                      ? t("clockPause")
                       : row.started_at
-                        ? "Resume match"
-                        : "Start match"}
+                        ? t("clockResume")
+                        : t("clockStart")}
                 </button>
               </div>
               <div className="pbw-points">
@@ -467,7 +463,7 @@ export function BrowserStudio({
                     onClick={() => void act({ kind: "point_for", team })}
                   >
                     <strong>{row.teams[team].name}</strong>
-                    <b>+ Point</b>
+                    <b>{t("pointAdd")}</b>
                   </button>
                 ))}
               </div>
@@ -476,7 +472,7 @@ export function BrowserStudio({
                 disabled={busy || !row.overlay.scoreHistory?.length}
                 onClick={() => void act({ kind: "undo" })}
               >
-                ↶ Undo last point
+                {t("undo")}
               </button>
               <a
                 className="pbw-text-link"
@@ -484,21 +480,21 @@ export function BrowserStudio({
                 target="_blank"
                 rel="noreferrer"
               >
-                Open scoring controls in another tab ↗
+                {t("openControls")}
               </a>
             </section>
           )}
         </section>
         {!clean && !focused && (
           <aside className="pbw-card pbw-studio-controls">
-            <h2>Set the scene.</h2>
+            <h2>{t("controlsTitle")}</h2>
             {!embedded && (
               <button className="pbw-primary" onClick={() => setFocused(true)}>
-                Setup complete · Focus mode →
+                {t("focusEnter")}
               </button>
             )}
             <label>
-              Video source
+              {t("sourceLabel")}
               <select
                 value={source}
                 onChange={(e) => {
@@ -507,14 +503,14 @@ export function BrowserStudio({
                   setSource(e.target.value as "camera" | "screen");
                 }}
               >
-                <option value="camera">Camera</option>
-                <option value="screen">Screen / window / tab</option>
+                <option value="camera">{t("sourceCamera")}</option>
+                <option value="screen">{t("sourceScreen")}</option>
               </select>
             </label>
             {source === "camera" && (
               <>
                 <label>
-                  Camera
+                  {t("cameraLabel")}
                   <select
                     value={device}
                     disabled={loading}
@@ -523,10 +519,10 @@ export function BrowserStudio({
                       if (ready) void start(e.target.value);
                     }}
                   >
-                    <option value="">Default camera</option>
+                    <option value="">{t("cameraDefault")}</option>
                     {devices.map((d, i) => (
                       <option key={d.deviceId || i} value={d.deviceId}>
-                        {d.label || `Camera ${i + 1}`}
+                        {d.label || t("cameraFallback", { number: i + 1 })}
                       </option>
                     ))}
                   </select>
@@ -537,10 +533,10 @@ export function BrowserStudio({
                   onClick={() => (ready ? stop() : void start())}
                 >
                   {loading
-                    ? "Connecting…"
+                    ? t("cameraConnecting")
                     : ready
-                      ? "Turn camera off"
-                      : "Start camera →"}
+                      ? t("cameraStop")
+                      : t("cameraStart")}
                 </button>
                 <label className="pbw-toggle">
                   <input
@@ -548,47 +544,39 @@ export function BrowserStudio({
                     checked={mirror}
                     onChange={(e) => setMirror(e.target.checked)}
                   />
-                  Mirror camera
+                  {t("cameraMirror")}
                 </label>
               </>
             )}
             {source === "screen" && (
               <>
-                <p className="pbw-muted">
-                  Open a replay or remote broadcast in another tab or window,
-                  then choose it below. Avoid sharing this Studio tab or a
-                  screen containing it, to prevent a repeating mirror.
-                </p>
+                <p className="pbw-muted">{t("screenHint")}</p>
                 <button
                   className="pbw-primary"
                   disabled={loading}
                   onClick={() => void start()}
                 >
                   {loading
-                    ? "Choosing source…"
+                    ? t("screenChoosing")
                     : ready
-                      ? "Choose another screen →"
-                      : "Choose screen →"}
+                      ? t("screenChooseAnother")
+                      : t("screenChoose")}
                 </button>
                 {ready && (
                   <>
                     <p className="pbw-muted" role="status">
-                      Sharing: {sourceName}
+                      {t("screenSharing", { name: sourceName })}
                     </p>
                     <button className="pbw-secondary" onClick={stop}>
-                      Stop screen sharing
+                      {t("screenStop")}
                     </button>
                   </>
                 )}
-                <p className="pbw-muted">
-                  Video only. Set up the original audio and microphone in your
-                  streaming service. Keep the source playing; the scoreboard
-                  follows your point taps.
-                </p>
+                <p className="pbw-muted">{t("screenNote")}</p>
               </>
             )}
             <label>
-              Scoreboard position
+              {t("positionLabel")}
               <select
                 value={placement ? "custom" : position}
                 onChange={(e) => {
@@ -598,24 +586,26 @@ export function BrowserStudio({
               >
                 {placement && (
                   <option value="custom" disabled>
-                    Custom · dragged position
+                    {t("positionCustom")}
                   </option>
                 )}
-                {["top-left", "top-right", "bottom-left", "bottom-right"].map(
-                  (p) => (
-                    <option key={p} value={p}>
-                      {p.replace("-", " ")}
-                    </option>
-                  ),
-                )}
+                {(
+                  [
+                    ["top-left", "editorPositionTopLeft"],
+                    ["top-right", "editorPositionTopRight"],
+                    ["bottom-left", "editorPositionBottomLeft"],
+                    ["bottom-right", "editorPositionBottomRight"],
+                  ] as const
+                ).map(([p, labelKey]) => (
+                  <option key={p} value={p}>
+                    {tWorkspace(labelKey)}
+                  </option>
+                ))}
               </select>
             </label>
             <label>
-              <span className="pbw-muted">
-                Drag the scoreboard on the preview to place it anywhere. Arrow
-                keys fine-tune its position.
-              </span>
-              Whole scoreboard size · {size}%
+              <span className="pbw-muted">{t("positionHint")}</span>
+              {t("sizeLabel", { percent: size })}
               <input
                 type="range"
                 min="10"
@@ -635,46 +625,32 @@ export function BrowserStudio({
                       void act({ kind: "show_timer", value: e.target.checked })
                     }
                   />
-                  Show match time
+                  {t("showTimer")}
                 </label>
-                <p className="pbw-muted">
-                  Hide or show the time on the studio and stream overlay. The
-                  match clock keeps running.
-                </p>
+                <p className="pbw-muted">{t("timerHint")}</p>
                 <Link
                   className="pbw-text-link"
                   href={`/m/${row.short_code}/edit`}
                 >
-                  Edit scoreboard design ↗
+                  {t("editDesign")}
                 </Link>
               </>
             )}
             <hr />
-            <h3>Ready to share?</h3>
+            <h3>{t("shareTitle")}</h3>
             <ol className="pbw-share-steps">
-              <li>
-                Open your streaming service and choose screen / tab sharing.
-              </li>
-              <li>
-                Select this Padelboard tab, then turn on clean view below.
-              </li>
-              <li>
-                Choose your microphone in the streaming service. Update scores
-                from the controls in another tab or device.
-              </li>
+              <li>{t("shareStepOne")}</li>
+              <li>{t("shareStepTwo")}</li>
+              <li>{t("shareStepThree")}</li>
             </ol>
             <button
               className="pbw-primary"
               disabled={!ready}
               onClick={() => void shareView()}
             >
-              Clean view to share ↗
+              {t("cleanView")}
             </button>
-            <p className="pbw-muted">
-              Press Esc or double-tap the video to return to controls. This
-              studio prepares your video and scoreboard; it doesn’t broadcast
-              directly to YouTube or other platforms.
-            </p>
+            <p className="pbw-muted">{t("cleanHint")}</p>
           </aside>
         )}
       </div>
@@ -686,7 +662,7 @@ export function BrowserStudio({
                 className="pbw-secondary"
                 onClick={() => setFocused(false)}
               >
-                ← Adjust scene
+                {t("focusAdjust")}
               </button>
               <button
                 className="pbw-secondary"
@@ -700,8 +676,8 @@ export function BrowserStudio({
                 }
               >
                 {row.overlay.showScoreboard === false
-                  ? "Show scoreboard"
-                  : "Hide scoreboard"}
+                  ? t("focusShowScoreboard")
+                  : t("focusHideScoreboard")}
               </button>
               <button
                 className="pbw-secondary"
@@ -714,7 +690,9 @@ export function BrowserStudio({
                   })
                 }
               >
-                {row.overlay.showTimer ? "Hide match time" : "Show match time"}
+                {row.overlay.showTimer
+                  ? t("focusHideTimer")
+                  : t("focusShowTimer")}
               </button>
             </>
           )}
@@ -723,7 +701,7 @@ export function BrowserStudio({
             disabled={!ready}
             onClick={() => void shareView()}
           >
-            Clean view to share ↗
+            {t("cleanView")}
           </button>
         </section>
       )}
