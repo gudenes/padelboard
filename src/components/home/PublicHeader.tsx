@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { LanguageChip } from "@/components/i18n/LanguageChip";
 
 export function PublicHeader({ manifesto = false }: { manifesto?: boolean }) {
   const t = useTranslations("common");
@@ -14,6 +15,7 @@ export function PublicHeader({ manifesto = false }: { manifesto?: boolean }) {
         <Link href="/help">{t("navHelp")}</Link>
         <Link href="/dashboard">{t("navMatches")}</Link>
       </nav>
+      <LanguageChip />
       <Link className="pb-button pb-nav-cta" href="/login">{t("navSignIn")} <span aria-hidden="true">→</span></Link>
     </header>
   );
