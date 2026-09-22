@@ -68,5 +68,22 @@
     "inviteTitle": "Let’s give your match<br></br>its moment.",
     "inviteCta": "Create your board",
     "inviteFootnote": "Free to get started. Made for the love of the game."
+  },
+  "boardStyles": {
+    "padelboard": "Bold & playful",
+    "tour-premier": "Premier Padel inspired",
+    "tour-fip": "FIP circuit inspired",
+    "tour-apt": "APT tour inspired",
+    "tour-clay": "Paris clay inspired",
+    "custom": "Build your own",
+    "customName": "Custom"
+  },
+  "rules": {
+    "star-point": "Star Point",
+    "star-pointDescription": "Two advantages, then one deciding point.",
+    "golden-point": "Golden point",
+    "golden-pointDescription": "At 40–40, the next point wins.",
+    "advantage": "Advantage",
+    "advantageDescription": "Keep playing until a pair wins two in a row."
   }
 }

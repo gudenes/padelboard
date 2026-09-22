@@ -4,6 +4,7 @@ import type { MatchRow } from '@/types/match'
 import { DEUCE_RULES, getDeuceRule, type MatchConfig, type MatchFormat } from '@/lib/padel-scoring'
 import { FormatChipWithTip } from '../FormatChipWithTip'
 import { RuleToggleWithTip } from '../RuleToggleWithTip'
+import { useTranslations } from 'next-intl'
 
 const FORMATS: Array<{ id: MatchFormat; label: string; tip: string }> = [
   { id: 'bo3', label: 'Best of 3 full sets', tip: 'First team to win 2 sets wins the match. Standard for most club and tournament matches.' },
@@ -17,6 +18,7 @@ export function StepFormat({
   row: MatchRow
   onChange: (patch: { config: MatchConfig }) => void
 }) {
+  const ruleText = useTranslations('rules')
   const cfg = row.config
   function update(patch: Partial<MatchConfig>) {
     onChange({ config: { ...cfg, ...patch } })
@@ -51,7 +53,7 @@ export function StepFormat({
         <legend className="text-sm font-semibold mb-2">At 40–40</legend>
         {DEUCE_RULES.map(rule => <label key={rule.id} className="flex items-start gap-3 p-3 rounded-lg border border-[var(--color-border)] mb-2 cursor-pointer">
           <input className="mt-1 accent-black" type="radio" name="wizard-deuce-rule" checked={getDeuceRule(cfg) === rule.id} onChange={() => update({deuceRule:rule.id, goldenPoint:rule.id === 'golden-point'})} />
-          <span className="text-sm font-semibold">{rule.label}<span className="block text-xs font-normal text-[var(--color-muted)]">{rule.description}</span></span>
+          <span className="text-sm font-semibold">{ruleText(rule.id)}<span className="block text-xs font-normal text-[var(--color-muted)]">{ruleText(`${rule.id}Description`)}</span></span>
         </label>)}
       </fieldset>
       <RuleToggleWithTip

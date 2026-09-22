@@ -44,6 +44,7 @@ import {
 import { FinishSetup } from "@/components/workspace/FinishSetup";
 import { reusableOverlay, type SavedBoardSetup } from "@/lib/reuse-board";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import "./playful.css";
 
 const accents = [
@@ -75,6 +76,8 @@ export function PlayfulHome({
   onSwitchBoard?: () => void;
 }) {
   const router = useRouter();
+  const boardStyleText = useTranslations("boardStyles");
+  const ruleText = useTranslations("rules");
   const initialStyle =
     BOARD_STYLES.find((style) => style.id === initialBoard?.overlay.template)
       ?.id ?? "padelboard";
@@ -813,7 +816,7 @@ export function PlayfulHome({
                                       <Check weight="bold" />
                                     )}
                                   </span>
-                                  <small>{style.note}</small>
+                                  <small>{boardStyleText(style.id)}</small>
                                 </button>
                               ))}
                           </div>
@@ -991,8 +994,10 @@ export function PlayfulHome({
                                 }
                               />
                               <span>
-                                {rule.label}
-                                <small>{rule.description}</small>
+                                {ruleText(rule.id)}
+                                <small>
+                                  {ruleText(`${rule.id}Description`)}
+                                </small>
                               </span>
                             </label>
                           ))}
@@ -1092,7 +1097,7 @@ export function PlayfulHome({
                     {state.winner
                       ? `${names[state.winner === "a" ? 0 : 1]} wins. Good game!`
                       : state.phase === "playing"
-                        ? `Set ${state.sets.length} · ${DEUCE_RULES.find((rule) => rule.id === getDeuceRule(config))?.label}`
+                        ? `Set ${state.sets.length} · ${ruleText(getDeuceRule(config))}`
                         : "Tiebreak · win by two"}
                   </p>
                   {isStarPoint(state) && (
@@ -1143,7 +1148,11 @@ export function PlayfulHome({
             <aside className="pb-setup-preview">
               <span className="pb-preview-badge">
                 <Monitor weight="bold" />{" "}
-                {getBoardStyle(boardStyle).name.toUpperCase()} · LIVE PREVIEW
+                {(boardStyle === "custom"
+                  ? boardStyleText("customName")
+                  : getBoardStyle(boardStyle).name
+                ).toUpperCase()}{" "}
+                · LIVE PREVIEW
               </span>
               <Scoreboard
                 names={names}

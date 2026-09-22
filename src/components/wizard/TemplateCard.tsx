@@ -5,6 +5,7 @@ import type { MatchRow } from '@/types/match'
 import { BOARD_STYLES } from '@/lib/board-styles'
 import { resolveCustomDesign } from '@/lib/custom-board'
 import { mergeColors } from '@/lib/templates/merge-colors'
+import { useTranslations } from 'next-intl'
 
 export function TemplateCard({
   template, selected, onSelect, sampleRow,
@@ -14,6 +15,7 @@ export function TemplateCard({
   onSelect: () => void
   sampleRow: MatchRow
 }) {
+  const boardStyleText = useTranslations('boardStyles')
   const colors = mergeColors(template.defaults.colors, {})
   const Renderer = template.Renderer
   const compact = BOARD_STYLES.some(style => style.id === template.id)
@@ -40,7 +42,7 @@ export function TemplateCard({
       <div>
         <div className="text-[14px] font-semibold">{template.name}</div>
         <div className="text-[11.5px] text-[var(--color-muted)] mt-0.5 leading-snug">
-          {template.description}
+          {compact ? boardStyleText(template.id) : template.description}
         </div>
       </div>
     </button>

@@ -7,7 +7,8 @@ import type { Template } from "./types";
 export const tourTemplates: Template[] = BOARD_STYLES.map((style) => ({
   id: style.id,
   name: style.name,
-  description: style.note,
+  // Board style blurbs live in the `boardStyles` messages; TemplateCard reads them by id.
+  description: "",
   defaults: { colors: { accent: { color: style.accent } } },
   slots: [{ key: "accent", label: "Score accent", fields: ["color"] }],
   Renderer: ({ row, colors }) => (
