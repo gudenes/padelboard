@@ -108,9 +108,32 @@ brasileiros de padel. Traduzir à força soa amador — o oposto do que um placa
 broadcast deve transmitir.
 
 Por isso cada um dos ~15 termos de `src/lib/scoreboard-labels.ts` e
-`src/components/overlay/StatusBadges.tsx` é decidido caso a caso (traduzir vs manter em
-inglês), numa lista validada com o Gustavo antes de entrar em código. Um teste
-automático falha se qualquer label exceder o orçamento de caracteres do slot.
+`src/components/overlay/StatusBadges.tsx` foi decidido caso a caso, numa lista validada
+com o Gustavo antes de entrar em código.
+
+### Decidido em 2026-09-22: o placar fica em inglês
+
+**Todos os termos do placar mantêm-se em inglês, nas quatro línguas.** Validado pelo
+Gustavo depois de ver os termos e as larguras comparadas.
+
+O raciocínio é o das duas forças acima: são termos ditos em inglês por comentadores nos
+três mercados, e o espanhol — o que mais cresce — levaria `MATCH COMPLETE` de 14 para 18
+caracteres (`PARTIDO FINALIZADO`), com dois avisos juntos a chegar a 31. O placar é um
+grafismo de broadcast, não uma interface.
+
+Consequências, todas simplificações:
+
+- `src/lib/scoreboard-labels.ts` e `StatusBadges.tsx` **não precisam de i18n**
+- O teste de orçamento de caracteres (§7.2) **deixa de ser necessário** — o inglês é a
+  medida para que os slots foram desenhados
+- **`matches.overlay.locale` deixa de ter propósito** e sai do âmbito: não há nada
+  dependente de língua no overlay para guardar
+- `AnimatedMatchTime` (`MATCH TIME ·`) fica inglês e **não precisa de tratamento
+  especial** no caminho de render do overlay
+- O overlay passa a ser inteiramente inglês, por decisão de produto
+
+Se um dia isto se reverter, o trabalho que volta é a tradução dos ~15 termos mais o
+`locale` em `matches.overlay` — não a infraestrutura, que já existe.
 
 ### Glossário de termos invariantes
 

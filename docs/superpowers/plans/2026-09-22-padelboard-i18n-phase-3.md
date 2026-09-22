@@ -22,13 +22,15 @@
 
 ## Três achados do inventário que mandam no desenho
 
-### 1. `AnimatedMatchTime` rebenta se lhe puseres `useTranslations()`
+### 1. Nada no caminho do overlay leva `useTranslations()`
 
-É importado por `src/lib/templates/tour.tsx:1`, que é o caminho de render do **overlay**. O `/overlay` fica **fora** do `[locale]`, logo não tem `NextIntlClientProvider` na árvore. Um `useTranslations()` lá dentro não mostra a língua errada — **lança em runtime**, no ecrã de quem está a transmitir ao vivo.
+O `/overlay` fica **fora** do `[locale]`, logo não tem `NextIntlClientProvider` na árvore. Um `useTranslations()` num componente desse caminho não mostra a língua errada — **lança em runtime**, no ecrã de quem está a transmitir ao vivo.
 
-A string é uma só: `MATCH TIME ·` (`AnimatedMatchTime.tsx:12`). **Passa a prop**, fornecida por cada consumidor: o workspace passa a versão traduzida, o overlay passa a inglesa (até a Fase 4 lhe dar a língua da base de dados).
+Estão nesse caminho: `AnimatedMatchTime.tsx` (via `templates/tour.tsx:1`), `MatchDuration.tsx`, `TourScoreboard.tsx` e `scoreboard-labels.ts`.
 
-O mesmo vale para `MatchDuration.tsx`, que está no caminho mas não tem strings.
+**Decisão de 2026-09-22: o placar fica todo em inglês** (ver §3 do spec). Por isso nenhum destes ficheiros é tocado nesta fase — incluindo o `MATCH TIME ·` em `AnimatedMatchTime.tsx:12`, que fica como está.
+
+A regra prática para quem implementa: **se um ficheiro é importado, direta ou transitivamente, por `src/lib/templates/tour.tsx`, não lhe ponhas hooks de i18n.**
 
 ### 2. Traduzir `matchStatus()` parte uma classe de CSS
 
@@ -276,37 +278,9 @@ git commit -m "feat(i18n): format and index match dates by locale"
 
 ---
 
-### Task 5: `AnimatedMatchTime` — a string que não pode usar hooks
+### Task 5: (removida)
 
-**Files:**
-- Modify: `src/components/workspace/AnimatedMatchTime.tsx`, `src/lib/templates/tour.tsx`, `src/components/workspace/MatchWorkspace.tsx`, `src/components/workspace/BrowserStudio.tsx`
-
-- [ ] **Step 1: Passar o label a prop**
-
-`AnimatedMatchTime.tsx:12` tem `MATCH TIME ·`. O componente é importado por `src/lib/templates/tour.tsx:1`, que renderiza **dentro do overlay** — fora do `[locale]`, sem `NextIntlClientProvider`. Um `useTranslations()` aqui **lança em runtime**, no ecrã de quem está a transmitir.
-
-Acrescenta uma prop `label` com o default inglês:
-
-```tsx
-export function AnimatedMatchTime({ label = "MATCH TIME ·", ... }) {
-```
-
-- [ ] **Step 2: Os consumidores do workspace passam a versão traduzida**
-
-Em `MatchWorkspace.tsx:261` e `BrowserStudio.tsx:432`, passa `label={t("matchTime")}`.
-
-Em `src/lib/templates/tour.tsx`, **não passes nada** — fica o default inglês até a Fase 4 lhe dar a língua de `matches.overlay.locale`.
-
-- [ ] **Step 3: Provar que o overlay não rebenta**
-
-Com o dev a correr, abre um `/overlay/<code>` de uma partida publicada real e confirma que pinta. Se não tiveres um código à mão, **pede um em vez de assumir** — é a superfície com utilizadores ao vivo.
-
-- [ ] **Step 4: Commit**
-
-```bash
-git add src/components/workspace src/lib/templates/tour.tsx
-git commit -m "refactor(i18n): pass match-time label as a prop to keep the overlay hook-free"
-```
+A decisão de manter o placar em inglês tornou esta task desnecessária. O `MATCH TIME ·` fica como está, e nada no caminho do overlay é tocado. Ver §3 do spec.
 
 ---
 
@@ -391,4 +365,6 @@ Os testes de paridade de chaves e de preservação de placeholders apanham os en
 
 ## Fora de âmbito
 
-**Fase 4**, bloqueada até validação do glossário: `src/lib/scoreboard-labels.ts` (8 avisos + 5 labels de ponto), `StatusBadges.tsx`, `locale` em `matches.overlay`, seletor de língua no editor de placar, e o seletor no `WorkspaceHeader`.
+**O placar fica em inglês** — decidido e registado em §3 do spec. `scoreboard-labels.ts`, `StatusBadges.tsx` e `AnimatedMatchTime.tsx` não são tocados, e `matches.overlay.locale` sai do âmbito por deixar de ter propósito.
+
+Fica para depois desta fase: o seletor de língua no `WorkspaceHeader`, que só faz sentido quando o workspace estiver traduzido — ou seja, no fim desta fase.
