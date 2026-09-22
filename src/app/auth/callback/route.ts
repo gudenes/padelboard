@@ -38,7 +38,14 @@ export async function GET(req: Request) {
    */
   const go = (path: string) => {
     const res = NextResponse.redirect(`${url.origin}${path}`);
-    if (preferred) res.cookies.set("NEXT_LOCALE", preferred, { path: "/" });
+    // Mesmos atributos que o next-intl usa ao escrever este cookie
+    // (localeCookie: { name: "NEXT_LOCALE", sameSite: "lax" }), para que os
+    // dois escritores não produzam cookies com comportamentos diferentes.
+    if (preferred)
+      res.cookies.set("NEXT_LOCALE", preferred, {
+        path: "/",
+        sameSite: "lax",
+      });
     return res;
   };
   if (!remote && !userRes.user.user_metadata?.padelboard_profile?.completed)
