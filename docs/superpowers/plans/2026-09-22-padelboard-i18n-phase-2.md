@@ -215,10 +215,13 @@ import { localeAlternates } from "@/lib/seo";
 Run: `npm run dev`
 
 ```bash
-curl -s http://localhost:3003/ | grep -o '<link rel="alternate" hreflang="[^"]*" href="[^"]*"'
+curl -s http://localhost:3003/ | grep -io '<link rel="alternate" hreflang="[^"]*" href="[^"]*"'
 ```
 
 Esperado: quatro linhas, uma por língua, com `hreflang="pt-BR"` a apontar para `/pt`.
+
+> O `-i` é obrigatório: o React emite o atributo como `hrefLang` (camelCase). Um grep
+> case-sensitive devolve vazio e parece uma falha quando está tudo bem.
 
 - [ ] **Step 7: Commit**
 
