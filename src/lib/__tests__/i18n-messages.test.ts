@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { parse } from '@formatjs/icu-messageformat-parser'
 import en from '@/messages/en.json'
 import pt from '@/messages/pt.json'
 import it_ from '@/messages/it.json'
@@ -93,6 +94,31 @@ describe('nomes de línguas', () => {
         .map(([key]) => key)
 
       expect(offenders).toEqual([])
+    })
+  }
+})
+
+/**
+ * Uma mensagem ICU malformada não falha em compilação nem na paridade de
+ * chaves — rebenta no render, no ecrã do utilizador. O risco está nas
+ * mensagens com `plural` e `select` aninhados, que um tradutor desmancha
+ * facilmente ao mexer nas chavetas.
+ */
+describe('mensagens ICU fazem parse', () => {
+  for (const [locale, messages] of Object.entries({ en, pt, it: it_, es })) {
+    it(`${locale} não tem nenhuma mensagem malformada`, () => {
+      const broken = Object.entries(flattenValues(messages as Messages))
+        .map(([key, value]) => {
+          try {
+            parse(value)
+            return null
+          } catch (error) {
+            return `${key}: ${error instanceof Error ? error.message : String(error)}`
+          }
+        })
+        .filter(Boolean)
+
+      expect(broken).toEqual([])
     })
   }
 })
