@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { serverSupabase } from "@/lib/supabase-server";
 import { NewMatchWorkspace } from "@/components/workspace/NewMatchWorkspace";
 import { reusableOverlay, type SavedBoardSetup } from "@/lib/reuse-board";

@@ -1,20 +1,22 @@
 "use client";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { usePathname } from "next/navigation";
 import "./project-footer.css";
 
 export function ProjectFooter() {
+  const t = useTranslations("common");
   const path = usePathname();
   if (path.startsWith("/overlay/") || path.endsWith("/remote")) return null;
   return (
-    <footer className="pbl-footer" aria-label="About Padelboard">
+    <footer className="pbl-footer" aria-label={t("footerAboutAria")}>
       <div className="pbl-footer-inner">
         <div className="pbl-footer-note">
           <span className="pbl-footer-mark" aria-hidden="true">
             ✳
           </span>
           <div>
-            <p>Made for the love of the game.</p>
+            <p>{t("footerTagline")}</p>
           </div>
         </div>
         <a
@@ -23,14 +25,14 @@ export function ProjectFooter() {
           target="_blank"
           rel="noreferrer"
         >
-          <span>A project by</span>
+          <span>{t("footerProjectBy")}</span>
           <strong>
             padel labs<span aria-hidden="true"> ↗</span>
           </strong>
         </a>
-        <nav aria-label="Footer navigation">
-          <Link href="/manifesto">Our manifesto</Link>
-          <Link href="/help">Help & guides</Link>
+        <nav aria-label={t("navFooterAria")}>
+          <Link href="/manifesto">{t("navManifesto")}</Link>
+          <Link href="/help">{t("navHelp")}</Link>
         </nav>
       </div>
     </footer>

@@ -1,9 +1,12 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { useFormatter, useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 import { browserSupabase } from "@/lib/supabase";
 import "./feedback.css";
 export function FeedbackButton() {
+  const t = useTranslations("common");
+  const fmt = useFormatter();
   const path = usePathname();
   const dialog = useRef<HTMLDialogElement>(null);
   const [signedIn, setSignedIn] = useState(false),
@@ -44,15 +47,13 @@ export function FeedbackButton() {
       });
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || "Couldn’t send feedback.");
+        throw new Error(data.error || t("feedbackErrorSend"));
       }
       setSent(true);
       setMessage("");
     } catch (e) {
       setError(
-        e instanceof Error
-          ? e.message
-          : "Couldn’t send feedback. Please retry.",
+        e instanceof Error ? e.message : t("feedbackErrorRetry"),
       );
     } finally {
       setBusy(false);
@@ -69,7 +70,7 @@ export function FeedbackButton() {
         }}
         aria-haspopup="dialog"
       >
-        <span aria-hidden="true">✎</span> Feedback
+        <span aria-hidden="true">✎</span> {t("feedbackTrigger")}
       </button>
       <dialog
         ref={dialog}
@@ -81,7 +82,7 @@ export function FeedbackButton() {
       >
         <button
           className="pbf-close"
-          aria-label="Close feedback"
+          aria-label={t("feedbackCloseAria")}
           onClick={() => dialog.current?.close()}
         >
           ×
@@ -89,35 +90,36 @@ export function FeedbackButton() {
         {sent ? (
           <div className="pbf-success" role="status">
             <span aria-hidden="true">✳</span>
-            <h2 id="feedback-title">You’ve made your point!</h2>
-            <p>
-              Thanks for helping make Padelboard better. Your feedback has been
-              saved.
-            </p>
+            <h2 id="feedback-title">{t("feedbackThanksTitle")}</h2>
+            <p>{t("feedbackThanksBody")}</p>
             <button
               className="pbf-submit"
               onClick={() => dialog.current?.close()}
             >
-              Back to the game →
+              {t("feedbackBackToGame")} →
             </button>
           </div>
         ) : (
           <form onSubmit={send}>
-            <span className="pbf-eyebrow">YOUR COURT. YOUR SAY.</span>
-            <h2 id="feedback-title">Help us up our game.</h2>
-            <p>An idea, a hiccup, or something you love? We’re listening.</p>
-            <label htmlFor="feedback-category">What’s on your mind?</label>
+            <span className="pbf-eyebrow">{t("feedbackEyebrow")}</span>
+            <h2 id="feedback-title">{t("feedbackTitle")}</h2>
+            <p>{t("feedbackLead")}</p>
+            <label htmlFor="feedback-category">
+              {t("feedbackCategoryLabel")}
+            </label>
             <select
               id="feedback-category"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               disabled={busy}
             >
-              <option value="idea">An idea or suggestion</option>
-              <option value="problem">Something isn’t working</option>
-              <option value="other">Something else</option>
+              <option value="idea">{t("feedbackCategoryIdea")}</option>
+              <option value="problem">{t("feedbackCategoryProblem")}</option>
+              <option value="other">{t("feedbackCategoryOther")}</option>
             </select>
-            <label htmlFor="feedback-message">Your feedback</label>
+            <label htmlFor="feedback-message">
+              {t("feedbackMessageLabel")}
+            </label>
             <textarea
               id="feedback-message"
               value={message}
@@ -127,12 +129,14 @@ export function FeedbackButton() {
               required
               rows={5}
               disabled={busy}
-              placeholder="Tell us a little more…"
+              placeholder={t("feedbackPlaceholder")}
               aria-describedby="feedback-note"
             />
             <small id="feedback-note">
-              {message.length}/2,000 · Your account and current page are
-              included. Please don’t include passwords or sensitive information.
+              {t("feedbackCounter", {
+                count: fmt.number(message.length),
+                max: fmt.number(2000),
+              })}
             </small>
             {error && (
               <p className="pbf-error" role="alert">
@@ -145,10 +149,11 @@ export function FeedbackButton() {
             >
               {busy ? (
                 <>
-                  <span className="pbf-spinner" aria-hidden="true" /> Sending…
+                  <span className="pbf-spinner" aria-hidden="true" />{" "}
+                  {t("feedbackSending")}
                 </>
               ) : (
-                "Send feedback →"
+                `${t("feedbackSubmit")} →`
               )}
             </button>
           </form>

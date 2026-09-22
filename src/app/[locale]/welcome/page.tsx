@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { redirect } from "next/navigation";
 import { serverSupabase, serviceSupabase } from "@/lib/supabase-server";
 import { WorkspaceBrand } from "@/components/workspace/WorkspaceBrand";
