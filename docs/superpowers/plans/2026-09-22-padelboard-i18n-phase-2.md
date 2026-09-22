@@ -174,16 +174,23 @@ import { hreflangByLocale, locales, routing } from '@/i18n/routing'
 /**
  * Constrói o mapa `alternates.languages` do Next para uma rota.
  * O inglês é o default e não leva prefixo; as restantes levam.
+ * O tipo do parâmetro obriga à barra inicial: `localeAlternates('help')`
+ * produziria `/pthelp` em silêncio.
  */
-export function localeAlternates(pathname: string): Record<string, string> {
+export function localeAlternates(pathname: `/${string}`): Record<string, string> {
   const path = pathname === '/' ? '' : pathname
+  const defaultPath = path || '/'
 
-  return Object.fromEntries(
-    locales.map((locale) => [
-      hreflangByLocale[locale],
-      locale === routing.defaultLocale ? path || '/' : `/${locale}${path}`,
-    ]),
-  )
+  return {
+    ...Object.fromEntries(
+      locales.map((locale) => [
+        hreflangByLocale[locale],
+        locale === routing.defaultLocale ? defaultPath : `/${locale}${path}`,
+      ]),
+    ),
+    // Sinal para línguas que não são nenhuma das quatro.
+    'x-default': defaultPath,
+  }
 }
 ```
 
@@ -192,23 +199,59 @@ export function localeAlternates(pathname: string): Record<string, string> {
 Run: `npx vitest run src/lib/__tests__/seo.test.ts`
 Esperado: PASS — 2 testes.
 
-- [ ] **Step 5: Ligar ao layout do locale**
+- [ ] **Step 5: Pôr o `metadataBase` no layout — e só isso**
 
-Modify `src/app/[locale]/layout.tsx` — na `generateMetadata`, acrescenta `alternates` ao objeto devolvido:
+Sem `metadataBase`, o Next emite os `href` tal como lhe são dados, e um `hreflang` relativo é **ignorado pelos motores de busca**. Não há `metadataBase` nenhum no projeto hoje, por isso esta linha é o que faz a task valer alguma coisa. O deploy é Cloudflare Workers, portanto os fallbacks de `VERCEL_URL` não salvam o caso.
+
+Modify `src/app/[locale]/layout.tsx` — na `generateMetadata`:
 
 ```tsx
+import { localeAlternates } from "@/lib/seo";
+// …
+  return {
+    metadataBase: new URL(
+      process.env.NEXT_PUBLIC_SITE_URL ?? "https://padelboard.padellabs.tech",
+    ),
+    title: t("title"),
+    description: t("description"),
+  };
+```
+
+> **O layout não declara `alternates`.** O `alternates` é herdado por todas as
+> páginas-filhas; se o layout fixar `localeAlternates("/")`, cada rota passa a
+> declarar que a sua tradução é a *homepage* — pior do que não ter hreflang
+> nenhum, porque diz ao crawler uma falsidade. Cada página indexável declara o
+> seu. As não indexáveis (`/login`, `/welcome`, `/dashboard`, `/m/*`) ficam
+> corretamente sem hreflang.
+
+- [ ] **Step 5b: Declarar os alternates página a página**
+
+`src/app/[locale]/page.tsx` não tem `generateMetadata` nenhuma. Acrescenta uma, seguindo o padrão que já existe em `manifesto/page.tsx`:
+
+```tsx
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "metadata" });
+
   return {
     title: t("title"),
     description: t("description"),
     alternates: { languages: localeAlternates("/") },
   };
+}
 ```
 
-E o import no topo:
+E em `src/app/[locale]/manifesto/page.tsx`, acrescenta ao objeto que a `generateMetadata` já devolve:
 
 ```tsx
-import { localeAlternates } from "@/lib/seo";
+    alternates: { languages: localeAlternates("/manifesto") },
 ```
+
+O `/help` recebe o seu na Task 7. **Qualquer página indexável acrescentada daqui para a frente tem de declarar o seu** — não há herança que o faça bem.
 
 - [ ] **Step 6: Verificar no browser**
 
@@ -993,7 +1036,8 @@ git commit -m "chore(i18n): phase 2 verified on workerd"
 - [ ] `/`, `/pt`, `/it`, `/es` respondem 200 e mostram a língua respetiva
 - [ ] O wizard completo (nomes → look → regras → jogar → go-live) funciona nas quatro línguas
 - [ ] `/help` traduzido na prosa, com os labels de UI em inglês
-- [ ] `hreflang` presente com `pt-BR` para o locale `pt`
+- [ ] `hreflang` com `href` **absoluto** (`https://…`, via `metadataBase`) e **específico da página** — `/pt/manifesto` declara `/manifesto`, não `/`
+- [ ] `x-default` presente; `/login` e as restantes rotas não indexáveis **sem** hreflang
 - [ ] `/overlay/[code]` continua sem redirect de locale e sem chrome por cima
 - [ ] Nenhuma chave crua (`home.`, `wizard.`, `help.`…) visível em qualquer página
 - [ ] Nenhum texto cortado ou a transbordar nos slots estreitos identificados
