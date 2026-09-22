@@ -529,7 +529,6 @@
   "workspace": {
     "brandHomeAria": "Página inicial do Padelboard",
     "avatarAlt": "Mascote do padel com {style}",
-    "boardPreviewFallbackTitle": "SUA PARTIDA",
     "navAria": "Navegação do painel",
     "navMatches": "Minhas partidas",
     "navNewMatch": "+ Nova partida",

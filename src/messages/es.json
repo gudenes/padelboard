@@ -529,7 +529,6 @@
   "workspace": {
     "brandHomeAria": "Inicio de Padelboard",
     "avatarAlt": "Mascota de pádel con {style}",
-    "boardPreviewFallbackTitle": "TU PARTIDO",
     "navAria": "Navegación del espacio de trabajo",
     "navMatches": "Mis partidos",
     "navNewMatch": "+ Nuevo partido",

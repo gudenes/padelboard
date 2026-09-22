@@ -529,7 +529,6 @@
   "workspace": {
     "brandHomeAria": "Padelboard home",
     "avatarAlt": "Padel mascot with {style}",
-    "boardPreviewFallbackTitle": "YOUR MATCH",
     "navAria": "Workspace navigation",
     "navMatches": "My matches",
     "navNewMatch": "+ New match",
