@@ -12,7 +12,14 @@ A negociação automática cobre a primeira visita. Não cobre o caso em que ela
 
 ## Âmbito
 
-**Dentro:** um seletor no `PublicHeader` (home, manifesto, help); persistência por cookie; persistência no perfil para utilizadores autenticados, aplicada no login.
+**Dentro:** um seletor nas três páginas públicas — home, manifesto e help; persistência por cookie; persistência no perfil para utilizadores autenticados, aplicada no login.
+
+> **Atenção: são dois headers, não um.** A home e o `/manifesto` usam o
+> `PublicHeader`. O `/help` tem header próprio, e ainda por cima em duas
+> variantes: `WorkspaceHeader` quando há sessão, e um `<header className="pbw-nav">`
+> inline quando não há. O chip entra no `PublicHeader` **e** na variante
+> anónima do `/help`. A variante autenticada fica de fora, pela mesma razão
+> que o workspace fica de fora.
 
 **Fora:** o `WorkspaceHeader` da app autenticada — a UI do workspace só é traduzida na Fase 3, e um seletor que troca para italiano num ecrã que continua inglês parece avariado. Entra quando houver o que trocar.
 
