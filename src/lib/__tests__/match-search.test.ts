@@ -43,6 +43,20 @@ it.each([
 ])("finds a match by %s", (query) =>
   expect(matchesSearch(row, query)).toBe(true),
 );
+describe("date search by locale", () => {
+  it("finds the match by its English month with no locale", () => {
+    expect(matchesSearch(row, "September")).toBe(true);
+    expect(matchesSearch(row, "setembro")).toBe(false);
+  });
+  it("finds the match by its localized month when a locale is given", () => {
+    expect(matchesSearch(row, "setembro", "pt")).toBe(true);
+    expect(matchesSearch(row, "20/09/2026", "pt")).toBe(true);
+  });
+  it("keeps English dates searchable when a locale is given", () => {
+    expect(matchesSearch(row, "September", "pt")).toBe(true);
+    expect(matchesSearch(row, "20/09/2026", "pt")).toBe(true);
+  });
+});
 it("requires every search term and excludes internal identifiers", () => {
   expect(matchesSearch(row, "galan missing")).toBe(false);
   expect(matchesSearch(row, "owner-secret")).toBe(false);

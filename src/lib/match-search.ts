@@ -37,7 +37,22 @@ function normalize(value: string) {
     .replace(/[^\p{L}\p{N}]+/gu, " ")
     .trim();
 }
-export function matchesSearch(row: MatchRow, query: string): boolean {
+function localizedDates(date: Date, locale: string): string[] {
+  return [
+    date.toLocaleDateString(locale, { timeZone: "UTC" }),
+    date.toLocaleDateString(locale, {
+      month: "long",
+      year: "numeric",
+      day: "numeric",
+      timeZone: "UTC",
+    }),
+  ];
+}
+export function matchesSearch(
+  row: MatchRow,
+  query: string,
+  locale?: string,
+): boolean {
   const date = new Date(row.created_at);
   const fields = [
     row.short_code,
@@ -55,13 +70,8 @@ export function matchesSearch(row: MatchRow, query: string): boolean {
     row.teams.a.country,
     row.teams.b.country,
     row.created_at.slice(0, 10),
-    date.toLocaleDateString("en-GB", { timeZone: "UTC" }),
-    date.toLocaleDateString("en-GB", {
-      month: "long",
-      year: "numeric",
-      day: "numeric",
-      timeZone: "UTC",
-    }),
+    ...localizedDates(date, "en-GB"),
+    ...(locale && locale !== "en-GB" ? localizedDates(date, locale) : []),
     row.config.format,
     {
       bo3: "best of 3",

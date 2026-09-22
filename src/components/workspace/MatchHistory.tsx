@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useFormatter, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { MagnifyingGlass, TennisBall, Trophy, X } from "@phosphor-icons/react";
 import type { MatchRow } from "@/types/match";
@@ -9,13 +10,15 @@ import { MatchDuration } from "./MatchDuration";
 export function MatchHistory({ rows }: { rows: MatchRow[] }) {
   const [filter, setFilter] = useState<"active" | "history" | "all">("active");
   const [query, setQuery] = useState("");
+  const locale = useLocale();
+  const format = useFormatter();
   const filtered = rows.filter(
     (r) =>
       (filter === "all" ||
         (filter === "active"
           ? !["finished", "abandoned"].includes(r.status)
           : ["finished", "abandoned"].includes(r.status))) &&
-      matchesSearch(r, query),
+      matchesSearch(r, query, locale),
   );
   return (
     <>
@@ -113,7 +116,10 @@ export function MatchHistory({ rows }: { rows: MatchRow[] }) {
                     {matchStatus(row)}
                   </span>
                   <time dateTime={row.created_at}>
-                    {new Date(row.created_at).toLocaleDateString("en-GB", {
+                    {format.dateTime(new Date(row.created_at), {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
                       timeZone: "UTC",
                     })}
                   </time>
