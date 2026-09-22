@@ -4,7 +4,7 @@
 
 **Goal:** Traduzir a app autenticada — dashboard, workspace, operador, erros de API e formatação de datas — para que um utilizador possa fazer o fluxo completo, do login ao fim da partida, numa só língua.
 
-**Architecture:** Mesma disciplina das fases anteriores: extrair tudo para `en.json` primeiro, com a app a funcionar e em inglês, e só depois traduzir. Os erros de API passam a devolver **códigos estáveis**, traduzidos no cliente — a API fica sem língua, o que também serve os consumidores que não são UI. Dois componentes partilhados com o overlay recebem tratamento especial, porque lá não existe provider de i18n.
+**Architecture:** Mesma disciplina das fases anteriores: extrair tudo para `en.json` primeiro, com a app a funcionar e em inglês, e só depois traduzir. Os erros de API passam a devolver **códigos estáveis**, traduzidos no cliente — a API fica sem língua, o que também serve os consumidores que não são UI. Nada no caminho de render do overlay é tocado: lá não existe provider de i18n, e o placar fica em inglês por decisão de produto.
 
 **Tech Stack:** next-intl 4.14.6, Next.js 16.3.5 (App Router), React 19, TypeScript 5.5, vitest 4, Supabase, Cloudflare Workers.
 
@@ -18,7 +18,7 @@
 
 **Dentro:** ~350 strings — rotas do dashboard/welcome/operador (~57), componentes do workspace (~225), erros de API (~36 prosa + ~10 em libs), e a formatação de datas por locale.
 
-**Fora:** o glossário do placar (`src/lib/scoreboard-labels.ts`) e `matches.overlay.locale` — **Fase 4**, e bloqueados até o Gustavo validar a lista de termos. O spec §3 exige essa validação antes de entrar em código.
+**Fora:** o placar. Decidido em 2026-09-22 (spec §3): **todos os termos do placar ficam em inglês nas quatro línguas**. `scoreboard-labels.ts`, `StatusBadges.tsx` e `AnimatedMatchTime.tsx` não são tocados, e `matches.overlay.locale` sai do âmbito por deixar de ter propósito.
 
 ## Três achados do inventário que mandam no desenho
 
