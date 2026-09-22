@@ -82,3 +82,17 @@ describe('placeholders e tags', () => {
     })
   }
 })
+
+describe('nomes de línguas', () => {
+  const names = ['English', 'Português', 'Italiano', 'Español']
+
+  for (const [locale, messages] of Object.entries({ en, pt, it: it_, es })) {
+    it(`${locale} não contém nomes de línguas nas mensagens`, () => {
+      const offenders = Object.entries(flattenValues(messages as Messages))
+        .filter(([, value]) => names.includes(value.trim()))
+        .map(([key]) => key)
+
+      expect(offenders).toEqual([])
+    })
+  }
+})
