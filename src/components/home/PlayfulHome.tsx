@@ -47,6 +47,13 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import "./playful.css";
 
+const richTags = {
+  br: () => <br />,
+  brDesktop: () => <br className="pb-desktop-break" />,
+  b: (chunks: React.ReactNode) => <b>{chunks}</b>,
+  hl: (chunks: React.ReactNode) => <span>{chunks}</span>,
+};
+
 const accents = [
   { name: "Court yellow", value: "#f5ff36" },
   { name: "Rally pink", value: "#ff95c7" },
@@ -76,6 +83,7 @@ export function PlayfulHome({
   onSwitchBoard?: () => void;
 }) {
   const router = useRouter();
+  const t = useTranslations("home");
   const boardStyleText = useTranslations("boardStyles");
   const ruleText = useTranslations("rules");
   const initialStyle =
@@ -255,49 +263,28 @@ export function PlayfulHome({
               >
                 <div className="pb-hero-copy">
                   <p className="pb-hand pb-eyebrow">
-                    STREAM
-                    <br />
-                    MORE PADEL.
+                    {t.rich("heroScribble", richTags)}
                   </p>
-                  <h1 id="hero-title">
-                    Professional
-                    <br />
-                    scoreboards.
-                    <br />
-                    In seconds.
-                  </h1>
+                  <h1 id="hero-title">{t.rich("heroTitle", richTags)}</h1>
                   <p className="pb-hero-description">
-                    Create beautiful, real-time padel scoreboards
-                    <br className="pb-desktop-break" /> for OBS, StreamYard or
-                    your favorite streaming
-                    <br className="pb-desktop-break" /> software. No account
-                    needed to try.
+                    {t.rich("heroLead", richTags)}
                   </p>
                   <div className="pb-cta-group">
                     <button
                       className="pb-button pb-primary"
                       onClick={openSetup}
                     >
-                      Create your board <ArrowRight weight="bold" />
+                      {t("heroCta")} <ArrowRight weight="bold" />
                     </button>
                     <span className="pb-hand pb-cta-note">
                       <ArrowBendDownLeft weight="bold" />
-                      FREE.
-                      <br />
-                      NO FUSS.
-                      <br />
-                      JUST PLAY.
+                      {t.rich("heroFree", richTags)}
                     </span>
                   </div>
                 </div>
-                <div
-                  className="pb-hero-visual"
-                  aria-label="Example of a Padelboard scoreboard"
-                >
+                <div className="pb-hero-visual" aria-label={t("heroBoardAria")}>
                   <p className="pb-hand pb-board-note">
-                    LOOKS GREAT
-                    <br />
-                    ON STREAM.
+                    {t.rich("heroLooksGreat", richTags)}
                     <ArrowBendDownLeft weight="bold" />
                   </p>
                   <HeroScoreDemo />
@@ -310,73 +297,80 @@ export function PlayfulHome({
                     height="1254"
                   />
                   <button className="pb-preview-link" onClick={openSetup}>
-                    <Play weight="fill" /> Make it yours
+                    <Play weight="fill" /> {t("heroMakeItYours")}
                   </button>
                 </div>
               </section>
               <section
                 id="features"
                 className="pb-features pb-container"
-                aria-label="Features"
+                aria-label={t("featuresAria")}
               >
                 {[
                   {
+                    id: "scoring",
                     Icon: Lightning,
-                    title: "Real-time scoring",
-                    text: "Tap a point. Your stream keeps up.",
+                    titleKey: "featureScoringTitle",
+                    bodyKey: "featureScoringBody",
                   },
                   {
+                    id: "stream",
                     Icon: Monitor,
-                    title: "Stream ready",
-                    text: "Works with OBS, StreamYard, vMix and more.",
+                    titleKey: "featureStreamTitle",
+                    bodyKey: "featureStreamBody",
                   },
                   {
+                    id: "yours",
                     Icon: Palette,
-                    title: "Make it yours",
-                    text: "Your players, your colors, your match.",
+                    titleKey: "featureYoursTitle",
+                    bodyKey: "featureYoursBody",
                   },
                   {
+                    id: "noInstall",
                     Icon: ShareNetwork,
-                    title: "No installation",
-                    text: "One browser. All you need to get going.",
+                    titleKey: "featureNoInstallTitle",
+                    bodyKey: "featureNoInstallBody",
                   },
-                ].map(({ Icon, title: heading, text }) => (
-                  <div className="pb-feature" key={heading}>
+                ].map(({ id, Icon, titleKey, bodyKey }) => (
+                  <div className="pb-feature" key={id}>
                     <Icon weight="bold" />
-                    <h2>{heading}</h2>
-                    <p>{text}</p>
+                    <h2>{t(titleKey)}</h2>
+                    <p>{t(bodyKey)}</p>
                   </div>
                 ))}
               </section>
               <div className="pb-tagline">
                 <span />
-                SCORE <b>·</b> STREAM <b>·</b> PADEL
+                {t.rich("tagline", richTags)}
                 <span />
               </div>
             </main>
           </div>
           <section id="how-it-works" className="pb-section pb-container">
-            <p className="pb-section-label">LESS SETUP. MORE MATCH.</p>
-            <h2>Ready before the warm-up.</h2>
+            <p className="pb-section-label">{t("stepsEyebrow")}</p>
+            <h2>{t("stepsTitle")}</h2>
             <div className="pb-steps">
               {[
                 {
-                  title: "Make it your match.",
-                  text: "Add your players, choose a color, and set the rules. See your board change as you go.",
+                  id: "setup",
+                  titleKey: "stepOneTitle",
+                  bodyKey: "stepOneBody",
                 },
                 {
-                  title: "Give it a quick rally.",
-                  text: "Try the scoring controls for free. Golden point, deuce, and tiebreaks are taken care of.",
+                  id: "rally",
+                  titleKey: "stepTwoTitle",
+                  bodyKey: "stepTwoBody",
                 },
                 {
-                  title: "Take it to your stream.",
-                  text: "Sign in to publish, copy your overlay link, and add it as a browser source. You’re on.",
+                  id: "stream",
+                  titleKey: "stepThreeTitle",
+                  bodyKey: "stepThreeBody",
                 },
-              ].map((step, i) => (
-                <article key={step.title}>
+              ].map(({ id, titleKey, bodyKey }, i) => (
+                <article key={id}>
                   <span className="pb-step-number">0{i + 1}</span>
-                  <h3>{step.title}</h3>
-                  <p>{step.text}</p>
+                  <h3>{t(titleKey)}</h3>
+                  <p>{t(bodyKey)}</p>
                 </article>
               ))}
             </div>
@@ -384,17 +378,9 @@ export function PlayfulHome({
           <section id="examples" className="pb-examples">
             <div className="pb-container pb-examples-inner">
               <div>
-                <p className="pb-section-label">YOUR CLUB. YOUR COLORS.</p>
-                <h2>
-                  A little more <br />
-                  you. A lot more <br />
-                  match day.
-                </h2>
-                <p>
-                  From the Friday-night friendly to the club final.
-                  <br />
-                  There’s a board with your name on it.
-                </p>
+                <p className="pb-section-label">{t("examplesEyebrow")}</p>
+                <h2>{t.rich("examplesTitle", richTags)}</h2>
+                <p>{t.rich("examplesLead", richTags)}</p>
                 <button
                   className="pb-button"
                   onClick={() => {
@@ -415,14 +401,14 @@ export function PlayfulHome({
                     openSetup();
                   }}
                 >
-                  Use this look <ArrowRight weight="bold" />
+                  {t("examplesUseLook")} <ArrowRight weight="bold" />
                 </button>
               </div>
               <div className="pb-example-preview">
                 <div
                   className="pb-example-templates"
                   role="group"
-                  aria-label="Example scoreboard template"
+                  aria-label={t("examplesTemplateAria")}
                 >
                   {BOARD_STYLES.filter((style) => style.id !== "custom").map(
                     (style) => (
@@ -451,7 +437,7 @@ export function PlayfulHome({
                 </div>
                 <div
                   className="pb-swatches"
-                  aria-label="Example scoreboard color"
+                  aria-label={t("examplesColorAria")}
                 >
                   {accents.map((color) => (
                     <button
@@ -464,45 +450,45 @@ export function PlayfulHome({
                       {exampleAccent === color.value && <Check weight="bold" />}
                     </button>
                   ))}
-                  <span>Make it your colors.</span>
+                  <span>{t("examplesColorsTitle")}</span>
                 </div>
               </div>
             </div>
           </section>
           <section id="faq" className="pb-section pb-faq pb-container">
             <div>
-              <p className="pb-section-label">GOOD QUESTION.</p>
-              <h2>
-                A few things
-                <br />
-                before first serve.
-              </h2>
+              <p className="pb-section-label">{t("faqEyebrow")}</p>
+              <h2>{t.rich("faqTitle", richTags)}</h2>
             </div>
             <div>
               {[
                 {
-                  q: "Do I need an account?",
-                  a: "You can customize a board and try the scoring controls without an account. Sign in when you’re ready to publish a live board and share its overlay.",
+                  id: "account",
+                  questionKey: "faqAccountQ",
+                  answerKey: "faqAccountA",
                 },
                 {
-                  q: "How does it work with my stream?",
-                  a: "Once your board is published, add its overlay URL as a browser source in your streaming software. Control the match from your browser while the overlay shows the score.",
+                  id: "stream",
+                  questionKey: "faqStreamQ",
+                  answerKey: "faqStreamA",
                 },
                 {
-                  q: "Does it understand padel scoring?",
-                  a: "Yes. Star Point, golden point, advantage, set tiebreaks, and a deciding super-tiebreak are built in. Choose your match format during setup.",
+                  id: "scoring",
+                  questionKey: "faqScoringQ",
+                  answerKey: "faqScoringA",
                 },
                 {
-                  q: "Can I fix an accidental point?",
-                  a: "Of course. Tap Undo to go back a point. Try it in the preview — no pressure.",
+                  id: "undo",
+                  questionKey: "faqUndoQ",
+                  answerKey: "faqUndoA",
                 },
-              ].map((item) => (
-                <details key={item.q}>
+              ].map(({ id, questionKey, answerKey }) => (
+                <details key={id}>
                   <summary>
-                    {item.q}
+                    {t(questionKey)}
                     <Plus weight="bold" />
                   </summary>
-                  <p>{item.a}</p>
+                  <p>{t(answerKey)}</p>
                 </details>
               ))}
             </div>
