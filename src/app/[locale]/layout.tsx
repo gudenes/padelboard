@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
+import { localeAlternates } from "@/lib/seo";
 import { ProjectFooter } from "@/components/workspace/ProjectFooter";
 import { FeedbackButton } from "@/components/feedback/FeedbackButton";
 
@@ -21,6 +22,7 @@ export async function generateMetadata({
   return {
     title: t("title"),
     description: t("description"),
+    alternates: { languages: localeAlternates("/") },
   };
 }
 
