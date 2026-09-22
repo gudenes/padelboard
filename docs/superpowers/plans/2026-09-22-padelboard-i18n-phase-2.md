@@ -1089,6 +1089,12 @@ git commit -m "chore(i18n): phase 2 verified on workerd"
 - [ ] Nenhuma chave crua (`home.`, `wizard.`, `help.`…) visível em qualquer página
 - [ ] Nenhum texto cortado ou a transbordar nos slots estreitos identificados
 
+## Follow-ups levantados durante a execução
+
+- **Tipar as chaves de mensagem.** Não existe augmentation de `IntlMessages`, por isso nenhuma chave de `useTranslations` é verificada em compilação. O caso mais frágil é a chave dinâmica `ruleText(`${rule.id}Description`)` em `PlayfulHome` e `StepFormat`: acrescentar uma quarta regra de deuce compila, passa no `tsc` e só rebenta no browser. Declarar a augmentation uma vez protege todas as tasks seguintes. Fazer antes da Fase 3.
+- **`description: ""` em `src/lib/templates/tour.tsx`.** A entrada mente sobre a própria forma e depende de um invariante não escrito noutro ficheiro (`compact` em `TemplateCard.tsx:21`). Não é bug hoje — verificado — mas o tipo em `templates/types.ts:17` continua a dizer `description: string`. Passar a `description?: string` ou a `descriptionKey?: string`.
+- **`src/components/wizard/` é código morto.** Nada fora daquele directório importa `Wizard`, `StepTemplate`, `StepFormat` ou `TemplateCard`. As edições de i18n lá feitas estão corretas mas não são alcançáveis, e o comentário em `src/app/[locale]/m/[code]/page.tsx:1` ainda diz que encaminha para o `Wizard` quando na verdade renderiza `ReadyMatch`. Decidir se se apaga.
+
 ## O que fica por fazer
 
 - **Fase 3:** dashboard, workspace, operador, wizard autenticado, erros de API, preferência de língua no perfil, seletor de língua, e a tradução dos labels de UI citados no `/help`.
