@@ -10,14 +10,14 @@ export async function PATCH(
     data: { user },
   } = await sb.auth.getUser();
   if (!user)
-    return NextResponse.json({ error: "Please sign in." }, { status: 401 });
+    return NextResponse.json({ error: "sign_in_required" }, { status: 401 });
   const { id } = await params;
   let edit;
   try {
     edit = parseBoardEdit(await req.json());
   } catch (e) {
     return NextResponse.json(
-      { error: e instanceof Error ? e.message : "Invalid design." },
+      { error: e instanceof Error ? e.message : "design_invalid" },
       { status: 400 },
     );
   }
@@ -31,7 +31,7 @@ export async function PATCH(
       .eq("owner_id", user.id)
       .single();
     if (!row)
-      return NextResponse.json({ error: "Match not found." }, { status: 404 });
+      return NextResponse.json({ error: "match_not_found" }, { status: 404 });
     const overlay = {
       ...row.overlay,
       ...edit,
@@ -47,13 +47,10 @@ export async function PATCH(
       .maybeSingle();
     if (error)
       return NextResponse.json(
-        { error: "Could not save your board. Please retry." },
+        { error: "design_save_failed" },
         { status: 500 },
       );
     if (data) return NextResponse.json({ row: { ...data, draft_token: null } });
   }
-  return NextResponse.json(
-    { error: "The score is changing right now. Please save again." },
-    { status: 409 },
-  );
+  return NextResponse.json({ error: "design_save_conflict" }, { status: 409 });
 }

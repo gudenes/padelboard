@@ -12,6 +12,7 @@ import { TourScoreboard } from "./TourScoreboard";
 import { createInitialState } from "@/lib/padel-scoring";
 import { defaultConfig } from "@/types/match";
 import { useTranslations } from "next-intl";
+import { useApiErrorMessage } from "@/hooks/useApiError";
 import "./brand-generator.css";
 import { LogoPicker } from "./LogoPicker";
 
@@ -24,6 +25,7 @@ export function BrandBoardGenerator({
 }) {
   const t = useTranslations("boardEditor");
   const w = useTranslations("wizard");
+  const errorMessage = useApiErrorMessage();
   const [kind, setKind] = useState<"website" | "logo">("website");
   const [url, setUrl] = useState("");
   const [logo, setLogo] = useState("");
@@ -86,7 +88,8 @@ export function BrandBoardGenerator({
         ),
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || t("aiGenerateError"));
+      if (!response.ok)
+        throw new Error(errorMessage(data.error, t("aiGenerateError")));
       setResult(data);
     } catch (err) {
       if (request.signal.aborted) setError(t("aiAbortedError"));

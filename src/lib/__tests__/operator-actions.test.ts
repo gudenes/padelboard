@@ -40,6 +40,11 @@ async function action(value: unknown) {
     { params: Promise.resolve({ id: "match" }) },
   );
 }
+/** Estado + código estável: a resposta nunca leva prosa inglesa. */
+async function result(value: unknown) {
+  const response = await action(value);
+  return { status: response.status, error: (await response.json()).error };
+}
 beforeEach(() => {
   ctx.owner = "owner";
   ctx.patch = {};
@@ -57,9 +62,15 @@ beforeEach(() => {
 describe("operator API", () => {
   it("rejects other users and points before starting", async () => {
     ctx.owner = "other";
-    expect((await action({ kind: "start_clock" })).status).toBe(403);
+    expect(await result({ kind: "start_clock" })).toEqual({
+      status: 403,
+      error: "not_match_owner",
+    });
     ctx.owner = "owner";
-    expect((await action({ kind: "point_for", team: "a" })).status).toBe(409);
+    expect(await result({ kind: "point_for", team: "a" })).toEqual({
+      status: 409,
+      error: "match_not_started",
+    });
   });
   it("starts, scores, undoes and pauses with persisted state", async () => {
     let r = await action({ kind: "start_clock" });
@@ -80,7 +91,10 @@ describe("operator API", () => {
     let r = await action({ kind: "finish_match" });
     ctx.row = (await r.json()).row;
     expect(ctx.row.status).toBe("finished");
-    expect((await action({ kind: "point_for", team: "b" })).status).toBe(409);
+    expect(await result({ kind: "point_for", team: "b" })).toEqual({
+      status: 409,
+      error: "match_finished",
+    });
     r = await action({ kind: "reset" });
     const row = (await r.json()).row;
     expect(row.status).toBe("published");
@@ -108,25 +122,29 @@ it("resets a naturally finished match into a playable state", async () => {
   expect(row.state.sets).toEqual([{ a: 0, b: 0 }]);
 });
 it("validates and persists the selected pair and player", async () => {
-  expect(
-    (await action({ kind: "set_server", team: "b", player: 2 })).status,
-  ).toBe(400);
-  expect(
-    (await action({ kind: "set_server", team: "c", player: 0 })).status,
-  ).toBe(400);
+  expect(await result({ kind: "set_server", team: "b", player: 2 })).toEqual({
+    status: 400,
+    error: "action_invalid",
+  });
+  expect(await result({ kind: "set_server", team: "c", player: 0 })).toEqual({
+    status: 400,
+    error: "action_invalid",
+  });
   let r = await action({ kind: "set_server", team: "b", player: 1 });
   const { row } = await r.json();
   expect(row.state.servingTeam).toBe("b");
   expect(row.state.servingPlayer).toBe(3);
   ctx.row.status = "finished";
-  expect(
-    (await action({ kind: "set_server", team: "a", player: 0 })).status,
-  ).toBe(409);
+  expect(await result({ kind: "set_server", team: "a", player: 0 })).toEqual({
+    status: 409,
+    error: "match_finished_server_change",
+  });
   ctx.row.status = "published";
   ctx.owner = "someone-else";
-  expect(
-    (await action({ kind: "set_server", team: "a", player: 0 })).status,
-  ).toBe(403);
+  expect(await result({ kind: "set_server", team: "a", player: 0 })).toEqual({
+    status: 403,
+    error: "not_match_owner",
+  });
 });
 
 it("toggles stream time without pausing or changing the score", async () => {
@@ -161,7 +179,8 @@ it("records analytics atomically, preserves them on visibility changes and clear
   expect(ctx.row.overlay.analytics.points).toHaveLength(0);
   ctx.row = (await (await action({ kind: "reset" })).json()).row;
   expect(ctx.row.overlay.analytics).toEqual({ baselineMs: 0, points: [] });
-  expect(
-    (await action({ kind: "show_scoreboard", value: "false" })).status,
-  ).toBe(400);
+  expect(await result({ kind: "show_scoreboard", value: "false" })).toEqual({
+    status: 400,
+    error: "action_invalid",
+  });
 });

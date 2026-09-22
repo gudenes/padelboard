@@ -22,7 +22,7 @@ export function websiteUrl(value: string): URL {
     !/^(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}$/i.test(url.hostname) ||
     /\.(localhost|local|internal|test|invalid)$/i.test(url.hostname)
   ) {
-    throw new Error("Enter a public HTTPS website, such as yourclub.com.");
+    throw new Error("website_url_invalid");
   }
   url.hash = "";
   url.search = "";
@@ -31,10 +31,9 @@ export function websiteUrl(value: string): URL {
 export function logoDataUrl(value: string): string {
   const match =
     /^data:image\/(png|jpeg|webp);base64,([A-Za-z0-9+/]+={0,2})$/.exec(value);
-  if (!match) throw new Error("Choose a PNG, JPG or WebP logo.");
+  if (!match) throw new Error("logo_type_invalid");
   const bytes = Buffer.from(match[2], "base64");
-  if (bytes.length > MAX_LOGO_BYTES)
-    throw new Error("Choose a logo smaller than 2 MB.");
+  if (bytes.length > MAX_LOGO_BYTES) throw new Error("logo_too_large");
   const valid =
     match[1] === "png"
       ? bytes
@@ -44,7 +43,7 @@ export function logoDataUrl(value: string): string {
         ? bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255
         : bytes.toString("ascii", 0, 4) === "RIFF" &&
           bytes.toString("ascii", 8, 12) === "WEBP";
-  if (!valid) throw new Error("This file is not a supported image.");
+  if (!valid) throw new Error("logo_unreadable");
   return value;
 }
 const hex = { type: "string", pattern: "^#[0-9a-fA-F]{6}$" };

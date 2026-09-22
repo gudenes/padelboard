@@ -45,6 +45,7 @@ import { FinishSetup } from "@/components/workspace/FinishSetup";
 import { reusableOverlay, type SavedBoardSetup } from "@/lib/reuse-board";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { useApiErrorMessage } from "@/hooks/useApiError";
 import "./playful.css";
 
 const richTags = {
@@ -87,6 +88,7 @@ export function PlayfulHome({
   const router = useRouter();
   const t = useTranslations("home");
   const w = useTranslations("wizard");
+  const errorMessage = useApiErrorMessage();
   const boardStyleText = useTranslations("boardStyles");
   const ruleText = useTranslations("rules");
   const initialStyle =
@@ -229,7 +231,9 @@ export function PlayfulHome({
           body: JSON.stringify({ draftToken: saved.draftToken }),
         });
         if (!claim.ok)
-          throw new Error((await claim.json()).error || w("errorOpenMatch"));
+          throw new Error(
+            errorMessage((await claim.json()).error, w("errorOpenMatch")),
+          );
         clearDraftToken(saved.id);
         router.push(`/m/${saved.shortCode}`);
       } else setStage("account");

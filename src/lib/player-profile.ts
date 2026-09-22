@@ -15,16 +15,16 @@ export function parsePlayerProfile(value: unknown) {
     !v.name.trim() ||
     v.name.trim().length > 60
   )
-    throw new Error("Add your name (up to 60 characters).");
+    throw new Error("profile_name_required");
   if (!["player", "club", "organizer", "federation"].includes(String(v.role)))
-    throw new Error("Choose how you use Padelboard.");
+    throw new Error("profile_role_required");
   if (typeof v.club !== "string" || v.club.length > 80)
-    throw new Error("Club name must be under 80 characters.");
+    throw new Error("profile_club_too_long");
   if (
     !AVATAR_COLORS.includes(v.color as (typeof AVATAR_COLORS)[number]) ||
     !AVATAR_STYLES.includes(v.style as (typeof AVATAR_STYLES)[number])
   )
-    throw new Error("Choose a valid avatar.");
+    throw new Error("profile_avatar_invalid");
   return {
     name: v.name.trim(),
     role: String(v.role),

@@ -34,11 +34,11 @@ export async function POST(
       typeof action.value !== "boolean") ||
     (action.kind === "set_server" && ![0, 1].includes(action.player))
   )
-    return NextResponse.json({ error: "Invalid action." }, { status: 400 });
+    return NextResponse.json({ error: "action_invalid" }, { status: 400 });
   const svc = serviceSupabase();
   const { data } = await svc.from("matches").select("*").eq("id", id).single();
   if (!data)
-    return NextResponse.json({ error: "Match not found." }, { status: 404 });
+    return NextResponse.json({ error: "match_not_found" }, { status: 404 });
   const row = data as MatchRow;
   let authorized = false;
   if (row.owner_id) {
@@ -51,10 +51,7 @@ export async function POST(
     authorized =
       row.status === "draft" && !!draftToken && draftToken === row.draft_token;
   if (!authorized)
-    return NextResponse.json(
-      { error: "Sign in as the match owner." },
-      { status: 403 },
-    );
+    return NextResponse.json({ error: "not_match_owner" }, { status: 403 });
   const now = Date.now(),
     iso = new Date(now).toISOString();
   const clock = matchClock(row);
@@ -66,16 +63,13 @@ export async function POST(
   else if (action.kind === "set_server") {
     if (row.status === "finished")
       return NextResponse.json(
-        { error: "Reset the match before changing the server." },
+        { error: "match_finished_server_change" },
         { status: 409 },
       );
     patch.state = apply(row.state, action as Action);
   } else if (action.kind === "start_clock") {
     if (row.status === "finished")
-      return NextResponse.json(
-        { error: "This match has finished." },
-        { status: 409 },
-      );
+      return NextResponse.json({ error: "match_finished" }, { status: 409 });
     patch.started_at = row.started_at || iso;
     patch.overlay = {
       ...row.overlay,
@@ -95,21 +89,12 @@ export async function POST(
     };
   } else {
     if (row.status === "finished" && !["undo", "reset"].includes(action.kind))
-      return NextResponse.json(
-        { error: "This match has finished." },
-        { status: 409 },
-      );
+      return NextResponse.json({ error: "match_finished" }, { status: 409 });
     if (action.kind === "point_for" && row.owner_id && !clock.runningSince)
-      return NextResponse.json(
-        { error: "Start or resume the match first." },
-        { status: 409 },
-      );
+      return NextResponse.json({ error: "match_not_started" }, { status: 409 });
     const history = [...(row.overlay.scoreHistory ?? [])];
     if (action.kind === "undo" && !history.length)
-      return NextResponse.json(
-        { error: "No earlier point to restore." },
-        { status: 409 },
-      );
+      return NextResponse.json({ error: "no_point_to_undo" }, { status: 409 });
     const state =
       action.kind === "undo"
         ? history.pop()!
@@ -195,7 +180,7 @@ export async function POST(
     .single();
   if (error || !updated)
     return NextResponse.json(
-      { error: "The match changed on another device. Try again." },
+      { error: "match_changed_elsewhere" },
       { status: 409 },
     );
   await svc.from("match_events").insert({

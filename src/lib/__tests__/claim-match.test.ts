@@ -53,12 +53,23 @@ beforeEach(() => {
   ctx.existing = null;
   ctx.filters = {};
 });
+/** Estado + código estável: a resposta nunca leva prosa inglesa. */
+const result = async (draftToken?: string) => {
+  const response = await claim(draftToken);
+  return { status: response.status, error: (await response.json()).error };
+};
 it("requires authentication and the original draft token", async () => {
   ctx.user = null;
-  expect((await claim("draft-secret")).status).toBe(401);
+  expect(await result("draft-secret")).toEqual({
+    status: 401,
+    error: "sign_in_to_claim",
+  });
   ctx.user = { id: "owner" };
-  expect((await claim()).status).toBe(403);
-  expect((await claim("wrong")).status).toBe(409);
+  expect(await result()).toEqual({
+    status: 403,
+    error: "claim_token_required",
+  });
+  expect(await result("wrong")).toEqual({ status: 409, error: "claim_failed" });
 });
 it("claims only unowned drafts and tolerates retry by the same owner", async () => {
   expect((await claim("draft-secret")).status).toBe(200);
@@ -67,5 +78,7 @@ it("claims only unowned drafts and tolerates retry by the same owner", async () 
   ctx.existing = "owner";
   expect((await claim()).status).toBe(200);
   ctx.existing = "someone-else";
-  expect((await claim("draft-secret")).status).toBe(409);
+  const blocked = await claim("draft-secret");
+  expect(blocked.status).toBe(409);
+  expect((await blocked.json()).error).toBe("claim_failed");
 });

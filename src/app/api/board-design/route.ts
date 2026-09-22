@@ -16,9 +16,9 @@ const MAX_BODY = 2_850_000;
 
 async function readBody(req: Request) {
   if (Number(req.headers.get("content-length")) > MAX_BODY)
-    throw new Error("Request too large.");
+    throw new Error("request_too_large");
   const reader = req.body?.getReader();
-  if (!reader) throw new Error("Choose a website or a logo.");
+  if (!reader) throw new Error("design_source_required");
   let size = 0;
   const chunks: Uint8Array[] = [];
   while (true) {
@@ -27,7 +27,7 @@ async function readBody(req: Request) {
     size += value.length;
     if (size > MAX_BODY) {
       await reader.cancel();
-      throw new Error("Request too large.");
+      throw new Error("request_too_large");
     }
     chunks.push(value);
   }
@@ -36,18 +36,9 @@ async function readBody(req: Request) {
 export async function POST(req: Request) {
   const origin = req.headers.get("origin");
   if (origin && origin !== new URL(req.url).origin)
-    return NextResponse.json(
-      { error: "This request must come from Padelboard." },
-      { status: 403 },
-    );
+    return NextResponse.json({ error: "wrong_origin" }, { status: 403 });
   if (!process.env.OPENAI_API_KEY)
-    return NextResponse.json(
-      {
-        error:
-          "AI design is not connected yet. You can still customize your board by hand.",
-      },
-      { status: 503 },
-    );
+    return NextResponse.json({ error: "ai_unavailable" }, { status: 503 });
   let url: URL | undefined;
   let image: string | undefined;
   try {
@@ -60,16 +51,16 @@ export async function POST(req: Request) {
       url = websiteUrl(body.url);
     else if (body.kind === "logo" && typeof body.image === "string")
       image = logoDataUrl(body.image);
-    else throw new Error("Choose a website or a PNG, JPG or WebP logo.");
+    else throw new Error("design_source_invalid");
   } catch (err) {
     return NextResponse.json(
       {
         error:
           err instanceof SyntaxError
-            ? "Invalid request."
+            ? "invalid_request"
             : err instanceof Error
               ? err.message
-              : "Invalid request.",
+              : "invalid_request",
       },
       { status: 400 },
     );
@@ -85,9 +76,7 @@ export async function POST(req: Request) {
   total = total.filter((t) => now - t < 60_000);
   if (recent.length >= 3 || total.length >= 20 || active >= 3)
     return NextResponse.json(
-      {
-        error: "A few boards are being designed. Please try again in a minute.",
-      },
+      { error: "ai_busy" },
       { status: 429, headers: { "Retry-After": "60" } },
     );
   requests.set(ip, [...recent, now]);
@@ -198,11 +187,7 @@ export async function POST(req: Request) {
     const unavailable =
       err instanceof Error && err.message === "source_unavailable";
     return NextResponse.json(
-      {
-        error: unavailable
-          ? "We could not read enough of that source. Try another website or upload your logo."
-          : "We could not generate this design. Please try again or use the manual editor.",
-      },
+      { error: unavailable ? "ai_source_unreadable" : "ai_failed" },
       { status: 502 },
     );
   } finally {

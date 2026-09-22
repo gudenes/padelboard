@@ -10,10 +10,7 @@ export async function POST(
     data: { user },
   } = await sb.auth.getUser();
   if (!user)
-    return NextResponse.json(
-      { error: "Sign in to open your controls." },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: "sign_in_to_claim" }, { status: 401 });
   const { draftToken } = await req.json();
   const svc = serviceSupabase();
   const { data: existing } = await svc
@@ -24,24 +21,19 @@ export async function POST(
   if (existing?.owner_id === user.id) return NextResponse.json({ ok: true });
   if (typeof draftToken !== "string" || !draftToken)
     return NextResponse.json(
-      { error: "Open this board in the browser where you created it." },
+      { error: "claim_token_required" },
       { status: 403 },
     );
-  const { error: profileError } = await svc
-    .from("profiles")
-    .upsert(
-      {
-        id: user.id,
-        name: user.user_metadata?.name || user.email?.split("@")[0] || "Player",
-        role: "player",
-      },
-      { onConflict: "id", ignoreDuplicates: true },
-    );
+  const { error: profileError } = await svc.from("profiles").upsert(
+    {
+      id: user.id,
+      name: user.user_metadata?.name || user.email?.split("@")[0] || "Player",
+      role: "player",
+    },
+    { onConflict: "id", ignoreDuplicates: true },
+  );
   if (profileError)
-    return NextResponse.json(
-      { error: "Could not save your profile." },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "profile_save_failed" }, { status: 500 });
   const { data, error } = await svc
     .from("matches")
     .update({
@@ -57,12 +49,6 @@ export async function POST(
     .select("id")
     .single();
   if (error || !data)
-    return NextResponse.json(
-      {
-        error:
-          "Could not claim this board. Use the browser where you created it.",
-      },
-      { status: 409 },
-    );
+    return NextResponse.json({ error: "claim_failed" }, { status: 409 });
   return NextResponse.json({ ok: true });
 }

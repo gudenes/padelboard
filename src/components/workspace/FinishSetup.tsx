@@ -6,6 +6,7 @@ import { AVATAR_COLORS, AVATAR_STYLES } from "@/lib/player-profile";
 import { SignIn } from "./SignIn";
 import { PlayerAvatar } from "./PlayerAvatar";
 import { useTranslations } from "next-intl";
+import { useApiErrorMessage } from "@/hooks/useApiError";
 import "./workspace.css";
 export function FinishSetup({
   matchId,
@@ -19,6 +20,7 @@ export function FinishSetup({
   editProfile?: boolean;
 }) {
   const t = useTranslations("account");
+  const errorMessage = useApiErrorMessage();
   const [phase, setPhase] = useState<"loading" | "login" | "profile" | "ready">(
     "loading",
   );
@@ -67,7 +69,10 @@ export function FinishSetup({
           headers: { "content-type": "application/json" },
           body: JSON.stringify({ draftToken: getDraftToken(matchId) }),
         });
-        if (!r.ok) throw new Error((await r.json()).error);
+        if (!r.ok)
+          throw new Error(
+            errorMessage((await r.json()).error, t("claimFailed")),
+          );
         clearDraftToken(matchId);
       }
       document.cookie =
@@ -89,7 +94,8 @@ export function FinishSetup({
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ name, role, club, color, style }),
       });
-      if (!r.ok) throw new Error((await r.json()).error);
+      if (!r.ok)
+        throw new Error(errorMessage((await r.json()).error, t("saveFailed")));
       if (editProfile) {
         setSaved(true);
         setBusy(false);

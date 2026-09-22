@@ -7,16 +7,13 @@ export async function POST(req: Request) {
     data: { user },
   } = await sb.auth.getUser();
   if (!user)
-    return NextResponse.json(
-      { error: "Please sign in first." },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: "sign_in_required" }, { status: 401 });
   let profile;
   try {
     profile = parsePlayerProfile(await req.json());
   } catch (e) {
     return NextResponse.json(
-      { error: e instanceof Error ? e.message : "Invalid profile." },
+      { error: e instanceof Error ? e.message : "profile_invalid" },
       { status: 400 },
     );
   }
@@ -24,10 +21,7 @@ export async function POST(req: Request) {
     .from("profiles")
     .upsert({ id: user.id, name: profile.name, role: profile.role });
   if (error)
-    return NextResponse.json(
-      { error: "Could not save your profile. Please retry." },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "profile_save_failed" }, { status: 500 });
   const { error: metadataError } = await sb.auth.updateUser({
     data: {
       name: profile.name,
@@ -35,9 +29,6 @@ export async function POST(req: Request) {
     },
   });
   if (metadataError)
-    return NextResponse.json(
-      { error: "Could not save your avatar. Please retry." },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "avatar_save_failed" }, { status: 500 });
   return NextResponse.json({ ok: true });
 }

@@ -76,12 +76,28 @@ beforeEach(() => {
     },
   };
 });
+/** Estado + código estável: a resposta nunca leva prosa inglesa. */
+const result = async () => {
+  const response = await save();
+  return { status: response.status, error: (await response.json()).error };
+};
 it("requires an owner session", async () => {
   ctx.user = null;
-  expect((await save()).status).toBe(401);
+  expect(await result()).toEqual({ status: 401, error: "sign_in_required" });
   ctx.user = { id: "other" };
-  expect((await save()).status).toBe(404);
+  expect(await result()).toEqual({ status: 404, error: "match_not_found" });
   expect(ctx.patch).toEqual({});
+});
+it("reports the invalid field as a code", async () => {
+  const response = await PATCH(
+    new Request("http://localhost/api", {
+      method: "PATCH",
+      body: JSON.stringify({ ...body, accent: "not-a-color" }),
+    }),
+    { params: Promise.resolve({ id: "match" }) },
+  );
+  expect(response.status).toBe(400);
+  expect((await response.json()).error).toBe("board_color_invalid");
 });
 it("changes only design, preserving points, undo history and clock", async () => {
   const r = await save();

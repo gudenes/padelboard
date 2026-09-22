@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import type { MatchRow } from "@/types/match";
 import { useMatchState } from "@/hooks/useMatchState";
+import { useApiErrorMessage } from "@/hooks/useApiError";
 import { matchClock } from "@/lib/match-clock";
 import {
   stopMedia,
@@ -40,6 +41,7 @@ export function BrowserStudio({
     stage = useRef<HTMLDivElement>(null),
     stream = useRef<MediaStream | null>(null),
     request = useRef(0);
+  const errorMessage = useApiErrorMessage();
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]),
     [device, setDevice] = useState(""),
     [ready, setReady] = useState(false),
@@ -219,7 +221,7 @@ export function BrowserStudio({
       if (!r.ok) throw new Error(data.error);
       setLocal(data.row);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not update score.");
+      setError(errorMessage(e instanceof Error ? e.message : undefined));
     } finally {
       setBusy(false);
     }

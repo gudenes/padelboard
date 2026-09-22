@@ -13,12 +13,12 @@ export async function POST(req: Request) {
     data: { user },
   } = await sb.auth.getUser();
   if (!user)
-    return NextResponse.json({ error: "Please sign in first." }, { status: 401 });
+    return NextResponse.json({ error: "sign_in_required" }, { status: 401 });
 
   const body = (await req.json().catch(() => null)) as { locale?: unknown } | null;
   const locale = body?.locale;
   if (!locales.includes(locale as (typeof locales)[number]))
-    return NextResponse.json({ error: "Unsupported language." }, { status: 400 });
+    return NextResponse.json({ error: "locale_unsupported" }, { status: 400 });
 
   const { error } = await sb.auth.updateUser({
     data: {
@@ -29,10 +29,7 @@ export async function POST(req: Request) {
     },
   });
   if (error)
-    return NextResponse.json(
-      { error: "Could not save your language." },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "locale_save_failed" }, { status: 500 });
 
   return NextResponse.json({ ok: true });
 }

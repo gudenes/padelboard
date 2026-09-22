@@ -6,6 +6,7 @@ import { editableTemplate } from "@/lib/template-design";
 import { BOARD_STYLES } from "@/lib/board-styles";
 import { resolveCustomDesign } from "@/lib/custom-board";
 import { useMatchState } from "@/hooks/useMatchState";
+import { useApiErrorMessage } from "@/hooks/useApiError";
 import { CustomBoardEditor } from "@/components/scoreboard/CustomBoardEditor";
 import { BoardPreview } from "./BoardPreview";
 import { WorkspaceHeader } from "./WorkspaceHeader";
@@ -21,6 +22,7 @@ export function ScoreboardEditor({
   onSaved?: (row: MatchRow) => void;
   onDirtyChange?: (dirty: boolean) => void;
 }) {
+  const errorMessage = useApiErrorMessage();
   const remote = useMatchState(initial.id, initial, !embedded);
   const live = embedded ? initial : remote;
   const [overlay, setOverlay] = useState(initial.overlay),
@@ -60,7 +62,7 @@ export function ScoreboardEditor({
       onSaved?.(data.row);
       setMessage("Saved! Your overlay and studio now use this design.");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not save.");
+      setError(errorMessage(e instanceof Error ? e.message : undefined));
     } finally {
       setBusy(false);
     }

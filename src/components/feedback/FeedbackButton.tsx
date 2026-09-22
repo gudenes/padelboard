@@ -3,10 +3,12 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 import { browserSupabase } from "@/lib/supabase";
+import { useApiErrorMessage } from "@/hooks/useApiError";
 import "./feedback.css";
 const MAX_FEEDBACK = 2000;
 export function FeedbackButton() {
   const t = useTranslations("common");
+  const errorMessage = useApiErrorMessage();
   const path = usePathname();
   const dialog = useRef<HTMLDialogElement>(null);
   const [signedIn, setSignedIn] = useState(false),
@@ -47,7 +49,7 @@ export function FeedbackButton() {
       });
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || t("feedbackErrorSend"));
+        throw new Error(errorMessage(data.error, t("feedbackErrorSend")));
       }
       setSent(true);
       setMessage("");

@@ -25,17 +25,29 @@ describe('POST /api/profile/locale', () => {
     updateUser.mockResolvedValue({ error: null })
   })
 
+  /** Estado + código estável: a resposta nunca leva prosa inglesa. */
+  const result = async (body: unknown) => {
+    const response = await post(body)
+    return { status: response.status, error: (await response.json()).error }
+  }
+
   it('devolve 401 sem sessão', async () => {
     getUser.mockResolvedValue({ data: { user: null } })
 
-    expect((await post({ locale: 'pt' })).status).toBe(401)
+    expect(await result({ locale: 'pt' })).toEqual({
+      status: 401,
+      error: 'sign_in_required',
+    })
     expect(updateUser).not.toHaveBeenCalled()
   })
 
   it('rejeita um locale não suportado', async () => {
     getUser.mockResolvedValue({ data: { user: { user_metadata: {} } } })
 
-    expect((await post({ locale: 'de' })).status).toBe(400)
+    expect(await result({ locale: 'de' })).toEqual({
+      status: 400,
+      error: 'locale_unsupported',
+    })
     expect(updateUser).not.toHaveBeenCalled()
   })
 

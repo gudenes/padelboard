@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Link } from "@/i18n/navigation";
 import type { MatchRow } from "@/types/match";
 import { useMatchState } from "@/hooks/useMatchState";
+import { useApiErrorMessage } from "@/hooks/useApiError";
 import { matchClock } from "@/lib/match-clock";
 import { BoardPreview } from "@/components/workspace/BoardPreview";
 import { MatchDuration } from "@/components/workspace/MatchDuration";
@@ -20,6 +21,7 @@ export function Operator({
   embedded?: boolean;
   onChange?: (row: MatchRow) => void;
 }) {
+  const errorMessage = useApiErrorMessage();
   const remote = useMatchState(initial.id, initial, !embedded),
     [local, setLocal] = useState(initial),
     [busy, setBusy] = useState(false),
@@ -51,7 +53,7 @@ export function Operator({
       onChange?.(json.row);
       setConfirmation(null);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not save. Try again.");
+      setError(errorMessage(e instanceof Error ? e.message : undefined));
     } finally {
       setBusy(false);
     }

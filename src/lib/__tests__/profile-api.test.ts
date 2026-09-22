@@ -29,6 +29,11 @@ const request = (body: unknown) =>
       body: JSON.stringify(body),
     }),
   );
+/** Estado + código estável: a resposta nunca leva prosa inglesa. */
+const result = async (body: unknown) => {
+  const response = await request(body);
+  return { status: response.status, error: (await response.json()).error };
+};
 beforeEach(() => {
   ctx.user = { id: "owner" };
   ctx.upsert.mockReset().mockResolvedValue({ error: null });
@@ -36,7 +41,10 @@ beforeEach(() => {
 });
 it("rejects unauthenticated writes", async () => {
   ctx.user = null;
-  expect((await request(valid)).status).toBe(401);
+  expect(await result(valid)).toEqual({
+    status: 401,
+    error: "sign_in_required",
+  });
   expect(ctx.upsert).not.toHaveBeenCalled();
 });
 it("always saves to the authenticated user and persists the avatar", async () => {
@@ -52,14 +60,23 @@ it("always saves to the authenticated user and persists the avatar", async () =>
 });
 it("does not mark onboarding complete when the profile write fails", async () => {
   ctx.upsert.mockResolvedValue({ error: {} });
-  expect((await request(valid)).status).toBe(500);
+  expect(await result(valid)).toEqual({
+    status: 500,
+    error: "profile_save_failed",
+  });
   expect(ctx.updateUser).not.toHaveBeenCalled();
 });
 it("reports metadata failures so the user can retry", async () => {
   ctx.updateUser.mockResolvedValue({ error: {} });
-  expect((await request(valid)).status).toBe(500);
+  expect(await result(valid)).toEqual({
+    status: 500,
+    error: "avatar_save_failed",
+  });
 });
 it("rejects invalid fields before writing", async () => {
-  expect((await request({ ...valid, role: "admin" })).status).toBe(400);
+  expect(await result({ ...valid, role: "admin" })).toEqual({
+    status: 400,
+    error: "profile_role_required",
+  });
   expect(ctx.upsert).not.toHaveBeenCalled();
 });
