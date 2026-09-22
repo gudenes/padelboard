@@ -9,6 +9,7 @@ import {
   type TeamId,
 } from "@/lib/padel-scoring";
 import { defaultConfig } from "@/types/match";
+import { useTranslations } from "next-intl";
 function demoState(): MatchState {
   return {
     ...createInitialState(defaultConfig()),
@@ -25,6 +26,7 @@ const pairs = [
   { team: "b" as const, name: "Coello / Tapia" },
 ];
 export function HeroScoreDemo() {
+  const w = useTranslations("wizard");
   const [score, setScore] = useState(demoState),
     [tapping, setTapping] = useState<TeamId | null>(null),
     [paused, setPaused] = useState(true),
@@ -100,7 +102,7 @@ export function HeroScoreDemo() {
               setPaused(true);
               tap(team);
             }}
-            aria-label={`Demo: add a point to ${name}`}
+            aria-label={w("demoAddPoint", { name })}
           >
             <span className="pb-demo-pair-name">{name}</span>
             <span className="pb-demo-point">
@@ -108,19 +110,19 @@ export function HeroScoreDemo() {
                 <HandTap weight="bold" />
                 <i aria-hidden="true" />
               </span>
-              + Point
+              {w("demoPoint")}
             </span>
           </button>
         ))}
       </div>
       <div className="pb-demo-playback">
-        <span>Tap. Score. Simple.</span>
+        <span>{w("demoCaption")}</span>
         <button
           onClick={() => setPaused((value) => !value)}
-          aria-label={paused ? "Play scoring demo" : "Pause scoring demo"}
+          aria-label={w(paused ? "demoPlayAria" : "demoPauseAria")}
         >
           {paused ? <Play weight="fill" /> : <Pause weight="fill" />}
-          {paused ? "Play demo" : "Pause demo"}
+          {w(paused ? "demoPlay" : "demoPause")}
         </button>
       </div>
     </div>
