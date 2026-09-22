@@ -34,3 +34,51 @@ describe('ficheiros de mensagens', () => {
     })
   }
 })
+
+/** Achata em { "a.b": "valor" }, para comparar conteúdos. */
+function flattenValues(obj: Messages, prefix = ''): Record<string, string> {
+  return Object.entries(obj).reduce<Record<string, string>>((acc, [key, value]) => {
+    const path = prefix ? `${prefix}.${key}` : key
+    if (value !== null && typeof value === 'object') {
+      Object.assign(acc, flattenValues(value as Messages, path))
+    } else {
+      acc[path] = String(value)
+    }
+    return acc
+  }, {})
+}
+
+/**
+ * Extrai os marcadores ICU de uma mensagem: `{placeholders}` e `<tags>`.
+ * A paridade de chaves não chega — uma tradução que perca um `{name}` ou
+ * feche mal um `</b>` tem as chaves todas e rebenta em runtime.
+ */
+function markersOf(message: string): string[] {
+  return [
+    ...(message.match(/\{\s*(\w+)/g) ?? []).map((m) => m.replace(/\s/g, '')),
+    ...(message.match(/<\/?\s*(\w+)\s*>/g) ?? []).map((m) => m.replace(/\s/g, '')),
+  ].sort()
+}
+
+describe('placeholders e tags', () => {
+  const english = flattenValues(en as Messages)
+
+  for (const [locale, messages] of Object.entries({ pt, it: it_, es })) {
+    it(`${locale} preserva todos os placeholders e tags de en`, () => {
+      const translated = flattenValues(messages as Messages)
+
+      const broken = Object.keys(english)
+        .filter(
+          (key) =>
+            markersOf(english[key]).join() !== markersOf(translated[key] ?? '').join(),
+        )
+        .map((key) => ({
+          key,
+          en: markersOf(english[key]),
+          [locale]: markersOf(translated[key] ?? ''),
+        }))
+
+      expect(broken).toEqual([])
+    })
+  }
+})
