@@ -4,7 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { MagnifyingGlass, TennisBall, Trophy, X } from "@phosphor-icons/react";
 import type { MatchRow } from "@/types/match";
 import { pointLabel } from "@/lib/scoreboard-labels";
-import { matchesSearch, matchStatus } from "@/lib/match-search";
+import { matchesSearch, matchStatus, matchStatusId } from "@/lib/match-search";
 import { MatchDuration } from "./MatchDuration";
 export function MatchHistory({ rows }: { rows: MatchRow[] }) {
   const [filter, setFilter] = useState<"active" | "history" | "all">("active");
@@ -108,7 +108,7 @@ export function MatchHistory({ rows }: { rows: MatchRow[] }) {
               >
                 <div className="pbw-scorecard-header">
                   <span
-                    className={`pbw-match-status${matchStatus(row) === "Live" ? " is-live" : ""}`}
+                    className={`pbw-match-status${matchStatusId(row) === "live" ? " is-live" : ""}`}
                   >
                     {matchStatus(row)}
                   </span>

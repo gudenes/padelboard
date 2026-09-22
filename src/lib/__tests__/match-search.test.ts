@@ -1,5 +1,5 @@
-import { expect, it } from "vitest";
-import { matchesSearch, matchStatus } from "../match-search";
+import { describe, expect, it } from "vitest";
+import { matchesSearch, matchStatus, matchStatusId } from "../match-search";
 import { createInitialState } from "../padel-scoring";
 import { defaultConfig, defaultOverlay, type MatchRow } from "@/types/match";
 const config = { ...defaultConfig(), deuceRule: "star-point" as const };
@@ -73,4 +73,22 @@ it("distinguishes ready, paused, finished and abandoned", () => {
   ).toBe("Paused");
   expect(matchStatus({ ...row, status: "finished" })).toBe("Finished");
   expect(matchStatus({ ...row, status: "abandoned" })).toBe("Abandoned");
+});
+describe("matchStatusId", () => {
+  it("returns stable ids, not display text", () => {
+    expect(matchStatusId({ ...row, status: "finished" })).toBe("finished");
+    expect(matchStatusId({ ...row, status: "abandoned" })).toBe("abandoned");
+    expect(matchStatusId({ ...row, status: "draft" })).toBe("draft");
+    expect(matchStatusId(row)).toBe("live");
+    expect(
+      matchStatusId({
+        ...row,
+        overlay: {
+          ...row.overlay,
+          clock: { elapsedMs: 5000, runningSince: null },
+        },
+      }),
+    ).toBe("paused");
+    expect(matchStatusId({ ...row, started_at: null })).toBe("ready");
+  });
 });

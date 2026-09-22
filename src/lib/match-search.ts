@@ -1,15 +1,33 @@
 import type { MatchRow } from "@/types/match";
 import { matchClock } from "./match-clock";
 import { getDeuceRule } from "./padel-scoring";
-export function matchStatus(row: MatchRow): string {
-  if (row.status === "finished") return "Finished";
-  if (row.status === "abandoned") return "Abandoned";
-  if (row.status === "draft") return "Draft";
+export type MatchStatusId =
+  | "finished"
+  | "abandoned"
+  | "draft"
+  | "live"
+  | "paused"
+  | "ready";
+export function matchStatusId(row: MatchRow): MatchStatusId {
+  if (row.status === "finished") return "finished";
+  if (row.status === "abandoned") return "abandoned";
+  if (row.status === "draft") return "draft";
   return matchClock(row).runningSince
-    ? "Live"
+    ? "live"
     : row.started_at
-      ? "Paused"
-      : "Ready";
+      ? "paused"
+      : "ready";
+}
+const MATCH_STATUS_LABELS: Record<MatchStatusId, string> = {
+  finished: "Finished",
+  abandoned: "Abandoned",
+  draft: "Draft",
+  live: "Live",
+  paused: "Paused",
+  ready: "Ready",
+};
+export function matchStatus(row: MatchRow): string {
+  return MATCH_STATUS_LABELS[matchStatusId(row)];
 }
 function normalize(value: string) {
   return value
