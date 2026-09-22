@@ -1,58 +1,61 @@
+import { useTranslations } from "next-intl";
 import type { MatchRow } from "@/types/match";
 import { summarizePoints } from "@/lib/match-analytics";
 import { formatDuration } from "@/lib/match-clock";
 export function MatchAnalytics({ row }: { row: MatchRow }) {
+  const t = useTranslations("insights");
   const points = row.overlay.analytics?.points ?? [],
     stats = summarizePoints(points);
   return (
     <section className="pbw-card pbw-analytics">
-      <span className="pbw-eyebrow">THE STORY BEHIND THE SCORE</span>
-      <h2>Match insights.</h2>
-      <p className="pbw-muted">
-        Based on recorded point taps. Intervals include preparation and time
-        between rallies; they are not rally durations. Paused clock time is
-        excluded. Earlier points without tracking are not reconstructed.
-      </p>
+      <span className="pbw-eyebrow">{t("eyebrow")}</span>
+      <h2>{t("title")}</h2>
+      <p className="pbw-muted">{t("disclaimer")}</p>
       {!points.length ? (
-        <p>Insights will appear as you record new points.</p>
+        <p>{t("empty")}</p>
       ) : (
         <>
           <div className="pbw-metrics">
             <div>
               <strong>{points.length}</strong>
-              <span>Points tracked</span>
+              <span>{t("pointsTracked")}</span>
             </div>
             <div>
               <strong>
                 {stats.average === null ? "—" : formatDuration(stats.average)}
               </strong>
-              <span>Average tap interval</span>
+              <span>{t("averageInterval")}</span>
             </div>
             <div>
               <strong>{stats.longest}</strong>
-              <span>Longest point streak</span>
+              <span>{t("longestStreak")}</span>
             </div>
             <div>
               <strong>
                 {Math.round((stats.serveWon / points.length) * 100)}%
               </strong>
-              <span>Points won by serving pair</span>
+              <span>{t("serveWon")}</span>
             </div>
           </div>
           <p>
-            {row.teams.a.name}: <strong>{stats.totals.a}</strong> points ·{" "}
-            {row.teams.b.name}: <strong>{stats.totals.b}</strong> points
+            {t.rich("totals", {
+              teamA: row.teams.a.name,
+              pointsA: stats.totals.a,
+              teamB: row.teams.b.name,
+              pointsB: stats.totals.b,
+              strong: (chunks) => <strong>{chunks}</strong>,
+            })}
           </p>
           <details>
-            <summary>Game and set timing</summary>
+            <summary>{t("timingSummary")}</summary>
             <div className="pbw-analysis-table">
               <table>
                 <thead>
                   <tr>
-                    <th>Period</th>
-                    <th>Points</th>
-                    <th>Tracked time</th>
-                    <th>Status</th>
+                    <th>{t("columnPeriod")}</th>
+                    <th>{t("columnPoints")}</th>
+                    <th>{t("columnTrackedTime")}</th>
+                    <th>{t("columnStatus")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -60,13 +63,15 @@ export function MatchAnalytics({ row }: { row: MatchRow }) {
                     <tr key={g.label}>
                       <td>{g.label}</td>
                       <td>{g.points}</td>
-                      <td>{g.timed ? formatDuration(g.ms) : "Partial data"}</td>
+                      <td>
+                        {g.timed ? formatDuration(g.ms) : t("partialData")}
+                      </td>
                       <td>
                         {g.complete
-                          ? "Completed"
+                          ? t("statusCompleted")
                           : row.status === "finished"
-                            ? "Ended early"
-                            : "In progress"}
+                            ? t("statusEndedEarly")
+                            : t("statusInProgress")}
                       </td>
                     </tr>
                   ))}
@@ -75,14 +80,14 @@ export function MatchAnalytics({ row }: { row: MatchRow }) {
             </div>
           </details>
           <details>
-            <summary>Point timeline</summary>
+            <summary>{t("timelineSummary")}</summary>
             <div className="pbw-analysis-table">
               <table>
                 <thead>
                   <tr>
-                    <th>Point</th>
-                    <th>Won by</th>
-                    <th>Tap interval</th>
+                    <th>{t("columnPoint")}</th>
+                    <th>{t("columnWonBy")}</th>
+                    <th>{t("columnInterval")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -92,7 +97,7 @@ export function MatchAnalytics({ row }: { row: MatchRow }) {
                       <td>{row.teams[p.team].name}</td>
                       <td>
                         {p.intervalMs === null
-                          ? "Not measured"
+                          ? t("notMeasured")
                           : formatDuration(p.intervalMs)}
                       </td>
                     </tr>

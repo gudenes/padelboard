@@ -18,6 +18,11 @@ export function matchStatusId(row: MatchRow): MatchStatusId {
       ? "paused"
       : "ready";
 }
+/**
+ * Palavras inglesas do estado — só para o índice de pesquisa. O texto que se
+ * mostra vem das traduções, indexado por `matchStatusId`; quem escrever
+ * "finished" continua a encontrar o jogo em qualquer língua.
+ */
 const MATCH_STATUS_LABELS: Record<MatchStatusId, string> = {
   finished: "Finished",
   abandoned: "Abandoned",
@@ -26,6 +31,7 @@ const MATCH_STATUS_LABELS: Record<MatchStatusId, string> = {
   paused: "Paused",
   ready: "Ready",
 };
+/** Não usar para apresentação: devolve sempre inglês. Ver MATCH_STATUS_LABELS. */
 export function matchStatus(row: MatchRow): string {
   return MATCH_STATUS_LABELS[matchStatusId(row)];
 }

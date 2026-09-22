@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import type { MatchRow } from "@/types/match";
 import { useMatchState } from "@/hooks/useMatchState";
 import { matchClock } from "@/lib/match-clock";
@@ -24,6 +25,7 @@ export function MatchWorkspace({
   initialOutput?: Output;
   initialView?: string;
 }) {
+  const t = useTranslations("workspace");
   const remote = useMatchState(initial.id, initial);
   const [local, setLocal] = useState(initial);
   const row =
@@ -90,7 +92,7 @@ export function MatchWorkspace({
       if (remember) localStorage.setItem(preferenceKey, value);
       else localStorage.removeItem(preferenceKey);
     } catch {
-      setNotice("Your browser couldn’t remember this choice.");
+      setNotice(t("matchStorageNotice"));
     }
   }
   function rememberChoice(value: boolean) {
@@ -99,7 +101,7 @@ export function MatchWorkspace({
       if (value && output) localStorage.setItem(preferenceKey, output);
       else localStorage.removeItem(preferenceKey);
     } catch {
-      setNotice("Your browser couldn’t remember this choice.");
+      setNotice(t("matchStorageNotice"));
     }
   }
   function closeEditor(force = false) {
@@ -125,24 +127,24 @@ export function MatchWorkspace({
         />
         <div className="pbw-workspace-heading">
           <div>
-            <span className="pbw-hand">YOUR MATCH. YOUR CALL.</span>
-            <h1>{row.overlay.tournamentName || "Let’s play some padel."}</h1>
+            <span className="pbw-hand">{t("matchHand")}</span>
+            <h1>{row.overlay.tournamentName || t("matchTitleFallback")}</h1>
           </div>
           <span className="pbw-badge">
             {row.status === "finished"
-              ? "Match finished"
+              ? t("matchBadgeFinished")
               : clock.runningSince
-                ? "● On court"
+                ? t("matchBadgeLive")
                 : row.started_at
-                  ? "Paused"
-                  : "Ready to play"}
+                  ? t("matchBadgePaused")
+                  : t("matchBadgeReady")}
           </span>
         </div>
         <div className="pbw-workspace-toolbar">
           <div
             className="pbw-workspace-tabs"
             role="tablist"
-            aria-label="Match workspace"
+            aria-label={t("matchTablistAria")}
           >
             {(["live", "insights"] as const).map((value) => (
               <button
@@ -171,26 +173,33 @@ export function MatchWorkspace({
                   }
                 }}
               >
-                {value === "live" ? "Live" : "Insights"}
+                {value === "live" ? t("matchTabLive") : t("matchTabInsights")}
               </button>
             ))}
           </div>
           <div className="pbw-workspace-actions">
-            {!focused && !clean && <BroadcastGuide code={row.short_code} owner={row.owner_id} output={output} onOutput={choose} />}
+            {!focused && !clean && (
+              <BroadcastGuide
+                code={row.short_code}
+                owner={row.owner_id}
+                output={output}
+                onOutput={choose}
+              />
+            )}
             {(tab === "live" || focused) && output && (
               <button
                 className="pbw-secondary"
                 aria-pressed={focused}
                 onClick={() => setFocused(!focused)}
               >
-                {focused ? "Exit focus" : "Focus mode"}
+                {focused ? t("matchExitFocus") : t("matchFocusMode")}
               </button>
             )}
             <button
               className="pbw-secondary pbw-edit-launch"
               onClick={() => setEditing(true)}
             >
-              Edit board
+              {t("matchEditBoard")}
             </button>
             <PhoneControl code={row.short_code} />
           </div>
@@ -205,17 +214,17 @@ export function MatchWorkspace({
         {!focused && (
           <section
             className="pbw-output-picker is-chosen"
-            aria-label="Broadcast output"
+            aria-label={t("matchOutputAria")}
           >
-            <span className="pbw-eyebrow">OUTPUT</span>
+            <span className="pbw-eyebrow">{t("matchOutputEyebrow")}</span>
             <div className="pbw-output-switch">
               <span className={output === "studio" ? "is-active" : ""}>
-                Padelboard Studio
+                {t("matchOutputStudio")}
               </span>
               <button
                 type="button"
                 role="switch"
-                aria-label="Use OBS overlay"
+                aria-label={t("matchOutputObsAria")}
                 aria-checked={output === "obs"}
                 onClick={() => choose(output === "studio" ? "obs" : "studio")}
               >
@@ -229,7 +238,7 @@ export function MatchWorkspace({
                 checked={remember}
                 onChange={(e) => rememberChoice(e.target.checked)}
               />
-              Remember my choice on this browser
+              {t("matchRememberChoice")}
             </label>
             {notice && <p role="status">{notice}</p>}
           </section>
@@ -249,7 +258,7 @@ export function MatchWorkspace({
             <div hidden={output !== "obs"} className="pbw-obs-output">
               <section
                 className="pbw-obs-stage"
-                aria-label="OBS scoreboard preview"
+                aria-label={t("matchObsStageAria")}
               >
                 <div
                   style={{
@@ -262,19 +271,16 @@ export function MatchWorkspace({
                 </div>
                 <span>
                   {row.overlay.showScoreboard === false
-                    ? "Scoreboard hidden on stream"
-                    : "Live overlay preview"}
+                    ? t("matchScoreboardHidden")
+                    : t("matchOverlayPreview")}
                 </span>
               </section>
               {!focused && (
                 <section className="pbw-card pbw-obs-connect">
-                  <span className="pbw-hand">OBS? YOU’RE ALL SET.</span>
-                  <p>
-                    Add a Browser Source in OBS, paste this link and set it to
-                    1920 × 1080. The background is transparent.
-                  </p>
+                  <span className="pbw-hand">{t("matchObsHand")}</span>
+                  <p>{t("matchObsBody")}</p>
                   <label>
-                    Overlay URL
+                    {t("matchOverlayUrlLabel")}
                     <input
                       readOnly
                       value={overlayUrl}
@@ -289,11 +295,11 @@ export function MatchWorkspace({
                           await navigator.clipboard.writeText(overlayUrl);
                           setCopied(true);
                         } catch {
-                          setNotice("Select and copy the overlay URL.");
+                          setNotice(t("matchCopyError"));
                         }
                       }}
                     >
-                      {copied ? "✓ Link copied" : "Copy overlay link"}
+                      {copied ? t("matchCopied") : t("matchCopyLink")}
                     </button>
                     <a
                       className="pbw-secondary"
@@ -301,7 +307,7 @@ export function MatchWorkspace({
                       target="_blank"
                       rel="noreferrer"
                     >
-                      Open clean overlay ↗
+                      {t("matchOpenOverlay")}
                     </a>
                   </div>
                 </section>
@@ -321,11 +327,13 @@ export function MatchWorkspace({
       >
         {row.status === "finished" && (
           <div className="pbw-finished-summary">
-            <span className="pbw-hand">THAT’S A MATCH.</span>
+            <span className="pbw-hand">{t("matchFinishedHand")}</span>
             <h2>
               {row.state.winner
-                ? `${row.teams[row.state.winner].name} win.`
-                : "Your result is saved."}
+                ? t("matchWinner", {
+                    team: row.teams[row.state.winner].name,
+                  })
+                : t("matchResultSaved")}
             </h2>
             <BoardPreview row={row} />
           </div>
@@ -336,7 +344,7 @@ export function MatchWorkspace({
         <dialog
           ref={dialog}
           className="pbw pbw-editor-drawer"
-          aria-label="Edit scoreboard"
+          aria-label={t("matchEditorAria")}
           onCancel={(e) => {
             e.preventDefault();
             closeEditor();
@@ -346,30 +354,27 @@ export function MatchWorkspace({
           }}
         >
           <div className="pbw-drawer-heading">
-            <strong>Edit scoreboard</strong>
+            <strong>{t("matchEditorTitle")}</strong>
             <button
               className="pbw-secondary"
-              aria-label="Close scoreboard editor"
+              aria-label={t("matchEditorCloseAria")}
               onClick={() => closeEditor()}
             >
-              Close ×
+              {t("matchEditorClose")}
             </button>
           </div>
           {discard && (
             <div className="pbw-confirm" role="alert">
-              <h3>Keep your changes?</h3>
-              <p>
-                You have an unsaved design. Continue editing or discard it to
-                close.
-              </p>
+              <h3>{t("matchDiscardTitle")}</h3>
+              <p>{t("matchDiscardBody")}</p>
               <button className="pbw-primary" onClick={() => setDiscard(false)}>
-                Keep editing
+                {t("matchKeepEditing")}
               </button>
               <button
                 className="pbw-secondary"
                 onClick={() => closeEditor(true)}
               >
-                Discard changes
+                {t("matchDiscard")}
               </button>
             </div>
           )}

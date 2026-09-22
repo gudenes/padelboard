@@ -1,7 +1,9 @@
 "use client";
 import { useId, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 
 export function PhoneControl({ code }: { code: string }) {
+  const t = useTranslations("workspace");
   const dialog = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const [url, setUrl] = useState("");
@@ -24,15 +26,15 @@ export function PhoneControl({ code }: { code: string }) {
         }),
       );
     } catch {
-      setMessage("QR unavailable. Copy the link to your phone instead.");
+      setMessage(t("phoneQrError"));
     }
   }
   async function copy() {
     try {
       await navigator.clipboard.writeText(url);
-      setMessage("Link copied. Open it on your phone.");
+      setMessage(t("phoneCopied"));
     } catch {
-      setMessage("Select and copy the link below.");
+      setMessage(t("phoneCopyError"));
     }
   }
   return (
@@ -42,7 +44,7 @@ export function PhoneControl({ code }: { code: string }) {
         className="pbw-phone-trigger"
         onClick={() => void open()}
       >
-        Control from phone ↗
+        {t("phoneTrigger")}
       </button>
       <dialog
         ref={dialog}
@@ -55,39 +57,29 @@ export function PhoneControl({ code }: { code: string }) {
         <button
           type="button"
           className="pbw-secondary pbw-destination-close"
-          aria-label="Close phone controls"
+          aria-label={t("phoneCloseAria")}
           onClick={() => dialog.current?.close()}
         >
           ×
         </button>
-        <span className="pbw-hand">YOUR PHONE. YOUR COURT.</span>
-        <h2 id={titleId}>Tap from the sidelines.</h2>
-        <p>
-          Scan with your phone’s camera and sign in with the same account.
-          You’ll open a streamlined remote with just your match controls.
-        </p>
+        <span className="pbw-hand">{t("phoneHand")}</span>
+        <h2 id={titleId}>{t("phoneTitle")}</h2>
+        <p>{t("phoneLead")}</p>
         {qr ? (
           <img
             className="pbw-phone-qr"
             src={qr}
             width={240}
             height={240}
-            alt={`QR code to control match ${code}`}
+            alt={t("phoneQrAlt", { code })}
           />
         ) : (
-          <p role="status">Preparing your QR code…</p>
+          <p role="status">{t("phoneQrLoading")}</p>
         )}
-        <p>
-          Score points, undo, choose the server, pause the clock, show or hide
-          the scoreboard and time, and finish the match.
-        </p>
-        <p className="pbw-muted">
-          Keep Studio or OBS running on your streaming computer. Changes from
-          your phone sync live. This link requires your account; it does not
-          grant access to anyone else.
-        </p>
+        <p>{t("phoneCapabilities")}</p>
+        <p className="pbw-muted">{t("phoneNote")}</p>
         <label>
-          Match control link
+          {t("phoneLinkLabel")}
           <input readOnly value={url} onFocus={(e) => e.target.select()} />
         </label>
         <button
@@ -95,7 +87,7 @@ export function PhoneControl({ code }: { code: string }) {
           className="pbw-primary"
           onClick={() => void copy()}
         >
-          Copy phone link
+          {t("phoneCopyLink")}
         </button>
         {message && <p role="status">{message}</p>}
       </dialog>

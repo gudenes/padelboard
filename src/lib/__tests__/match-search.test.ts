@@ -88,6 +88,35 @@ it("distinguishes ready, paused, finished and abandoned", () => {
   expect(matchStatus({ ...row, status: "finished" })).toBe("Finished");
   expect(matchStatus({ ...row, status: "abandoned" })).toBe("Abandoned");
 });
+describe("o índice de pesquisa fica em inglês", () => {
+  // O ecrã mostra o estado traduzido, mas quem escreve "finished" tem de
+  // continuar a encontrar o jogo, tal como acontece com as datas.
+  it.each([
+    ["finished", "finished"],
+    ["abandoned", "abandoned"],
+    ["draft", "draft"],
+  ] as const)("encontra um jogo %s por palavra inglesa", (status, query) => {
+    expect(matchesSearch({ ...row, status }, query, "pt")).toBe(true);
+  });
+  it("encontra ready e paused por palavra inglesa em qualquer locale", () => {
+    expect(matchesSearch({ ...row, started_at: null }, "ready", "pt")).toBe(
+      true,
+    );
+    expect(
+      matchesSearch(
+        {
+          ...row,
+          overlay: {
+            ...row.overlay,
+            clock: { elapsedMs: 5000, runningSince: null },
+          },
+        },
+        "paused",
+        "it",
+      ),
+    ).toBe(true);
+  });
+});
 describe("matchStatusId", () => {
   it("returns stable ids, not display text", () => {
     expect(matchStatusId({ ...row, status: "finished" })).toBe("finished");

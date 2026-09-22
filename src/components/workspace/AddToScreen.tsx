@@ -1,9 +1,11 @@
 "use client";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import type { MatchRow } from "@/types/match";
 type Destination = "studio" | "obs";
 export function AddToScreen({ row }: { row: MatchRow }) {
+  const t = useTranslations("workspace");
   const router = useRouter(),
     dialog = useRef<HTMLDialogElement>(null);
   const [selected, setSelected] = useState<Destination | null>(null),
@@ -32,7 +34,7 @@ export function AddToScreen({ row }: { row: MatchRow }) {
       if (remember) localStorage.setItem(key, value);
       else localStorage.removeItem(key);
     } catch {
-      setError("Your browser could not remember this preference.");
+      setError(t("screenStorageError"));
     }
     if (value === "studio") {
       dialog.current?.close();
@@ -49,22 +51,22 @@ export function AddToScreen({ row }: { row: MatchRow }) {
       try {
         localStorage.setItem(key, selected);
       } catch {
-        setError("Your browser could not remember this preference.");
+        setError(t("screenStorageError"));
       }
   }
   return (
     <section className="pbw-card">
-      <span className="pbw-eyebrow">READY FOR THE BIG SCREEN?</span>
-      <h2>Put your match on screen.</h2>
-      <p>Use your camera in Padelboard Studio or add an overlay to OBS.</p>
+      <span className="pbw-eyebrow">{t("screenEyebrow")}</span>
+      <h2>{t("screenTitle")}</h2>
+      <p>{t("screenLead")}</p>
       <button className="pbw-primary" onClick={() => open()}>
-        Add to screen ↗
+        {t("screenCta")}
       </button>
       <button
         className="pbw-text-link pbw-link-button"
         onClick={() => open(true)}
       >
-        Choose or change destination
+        {t("screenChangeDestination")}
       </button>
       <dialog
         ref={dialog}
@@ -76,25 +78,24 @@ export function AddToScreen({ row }: { row: MatchRow }) {
       >
         <button
           className="pbw-secondary pbw-destination-close"
-          aria-label="Close screen options"
+          aria-label={t("screenCloseAria")}
           onClick={() => dialog.current?.close()}
         >
           ×
         </button>
-        <span className="pbw-hand">LET’S PUT ON A SHOW.</span>
+        <span className="pbw-hand">{t("screenHand")}</span>
         <h2 id="screen-title">
-          {selected === "obs"
-            ? "Your OBS overlay. Ready."
-            : "Where are we playing?"}
+          {selected === "obs" ? t("screenObsTitle") : t("screenChooseTitle")}
         </h2>
         {selected === "obs" ? (
           <>
             <p>
-              In OBS, add a <strong>Browser Source</strong> and paste this URL.
-              Set the source to 1920 × 1080; the background is transparent.
+              {t.rich("screenObsBody", {
+                strong: (chunks) => <strong>{chunks}</strong>,
+              })}
             </p>
             <label>
-              Overlay URL
+              {t("screenOverlayUrlLabel")}
               <input
                 readOnly
                 value={
@@ -114,11 +115,11 @@ export function AddToScreen({ row }: { row: MatchRow }) {
                   );
                   setCopied(true);
                 } catch {
-                  setError("Select and copy the URL above.");
+                  setError(t("screenCopyError"));
                 }
               }}
             >
-              {copied ? "✓ Link copied" : "Copy overlay link ↗"}
+              {copied ? t("screenCopied") : t("screenCopyLink")}
             </button>
             <a
               className="pbw-text-link"
@@ -126,28 +127,25 @@ export function AddToScreen({ row }: { row: MatchRow }) {
               target="_blank"
               rel="noreferrer"
             >
-              Open overlay preview ↗
+              {t("screenOpenPreview")}
             </a>
             <button className="pbw-secondary" onClick={() => setSelected(null)}>
-              ← Choose another option
+              {t("screenChooseAnother")}
             </button>
           </>
         ) : (
           <div className="pbw-destination-options">
             <button onClick={() => choose("studio")}>
               <span>🎥</span>
-              <strong>Padelboard Studio</strong>
-              <p>
-                Camera + live scoreboard in your browser. Share your tab. No OBS
-                needed.
-              </p>
-              <b>Open studio →</b>
+              <strong>{t("screenStudioName")}</strong>
+              <p>{t("screenStudioBody")}</p>
+              <b>{t("screenStudioCta")}</b>
             </button>
             <button onClick={() => choose("obs")}>
               <span>▣</span>
-              <strong>Overlay for OBS</strong>
-              <p>A transparent scoreboard for your existing broadcast setup.</p>
-              <b>Get overlay link →</b>
+              <strong>{t("screenObsName")}</strong>
+              <p>{t("screenObsOptionBody")}</p>
+              <b>{t("screenObsCta")}</b>
             </button>
           </div>
         )}
@@ -157,7 +155,7 @@ export function AddToScreen({ row }: { row: MatchRow }) {
             checked={remember}
             onChange={(e) => rememberChoice(e.target.checked)}
           />
-          Remember my choice on this browser
+          {t("screenRememberChoice")}
         </label>
         {error && (
           <p className="pbw-error" role="alert">

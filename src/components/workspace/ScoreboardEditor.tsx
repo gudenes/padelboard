@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import type { MatchRow } from "@/types/match";
 import { editableTemplate } from "@/lib/template-design";
 import { BOARD_STYLES } from "@/lib/board-styles";
@@ -22,6 +22,7 @@ export function ScoreboardEditor({
   onSaved?: (row: MatchRow) => void;
   onDirtyChange?: (dirty: boolean) => void;
 }) {
+  const t = useTranslations("workspace");
   const errorMessage = useApiErrorMessage();
   const remote = useMatchState(initial.id, initial, !embedded);
   const live = embedded ? initial : remote;
@@ -60,7 +61,7 @@ export function ScoreboardEditor({
       setDirty(false);
       onDirtyChange?.(false);
       onSaved?.(data.row);
-      setMessage("Saved! Your overlay and studio now use this design.");
+      setMessage(t("editorSaved"));
     } catch (e) {
       setError(errorMessage(e instanceof Error ? e.message : undefined));
     } finally {
@@ -78,16 +79,16 @@ export function ScoreboardEditor({
       )}
       <div className="pbw-title">
         <div>
-          <span className="pbw-eyebrow">SAME MATCH. FRESH LOOK.</span>
-          <h1>Make it yours. Again.</h1>
-          <p>Edit the look, keep every point. Changes go live when you save.</p>
+          <span className="pbw-eyebrow">{t("editorEyebrow")}</span>
+          <h1>{t("editorTitle")}</h1>
+          <p>{t("editorLead")}</p>
         </div>
       </div>
       <div className="pbw-edit-grid">
         <section className="pbw-card">
           <fieldset disabled={busy} className="pbw-edit-fields">
             <label>
-              Board style
+              {t("editorBoardStyle")}
               <select
                 value={overlay.template}
                 onChange={(e) =>
@@ -98,7 +99,7 @@ export function ScoreboardEditor({
               >
                 {!BOARD_STYLES.some((s) => s.id === overlay.template) && (
                   <option value={overlay.template} disabled>
-                    Choose a current template
+                    {t("editorTemplatePlaceholder")}
                   </option>
                 )}
                 {BOARD_STYLES.map((s) => (
@@ -109,7 +110,7 @@ export function ScoreboardEditor({
               </select>
             </label>
             <label>
-              Match title
+              {t("editorMatchTitle")}
               <input
                 maxLength={100}
                 value={overlay.tournamentName || ""}
@@ -117,7 +118,7 @@ export function ScoreboardEditor({
               />
             </label>
             <label>
-              Accent color
+              {t("editorAccentColor")}
               <input
                 type="color"
                 value={accent}
@@ -146,7 +147,7 @@ export function ScoreboardEditor({
                   })
                 }
               >
-                Fine-tune this template →
+                {t("editorFineTune")}
               </button>
             )}
             {overlay.template === "custom" && (
@@ -165,7 +166,7 @@ export function ScoreboardEditor({
               />
             )}
             <label>
-              Stream position
+              {t("editorPosition")}
               <select
                 value={overlay.position}
                 onChange={(e) =>
@@ -174,17 +175,22 @@ export function ScoreboardEditor({
                   })
                 }
               >
-                {["top-left", "top-right", "bottom-left", "bottom-right"].map(
-                  (p) => (
-                    <option key={p} value={p}>
-                      {p.replace("-", " ")}
-                    </option>
-                  ),
-                )}
+                {(
+                  [
+                    ["top-left", "editorPositionTopLeft"],
+                    ["top-right", "editorPositionTopRight"],
+                    ["bottom-left", "editorPositionBottomLeft"],
+                    ["bottom-right", "editorPositionBottomRight"],
+                  ] as const
+                ).map(([p, labelKey]) => (
+                  <option key={p} value={p}>
+                    {t(labelKey)}
+                  </option>
+                ))}
               </select>
             </label>
             <label>
-              Stream size · {Math.round(overlay.scale * 100)}%
+              {t("editorScale", { percent: Math.round(overlay.scale * 100) })}
               <input
                 type="range"
                 min="0.5"
@@ -200,7 +206,7 @@ export function ScoreboardEditor({
                 checked={overlay.showTimer}
                 onChange={(e) => change({ showTimer: e.target.checked })}
               />
-              Show match duration
+              {t("editorShowTimer")}
             </label>
           </fieldset>
           <button
@@ -208,7 +214,7 @@ export function ScoreboardEditor({
             disabled={busy || !dirty}
             onClick={() => void save()}
           >
-            {busy ? "Saving your look…" : "Save scoreboard →"}
+            {busy ? t("editorSaving") : t("editorSave")}
           </button>
           {message && <p role="status">{message}</p>}
           {error && (
@@ -216,16 +222,12 @@ export function ScoreboardEditor({
               {error}
             </p>
           )}
-          {dirty && (
-            <p className="pbw-muted">
-              Unsaved changes. Save before leaving this page.
-            </p>
-          )}
+          {dirty && <p className="pbw-muted">{t("editorUnsaved")}</p>}
         </section>
         <aside className="pbw-edit-preview">
-          <span className="pbw-hand">A fresh look. Same match energy.</span>
+          <span className="pbw-hand">{t("editorPreviewHand")}</span>
           <BoardPreview row={{ ...live, overlay }} />
-          <p>Live score · design preview</p>
+          <p>{t("editorPreviewCaption")}</p>
         </aside>
       </div>
     </Root>

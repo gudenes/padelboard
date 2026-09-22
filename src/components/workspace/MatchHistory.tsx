@@ -1,13 +1,27 @@
 "use client";
 import { useState } from "react";
-import { useFormatter, useLocale } from "next-intl";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { MagnifyingGlass, TennisBall, Trophy, X } from "@phosphor-icons/react";
 import type { MatchRow } from "@/types/match";
 import { pointLabel } from "@/lib/scoreboard-labels";
-import { matchesSearch, matchStatus, matchStatusId } from "@/lib/match-search";
+import {
+  matchesSearch,
+  matchStatusId,
+  type MatchStatusId,
+} from "@/lib/match-search";
 import { MatchDuration } from "./MatchDuration";
+/** O id persistido escolhe a etiqueta; a pesquisa continua a indexar o inglês. */
+const STATUS_KEYS: Record<MatchStatusId, string> = {
+  finished: "statusFinished",
+  abandoned: "statusAbandoned",
+  draft: "statusDraft",
+  live: "statusLive",
+  paused: "statusPaused",
+  ready: "statusReady",
+};
 export function MatchHistory({ rows }: { rows: MatchRow[] }) {
+  const t = useTranslations("workspace");
   const [filter, setFilter] = useState<"active" | "history" | "all">("active");
   const [query, setQuery] = useState("");
   const locale = useLocale();
@@ -23,7 +37,7 @@ export function MatchHistory({ rows }: { rows: MatchRow[] }) {
   return (
     <>
       <div className="pbw-history-toolbar">
-        <div className="pbw-tabs" aria-label="Match filters">
+        <div className="pbw-tabs" aria-label={t("historyFiltersAria")}>
           {(["active", "history", "all"] as const).map((f) => (
             <button
               key={f}
@@ -31,10 +45,10 @@ export function MatchHistory({ rows }: { rows: MatchRow[] }) {
               onClick={() => setFilter(f)}
             >
               {f === "active"
-                ? "On court"
+                ? t("historyFilterActive")
                 : f === "history"
-                  ? "History"
-                  : "All matches"}
+                  ? t("historyFilterHistory")
+                  : t("historyFilterAll")}
             </button>
           ))}
         </div>
@@ -42,8 +56,8 @@ export function MatchHistory({ rows }: { rows: MatchRow[] }) {
           <MagnifyingGlass size={20} aria-hidden="true" />
           <input
             type="search"
-            aria-label="Search matches"
-            placeholder="Search players, match, date…"
+            aria-label={t("historySearchAria")}
+            placeholder={t("historySearchPlaceholder")}
             value={query}
             onChange={(e) => {
               if (!query.trim() && e.target.value.trim()) setFilter("all");
@@ -53,7 +67,7 @@ export function MatchHistory({ rows }: { rows: MatchRow[] }) {
           {query && (
             <button
               type="button"
-              aria-label="Clear search"
+              aria-label={t("historyClearSearchAria")}
               onClick={() => setQuery("")}
             >
               <X size={18} />
@@ -62,24 +76,27 @@ export function MatchHistory({ rows }: { rows: MatchRow[] }) {
         </div>
       </div>
       <p className="pbw-search-count" role="status">
-        {filtered.length} {filtered.length === 1 ? "match" : "matches"}
-        {query.trim() ? ` matching “${query.trim()}”` : ""}
+        {t("historyCount", {
+          count: filtered.length,
+          hasQuery: query.trim() ? "true" : "false",
+          query: query.trim(),
+        })}
       </p>
       {!filtered.length ? (
         <section className="pbw-card pbw-empty">
           <h2>
             {query.trim()
-              ? "No matches found."
+              ? t("historyEmptySearchTitle")
               : filter === "history"
-                ? "Your next great match belongs here."
-                : "Ready for a new match?"}
+                ? t("historyEmptyHistoryTitle")
+                : t("historyEmptyActiveTitle")}
           </h2>
           <p>
             {query.trim()
-              ? "Try a player’s name, match title, code, date or status."
+              ? t("historyEmptySearchBody")
               : filter === "history"
-                ? "Finished matches appear here with their final score and duration."
-                : "Create a board, add your pairs and get on court."}
+                ? t("historyEmptyHistoryBody")
+                : t("historyEmptyActiveBody")}
           </p>
           {query.trim() ? (
             <button
@@ -89,11 +106,11 @@ export function MatchHistory({ rows }: { rows: MatchRow[] }) {
                 setFilter("all");
               }}
             >
-              Clear search & show all
+              {t("historyClearSearch")}
             </button>
           ) : (
             <Link className="pbw-primary" href="/dashboard/new">
-              Create a board →
+              {t("historyCreateBoard")}
             </Link>
           )}
         </section>
@@ -105,7 +122,16 @@ export function MatchHistory({ rows }: { rows: MatchRow[] }) {
             return (
               <Link
                 href={`/m/${row.short_code}`}
-                aria-label={`${row.overlay.tournamentName || row.tournament_label || "Padel match"}: ${row.teams.a.name} versus ${row.teams.b.name}. ${matchStatus(row)}. ${row.short_code}.`}
+                aria-label={t("historyCardAria", {
+                  name:
+                    row.overlay.tournamentName ||
+                    row.tournament_label ||
+                    t("historyMatchFallbackName"),
+                  teamA: row.teams.a.name,
+                  teamB: row.teams.b.name,
+                  status: t(STATUS_KEYS[matchStatusId(row)]),
+                  code: row.short_code,
+                })}
                 className="pbw-card pbw-match pbw-scorecard"
                 key={row.id}
               >
@@ -113,7 +139,7 @@ export function MatchHistory({ rows }: { rows: MatchRow[] }) {
                   <span
                     className={`pbw-match-status${matchStatusId(row) === "live" ? " is-live" : ""}`}
                   >
-                    {matchStatus(row)}
+                    {t(STATUS_KEYS[matchStatusId(row)])}
                   </span>
                   <time dateTime={row.created_at}>
                     {format.dateTime(new Date(row.created_at), {
@@ -127,23 +153,23 @@ export function MatchHistory({ rows }: { rows: MatchRow[] }) {
                 <h2>
                   {row.overlay.tournamentName ||
                     row.tournament_label ||
-                    "Padel match"}
+                    t("historyMatchFallbackName")}
                 </h2>
                 <div className="pbw-history-board">
-                  <table aria-label="Match scoreboard">
+                  <table aria-label={t("historyTableAria")}>
                     <thead>
                       <tr>
-                        <th scope="col">Pairs</th>
+                        <th scope="col">{t("historyColumnPairs")}</th>
                         {row.state.sets.map((_, i) => (
                           <th scope="col" key={i}>
-                            S{i + 1}
+                            {t("historyColumnSet", { number: i + 1 })}
                           </th>
                         ))}
                         {livePoints && (
                           <th scope="col">
                             {row.state.phase.includes("tiebreak")
-                              ? "TB"
-                              : "PTS"}
+                              ? t("historyColumnTiebreak")
+                              : t("historyColumnPoints")}
                           </th>
                         )}
                       </tr>
@@ -169,14 +195,14 @@ export function MatchHistory({ rows }: { rows: MatchRow[] }) {
                                 <Trophy
                                   size={18}
                                   weight="fill"
-                                  aria-label="Winning pair"
+                                  aria-label={t("historyWinningPairAria")}
                                 />
                               ) : !finished &&
                                 row.state.servingTeam === team ? (
                                 <TennisBall
                                   size={18}
                                   weight="fill"
-                                  aria-label="Serving pair"
+                                  aria-label={t("historyServingPairAria")}
                                 />
                               ) : (
                                 <span className="pbw-serve-spacer" />
@@ -200,7 +226,9 @@ export function MatchHistory({ rows }: { rows: MatchRow[] }) {
                   <span>
                     <MatchDuration row={row} /> · {row.short_code}
                   </span>
-                  <strong>{finished ? "View match" : "Open match"} →</strong>
+                  <strong>
+                    {finished ? t("historyViewMatch") : t("historyOpenMatch")}
+                  </strong>
                 </div>
               </Link>
             );

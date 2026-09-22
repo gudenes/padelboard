@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -16,11 +17,12 @@ export function WorkspaceHeader({
   matchName?: string;
   unified?: boolean;
 }) {
+  const t = useTranslations("workspace");
   const path = usePathname(),
     router = useRouter(),
     menu = useRef<HTMLDetailsElement>(null);
   const [profile, setProfile] = useState({
-      name: "Your account",
+      name: t("accountDefaultName"),
       color: "#f5ff36",
       style: "headband",
     }),
@@ -35,7 +37,10 @@ export function WorkspaceHeader({
           if (alive && data.user) {
             const p = data.user.user_metadata?.padelboard_profile;
             setProfile({
-              name: p?.name || data.user.user_metadata?.name || "Your account",
+              name:
+                p?.name ||
+                data.user.user_metadata?.name ||
+                t("accountDefaultName"),
               color: p?.color || "#f5ff36",
               style: p?.style || "headband",
             });
@@ -74,76 +79,76 @@ export function WorkspaceHeader({
       router.replace("/login");
       router.refresh();
     } catch {
-      setError("Could not sign out. Please retry.");
+      setError(t("signOutError"));
       setBusy(false);
     }
   }
   const section =
     path === "/help"
-      ? "Help & guides"
+      ? t("sectionHelp")
       : path.endsWith("/insights")
-        ? "Match insights"
+        ? t("sectionInsights")
         : path.endsWith("/studio")
-          ? "Studio"
+          ? t("sectionStudio")
           : path.endsWith("/edit")
-            ? "Edit scoreboard"
+            ? t("sectionEdit")
             : path === "/dashboard/profile"
-              ? "Profile"
+              ? t("sectionProfile")
               : path === "/dashboard/new"
-                ? "New match"
-                : "Match controls";
+                ? t("sectionNewMatch")
+                : t("sectionControls");
   return (
     <div className="pbw-header">
       <header className="pbw-nav">
         <WorkspaceBrand href="/dashboard" />
-        <nav aria-label="Workspace navigation" className="pbw-main-nav">
+        <nav aria-label={t("navAria")} className="pbw-main-nav">
           <Link
             href="/dashboard"
             aria-current={path === "/dashboard" ? "page" : undefined}
           >
-            My matches
+            {t("navMatches")}
           </Link>
           <Link
             href="/dashboard/new"
             aria-current={path === "/dashboard/new" ? "page" : undefined}
           >
-            + New match
+            {t("navNewMatch")}
           </Link>
           <Link
             href="/help"
             aria-current={path === "/help" ? "page" : undefined}
           >
-            Help & guides
+            {t("navHelp")}
           </Link>
         </nav>
         <details ref={menu} className="pbw-account">
-          <summary aria-label={`Account menu: ${profile.name}`}>
+          <summary aria-label={t("accountMenuAria", { name: profile.name })}>
             <PlayerAvatar color={profile.color} style={profile.style} />
             <span>{profile.name}</span>
             <span aria-hidden="true">⌄</span>
           </summary>
           <div className="pbw-account-panel">
-            <span className="pbw-muted">YOUR PADELBOARD</span>
+            <span className="pbw-muted">{t("accountPanelEyebrow")}</span>
             <Link
               href="/dashboard/profile"
               aria-current={path === "/dashboard/profile" ? "page" : undefined}
             >
-              Edit profile & avatar →
+              {t("accountEditProfile")}
             </Link>
-            <Link href="/dashboard">My matches</Link>
+            <Link href="/dashboard">{t("navMatches")}</Link>
             <button disabled={busy} onClick={() => void signOut()}>
-              {busy ? "Signing out…" : "Sign out"}
+              {busy ? t("accountSigningOut") : t("accountSignOut")}
             </button>
             {error && <p role="alert">{error}</p>}
           </div>
         </details>
       </header>
-      <nav className="pbw-breadcrumbs" aria-label="Breadcrumb">
+      <nav className="pbw-breadcrumbs" aria-label={t("breadcrumbAria")}>
         <Link
           href="/dashboard"
           aria-current={path === "/dashboard" ? "page" : undefined}
         >
-          My matches
+          {t("navMatches")}
         </Link>
         {path !== "/dashboard" && (
           <>
@@ -156,20 +161,21 @@ export function WorkspaceHeader({
             )}
             <span aria-current="page">
               {matchCode && path === `/m/${matchCode}`
-                ? matchName || (unified ? "Match workspace" : "Match controls")
+                ? matchName ||
+                  (unified ? t("sectionWorkspace") : t("sectionControls"))
                 : section}
             </span>
           </>
         )}
       </nav>
       {matchCode && !unified && (
-        <nav className="pbw-match-nav" aria-label="Match navigation">
+        <nav className="pbw-match-nav" aria-label={t("matchNavAria")}>
           {[
-            ["", "Controls"],
-            ["/studio", "Studio"],
-            ["/insights", "Match insights"],
-            ["/edit", "Scoreboard"],
-          ].map(([suffix, label]) => (
+            ["", "matchNavControls"],
+            ["/studio", "matchNavStudio"],
+            ["/insights", "matchNavInsights"],
+            ["/edit", "matchNavScoreboard"],
+          ].map(([suffix, labelKey]) => (
             <Link
               key={suffix}
               href={`/m/${matchCode}${suffix}`}
@@ -177,7 +183,7 @@ export function WorkspaceHeader({
                 path === `/m/${matchCode}${suffix}` ? "page" : undefined
               }
             >
-              {label}
+              {t(labelKey)}
             </Link>
           ))}
           <PhoneControl code={matchCode} />

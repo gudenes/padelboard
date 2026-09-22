@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 export function PlayerAvatar({
   color = "#f5ff36",
   style = "headband",
@@ -5,11 +6,12 @@ export function PlayerAvatar({
   color?: string;
   style?: string;
 }) {
+  const t = useTranslations("workspace");
   return (
     <svg
       viewBox="0 0 120 120"
       role="img"
-      aria-label={`Padel mascot with ${style}`}
+      aria-label={t("avatarAlt", { style })}
       className="pbw-avatar"
     >
       <circle
