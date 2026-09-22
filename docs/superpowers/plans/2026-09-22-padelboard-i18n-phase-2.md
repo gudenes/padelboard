@@ -789,6 +789,53 @@ git commit -m "feat(i18n): extract board editor and account copy"
 
 `help/page.tsx:11-13` tem um `export const metadata` estático, que não pode variar por língua. Passa a `generateMetadata`, igual ao padrão do manifesto da Fase 1, e acrescenta `alternates: { languages: localeAlternates("/help") }`.
 
+- [ ] **Step 1b: Trancar a disciplina dos alternates com um teste**
+
+A Task 1 tirou o `alternates` do layout — o que está certo, porque herdar um valor errado é pior que não herdar nada. Mas deixou uma armadilha: nada falha quando uma página indexável nova esquece o seu. Hoje há 13 `page.tsx` sob `[locale]` e só 2 declaram alternates. E não há `sitemap.ts` nem `robots.ts` no projeto, por isso o hreflang é o **único** sinal que diz ao Google que as variantes `/pt`, `/it` e `/es` existem.
+
+Create `src/lib/__tests__/i18n-alternates.test.ts`:
+
+```ts
+import { describe, expect, it } from 'vitest'
+import { readFileSync } from 'node:fs'
+
+/**
+ * Rotas indexáveis. A lista é explícita de propósito: acrescentar uma página
+ * pública obriga a uma edição deliberada aqui, em vez de esquecer o hreflang
+ * em silêncio. Rotas autenticadas (dashboard, m/[code], login, welcome) não
+ * entram — não são indexáveis e não devem declarar alternates.
+ */
+const INDEXABLE = [
+  'src/app/[locale]/page.tsx',
+  'src/app/[locale]/manifesto/page.tsx',
+  'src/app/[locale]/help/page.tsx',
+]
+
+describe('alternates por página', () => {
+  for (const file of INDEXABLE) {
+    it(`${file} declara localeAlternates`, () => {
+      expect(readFileSync(file, 'utf8')).toMatch(/localeAlternates\(/)
+    })
+  }
+})
+```
+
+Este teste **falha já** para o `/help`, que é exatamente o ponto: o Step 1 desta task liga-o, e o teste passa a impedir a regressão.
+
+- [ ] **Step 1c: Documentar a variável de ambiente**
+
+O `NEXT_PUBLIC_SITE_URL` que a Task 1 introduziu não aparece em `.env.example` nem em `.env.local.example`. Quem montar o projeto ou configurar o deploy não sabe que existe.
+
+Acrescenta a ambos:
+
+```
+# Origem pública do site, usada no metadataBase (hreflang, Open Graph).
+# Tem de levar o prefixo NEXT_PUBLIC_: as páginas sob [locale] são
+# prerenderizadas (generateStaticParams), por isso o valor é inlined no build.
+# Um binding de runtime do Worker chegaria tarde e cairia no default.
+NEXT_PUBLIC_SITE_URL=https://padelboard.padellabs.tech
+```
+
 - [ ] **Step 2: Trocar os `Link` por locale-aware**
 
 `help/page.tsx:28,29,30,34` e `HelpGuides.tsx:196,387` usam `href` sem prefixo. O teste da Task 2 apanha os de `help/page.tsx`; os do `HelpGuides` estão em `src/components`, fora do alcance do teste — corrige-os à mão.
