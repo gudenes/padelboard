@@ -10,37 +10,18 @@
   border-top: 1px solid #cdd3bd;
   padding: 30px 0 24px;
   display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 24px 32px;
+  grid-template-columns: auto 1fr;
+  gap: 26px 44px;
   align-items: center;
 }
-.pbl-footer-note {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-.pbl-footer-mark {
-  width: 44px;
-  height: 44px;
-  display: grid;
-  place-items: center;
-  background: #f5ff36;
-  border: 1px solid #171c12;
-  border-radius: 50%;
-  font-size: 33px;
-  transform: rotate(-12deg);
-}
-.pbl-footer-note p {
-  margin: 0;
-  font-size: 16px;
-  letter-spacing: -0.4px;
-  font-weight: 600;
-}
+
 .pbl-footer-project {
   text-decoration: none;
   color: inherit;
   display: grid;
-  gap: 4px;
+  gap: 3px;
+  padding-right: 44px;
+  border-right: 1px solid #cdd3bd;
 }
 .pbl-footer-project > span {
   font-size: 11px;
@@ -60,6 +41,71 @@
 .pbl-footer-project:hover strong span {
   transform: translate(2px, -2px);
 }
+
+.pbl-footer-family {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px 40px;
+}
+.pbl-footer-family a {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  text-decoration: none;
+  color: inherit;
+}
+.pbl-footer-family-text {
+  display: grid;
+  gap: 2px;
+}
+.pbl-footer-family-text strong {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  line-height: 1.15;
+}
+.pbl-footer-family-text > span {
+  font-size: 11px;
+  color: #5c654d;
+}
+.pbl-footer-family a:hover .pbl-footer-mark {
+  transform: rotate(-12deg) scale(1.06);
+}
+
+/* A marca é um glifo num círculo — sem ficheiro de imagem, nítida em
+   qualquer densidade de ecrã, e legível ao tamanho a que o rodapé a mostra. */
+.pbl-footer-mark {
+  flex: none;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #171c12;
+  border-radius: 50%;
+  transform: rotate(-12deg);
+  transition: transform 0.18s;
+  font-weight: 800;
+  line-height: 1;
+}
+.pbl-footer-mark.is-nachos {
+  background: #171c12;
+  color: #a5e12a;
+  font-size: 22px;
+}
+.pbl-footer-mark.is-god {
+  background: #171c12;
+  color: #f5d047;
+  font-size: 20px;
+}
+.pbl-footer-mark.is-board {
+  background: #f5ff36;
+  color: #171c12;
+  font-size: 31px;
+}
+
 .pbl-footer nav {
   grid-column: 1/-1;
   display: flex;
@@ -80,6 +126,7 @@
   outline-offset: 5px;
   border-radius: 3px;
 }
+
 body:has(.pbw-studio-clean) .pbl-footer,
 body:has(.pbw-match-workspace.is-clean) .pbl-footer,
 body:has(.pbw-match-workspace.is-focused) .pbl-footer,
@@ -87,23 +134,32 @@ body:has(.pbw-studio-focused) .pbl-footer,
 body:has(:fullscreen) .pbl-footer {
   display: none;
 }
+
+@media (max-width: 900px) {
+  .pbl-footer-inner {
+    grid-template-columns: 1fr;
+  }
+  .pbl-footer-project {
+    padding-right: 0;
+    border-right: 0;
+    padding-bottom: 22px;
+    border-bottom: 1px solid #cdd3bd;
+  }
+}
 @media (max-width: 600px) {
   .pbl-footer {
     padding: 0 20px 65px;
   }
   .pbl-footer-inner {
-    grid-template-columns: 1fr;
     gap: 22px;
   }
-  .pbl-footer-project {
-    padding-left: 59px;
-  }
-  .pbl-footer-note p {
-    font-size: 15px;
+  .pbl-footer-family {
+    gap: 16px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .pbl-footer-project strong span {
+  .pbl-footer-project strong span,
+  .pbl-footer-mark {
     transition: none;
   }
 }
