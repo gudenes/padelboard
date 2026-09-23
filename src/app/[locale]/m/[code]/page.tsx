@@ -1,4 +1,4 @@
-// src/app/m/[code]/page.tsx — routes to Wizard (draft) or Operator (published).
+// Encaminha um rascunho para o ReadyMatch e uma partida publicada para o Operator.
 import { notFound, redirect } from "next/navigation";
 import { serviceSupabase, serverSupabase } from "@/lib/supabase-server";
 import type { MatchRow } from "@/types/match";
