@@ -75,6 +75,17 @@
   transform: rotate(-12deg) scale(1.06);
 }
 
+/* Logos reais das marcas irmãs: altura fixa, largura pelo rácio próprio. */
+.pbl-footer-logo {
+  flex: none;
+  height: 42px;
+  width: auto;
+  transition: transform 0.18s;
+}
+.pbl-footer-family a:hover .pbl-footer-logo {
+  transform: scale(1.06);
+}
+
 /* A marca é um glifo num círculo — sem ficheiro de imagem, nítida em
    qualquer densidade de ecrã, e legível ao tamanho a que o rodapé a mostra. */
 .pbl-footer-mark {
